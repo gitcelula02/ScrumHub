@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto - TaskFlow</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+    <style>
+        .project-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 28px;
+        }
+
+        .board-container {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 28px;
+            border: 1px solid var(--border);
+        }
+
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .board-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 22px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .board-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .board {
+            display: flex;
+            gap: 18px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+        }
+
+        .board::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .board::-webkit-scrollbar-track {
+            background: var(--bg-input);
+            border-radius: 4px;
+        }
+
+        .board::-webkit-scrollbar-thumb {
+            background: var(--secondary);
+            border-radius: 4px;
+        }
+
+        .board-column {
+            min-width: 320px;
+            max-width: 320px;
+            background: var(--bg-input);
+            border-radius: 18px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .board-column:hover {
+            box-shadow: 0 0 30px rgba(150, 4, 219, 0.1);
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 3px solid var(--column-color, var(--primary));
+        }
+
+        .column-header h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .column-count {
+            background: var(--bg-card);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .task-list {
+            min-height: 150px;
+        }
+
+        .task-card {
+            background: var(--bg-card);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .task-card:hover {
+            border-color: var(--secondary);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(150, 4, 219, 0.2);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .task-id {
+            font-size: 12px;
+            color: var(--light);
+            font-weight: 600;
+        }
+
+        .task-priority {
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .task-priority.low { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .task-priority.medium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .task-priority.high { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+        .task-priority.urgent { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+        .task-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+
+        .task-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-assignee {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(9, 4, 219, 0.3);
+        }
+
+        .task-due {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .task-due.overdue {
+            color: var(--error);
+            font-weight: 600;
+        }
+
+        .chat-panel {
+            background: var(--bg-card);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 180px);
+            position: sticky;
+            top: 110px;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: linear-gradient(135deg, rgba(9, 4, 219, 0.05), rgba(150, 4, 219, 0.05));
+        }
+
+        .chat-header-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 4px 15px rgba(9, 4, 219, 0.3);
+        }
+
+        .chat-header h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .chat-header p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 18px;
+            animation: messageIn 0.4s ease;
+        }
+
+        @keyframes messageIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-input);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            max-width: 85%;
+        }
+
+        .message-text {
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .chat-message.ai .message-text {
+            background: var(--bg-input);
+            border-radius: 16px 16px 16px 4px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .chat-message.user .message-text {
+            background: var(--gradient-primary);
+            border-radius: 16px 16px 4px 16px;
+            color: white;
+        }
+
+        .message-text.error {
+            background: rgba(239, 68, 68, 0.15);
+            border-left-color: var(--error);
+            color: #fca5a5;
+        }
+
+        .task-preview {
+            background: var(--bg-dark);
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .task-preview:hover {
+            background: var(--bg-card);
+            border-color: var(--secondary);
+        }
+
+        .task-preview-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .task-preview-id {
+            font-size: 11px;
+            color: var(--light);
+            font-weight: 600;
+        }
+
+        .task-preview-priority {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        .task-preview-title {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .chat-input-area {
+            padding: 18px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 14px 18px;
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 4px rgba(150, 4, 219, 0.1);
+        }
+
+        .chat-send {
+            padding: 14px 20px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(9, 4, 219, 0.3);
+        }
+
+        .chat-send:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(9, 4, 219, 0.4);
+        }
+
+        .add-task-btn {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .add-task-btn:hover {
+            border-color: var(--secondary);
+            color: var(--secondary);
+            background: rgba(150, 4, 219, 0.05);
+        }
+
+        .modal-task-details {
+            max-width: 750px;
+        }
+
+        .task-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 260px;
+            gap: 28px;
+        }
+
+        .task-detail-main {
+            padding-right: 20px;
+        }
+
+        .task-detail-main h3 {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .task-detail-main p {
+            margin-bottom: 24px;
+            line-height: 1.8;
+        }
+
+        .task-detail-sidebar {
+            background: var(--bg-input);
+            padding: 22px;
+            border-radius: 16px;
+        }
+
+        .detail-item {
+            margin-bottom: 20px;
+        }
+
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .priority-select, .status-select, .user-select {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .priority-select:focus, .status-select:focus, .user-select:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            width: 100%;
+        }
+
+        .btn-delete:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        @media (max-width: 1200px) {
+            .project-layout {
+                grid-template-columns: 1fr;
+            }
+            .chat-panel {
+                position: static;
+                height: 500px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .board-column {
+                min-width: 280px;
+                max-width: 280px;
+            }
+            .task-detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="/dashboard" class="sidebar-logo">
+                    <span>📋</span> TaskFlow
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Principal</div>
+                    <a href="/dashboard" class="nav-item">
+                        <span class="nav-item-icon">🏠</span>
+                        Inicio
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="nav-item-icon">📋</span>
+                        Mis Tareas
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Proyectos</div>
+                    <div id="projectsList" class="projects-list"></div>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile" onclick="window.location.href='/profile'">
+                    <div class="user-avatar" id="userAvatar">👤</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">Usuario</div>
+                        <div class="user-role">Miembro</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div class="breadcrumb">
+                        <a href="/dashboard">Dashboard</a>
+                        <span>/</span>
+                        <span id="projectName">Proyecto</span>
+                    </div>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn-new-project" onclick="openTaskModal()">
+                        + Nueva Tarea
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="project-layout">
+                    <div class="board-container">
+                        <div class="board-header">
+                            <h2>📋 Tablero del Proyecto</h2>
+                            <div class="board-actions">
+                                <button class="icon-btn" onclick="loadProject()" title="Actualizar">🔄</button>
+                            </div>
+                        </div>
+                        <div class="board" id="board">
+                            <div class="board-column" data-status="todo" style="--column-color: #8b8baa;">
+                                <div class="column-header">
+                                    <h3>📋 Por Hacer <span class="column-count" id="countTodo">0</span></h3>
+                                </div>
+                                <div class="task-list" id="tasksTodo"></div>
+                                <button class="add-task-btn" onclick="openTaskModal('todo')">+ Agregar tarea</button>
+                            </div>
+                            <div class="board-column" data-status="in-progress" style="--column-color: #f59e0b;">
+                                <div class="column-header">
+                                    <h3>🔄 En Progreso <span class="column-count" id="countInProgress">0</span></h3>
+                                </div>
+                                <div class="task-list" id="tasksInProgress"></div>
+                                <button class="add-task-btn" onclick="openTaskModal('in-progress')">+ Agregar tarea</button>
+                            </div>
+                            <div class="board-column" data-status="review" style="--column-color: #3b82f6;">
+                                <div class="column-header">
+                                    <h3>👁️ En Revisión <span class="column-count" id="countReview">0</span></h3>
+                                </div>
+                                <div class="task-list" id="tasksReview"></div>
+                                <button class="add-task-btn" onclick="openTaskModal('review')">+ Agregar tarea</button>
+                            </div>
+                            <div class="board-column" data-status="done" style="--column-color: #22c55e;">
+                                <div class="column-header">
+                                    <h3>✅ Completadas <span class="column-count" id="countDone">0</span></h3>
+                                </div>
+                                <div class="task-list" id="tasksDone"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-panel" id="chatPanel">
+                        <div class="chat-header">
+                            <div class="chat-header-icon">🤖</div>
+                            <div>
+                                <h3>Asistente de IA</h3>
+                                <p>Usa lenguaje natural para gestionar</p>
+                            </div>
+                        </div>
+                        <div class="chat-messages"></div>
+                        <div class="chat-input-area">
+                            <input type="text" class="chat-input" placeholder="Ej: crear tarea Diseñar logo con prioridad alta...">
+                            <button class="chat-send">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="modalNewTask">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTaskTitle">✨ Nueva Tarea</h2>
+                <button class="modal-close" onclick="closeModal('NewTask')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="taskForm">
+                    <div class="form-group">
+                        <label>Título de la tarea</label>
+                        <input type="text" id="taskTitle" placeholder="¿Qué necesitas hacer?" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea id="taskDescription" rows="4" placeholder="Describe la tarea en detalle..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Prioridad</label>
+                            <select id="taskPriority" class="priority-select">
+                                <option value="low">🟢 Baja</option>
+                                <option value="medium" selected>🟡 Media</option>
+                                <option value="high">🟠 Alta</option>
+                                <option value="urgent">🔴 Urgente</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha de vencimiento</label>
+                            <input type="date" id="taskDueDate">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Asignar a</label>
+                        <select id="taskAssignee" class="user-select">
+                            <option value="">Sin asignar</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('NewTask')">Cancelar</button>
+                <button class="btn btn-primary" onclick="createTask()">Crear Tarea</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalTaskDetails">
+        <div class="modal modal-task-details">
+            <div class="modal-header">
+                <h2 id="detailTaskTitle">Detalles de la Tarea</h2>
+                <button class="modal-close" onclick="closeModal('TaskDetails')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="task-detail-grid">
+                    <div class="task-detail-main">
+                        <h3>Descripción</h3>
+                        <p id="detailDescription">-</p>
+                        <button class="btn-delete" onclick="deleteCurrentTask()">🗑️ Eliminar Tarea</button>
+                    </div>
+                    <div class="task-detail-sidebar">
+                        <div class="detail-item">
+                            <div class="detail-label">Estado</div>
+                            <select id="detailStatus" class="status-select" onchange="updateTaskStatus()">
+                                <option value="todo">📋 Por hacer</option>
+                                <option value="in-progress">🔄 En progreso</option>
+                                <option value="review">👁️ En revisión</option>
+                                <option value="done">✅ Completada</option>
+                            </select>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Prioridad</div>
+                            <select id="detailPriority" class="priority-select" onchange="updateTaskPriority()">
+                                <option value="low">🟢 Baja</option>
+                                <option value="medium">🟡 Media</option>
+                                <option value="high">🟠 Alta</option>
+                                <option value="urgent">🔴 Urgente</option>
+                            </select>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Asignado a</div>
+                            <select id="detailAssignee" class="user-select" onchange="updateTaskAssignee()">
+                                <option value="">Sin asignar</option>
+                            </select>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Fecha de vencimiento</div>
+                            <div class="detail-value" id="detailDueDate">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Creado</div>
+                            <div class="detail-value" id="detailCreated">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/projects.js"></script>
+    <script src="/js/tasks.js"></script>
+    <script src="/js/ai.js"></script>
+    <script>
+        let projectId = null;
+        let project = null;
+        let tasks = [];
+        let members = [];
+        let currentTaskId = null;
+        let aiChat = null;
+
+        function getProjectIdFromUrl() {
+            const path = window.location.pathname;
+            const match = path.match(/\/project\/(\d+)/);
+            return match ? match[1] : null;
+        }
+
+        async function init() {
+            const user = await checkAuth();
+            if (!user) {
+                window.location.href = '/login';
+                return;
+            }
+
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userAvatar').textContent = user.avatar;
+
+            projectId = getProjectIdFromUrl();
+            if (!projectId) {
+                window.location.href = '/dashboard';
+                return;
+            }
+
+            aiChat = new AIChat('chatPanel');
+            aiChat.onTaskCreated = (task) => loadProject();
+
+            await loadProject();
+            await loadSidebarProjects();
+        }
+
+        async function loadSidebarProjects() {
+            const response = await ProjectAPI.getAll();
+            if (response.success) {
+                const list = document.getElementById('projectsList');
+                list.innerHTML = response.projects.map(p => `
+                    <div class="project-item ${p.id == projectId ? 'active' : ''}" onclick="window.location.href='/project/${p.id}'">
+                        <span class="project-color" style="background: ${p.color};"></span>
+                        <span>${p.name}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function loadProject() {
+            const response = await ProjectAPI.getById(projectId);
+            if (!response.success) {
+                showToast('Error cargando proyecto', 'error');
+                return;
+            }
+
+            project = response.project;
+            tasks = project.tasks || [];
+            members = project.members || [];
+
+            document.getElementById('projectName').textContent = project.name;
+            document.title = `${project.name} - TaskFlow`;
+
+            updateAssigneeSelects();
+            renderBoard();
+            aiChat.setProject(projectId);
+        }
+
+        function updateAssigneeSelects() {
+            const options = '<option value="">Sin asignar</option>' + 
+                members.map(m => `<option value="${m.id}">${m.avatar} ${m.name}</option>`).join('');
+            
+            document.getElementById('taskAssignee').innerHTML = options;
+            document.getElementById('detailAssignee').innerHTML = options;
+        }
+
+        function renderBoard() {
+            const columns = {
+                'todo': tasks.filter(t => t.status === 'todo'),
+                'in-progress': tasks.filter(t => t.status === 'in-progress'),
+                'review': tasks.filter(t => t.status === 'review'),
+                'done': tasks.filter(t => t.status === 'done')
+            };
+
+            for (const [status, taskList] of Object.entries(columns)) {
+                const statusName = status === 'in-progress' ? 'InProgress' : status.charAt(0).toUpperCase() + status.slice(1);
+                document.getElementById(`count${statusName}`).textContent = taskList.length;
+                document.getElementById(`tasks${statusName}`).innerHTML = 
+                    taskList.map(t => renderTaskCard(t)).join('');
+            }
+        }
+
+        function renderTaskCard(task) {
+            const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'done';
+            
+            return `
+                <div class="task-card" onclick="openTaskDetails(${task.id})">
+                    <div class="task-header">
+                        <span class="task-id">#${task.id}</span>
+                        <span class="task-priority ${task.priority}">${task.priority}</span>
+                    </div>
+                    <div class="task-title">${task.title}</div>
+                    <div class="task-footer">
+                        <div class="task-assignee">
+                            ${task.assigneeData ? task.assigneeData.avatar : '👤'}
+                        </div>
+                        <span class="task-due ${isOverdue ? 'overdue' : ''}">
+                            ${task.dueDate ? '📅 ' + TaskHelpers.formatDate(task.dueDate) : ''}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openTaskModal(defaultStatus = 'todo') {
+            document.getElementById('modalNewTask').classList.add('active');
+        }
+
+        function openTaskDetails(taskId) {
+            currentTaskId = taskId;
+            const task = tasks.find(t => t.id == taskId);
+            if (!task) return;
+
+            document.getElementById('detailTaskTitle').textContent = `#${task.id} - ${task.title}`;
+            document.getElementById('detailDescription').textContent = task.description || 'Sin descripción';
+            document.getElementById('detailStatus').value = task.status;
+            document.getElementById('detailPriority').value = task.priority;
+            document.getElementById('detailAssignee').value = task.assignee || '';
+            document.getElementById('detailDueDate').textContent = task.dueDate ? TaskHelpers.formatDate(task.dueDate) : '-';
+            document.getElementById('detailCreated').textContent = TaskHelpers.formatDate(task.createdAt);
+
+            document.getElementById('modalTaskDetails').classList.add('active');
+        }
+
+        async function createTask() {
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            const priority = document.getElementById('taskPriority').value;
+            const dueDate = document.getElementById('taskDueDate').value;
+            const assignee = document.getElementById('taskAssignee').value || null;
+
+            if (!title) {
+                showToast('El título es requerido', 'error');
+                return;
+            }
+
+            const response = await TaskAPI.create({
+                projectId,
+                title,
+                description,
+                priority,
+                dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+                assignee
+            });
+
+            if (response.success) {
+                showToast('✨ Tarea creada exitosamente');
+                closeModal('NewTask');
+                document.getElementById('taskForm').reset();
+                await loadProject();
+            } else {
+                showToast(response.message || 'Error al crear tarea', 'error');
+            }
+        }
+
+        async function updateTaskStatus() {
+            const status = document.getElementById('detailStatus').value;
+            await TaskAPI.update(currentTaskId, { status });
+            showToast('Estado actualizado');
+            await loadProject();
+        }
+
+        async function updateTaskPriority() {
+            const priority = document.getElementById('detailPriority').value;
+            await TaskAPI.update(currentTaskId, { priority });
+            showToast('Prioridad actualizada');
+            await loadProject();
+        }
+
+        async function updateTaskAssignee() {
+            const assignee = document.getElementById('detailAssignee').value || null;
+            await TaskAPI.update(currentTaskId, { assignee });
+            showToast('Asignación actualizada');
+            await loadProject();
+        }
+
+        async function deleteCurrentTask() {
+            if (!confirm('¿Estás seguro de eliminar esta tarea?')) return;
+
+            const response = await TaskAPI.delete(currentTaskId);
+            if (response.success) {
+                showToast('Tarea eliminada');
+                closeModal('TaskDetails');
+                await loadProject();
+            }
+        }
+
+        function closeModal(type) {
+            document.getElementById('modal' + type).classList.remove('active');
+        }
+
+        window.openTask = openTaskDetails;
+
+        init();
+    </script>
+</body>
+</html>
