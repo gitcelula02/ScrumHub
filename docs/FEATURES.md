@@ -31,29 +31,73 @@ This workspace should be connected to the AI, so that the user can ask the AI to
 
 ## Features
 
-### User Management
-- [ ] Create and manage users
-    - [ ] Create users
-    - [ ] Edit users
-    - [ ] Delete users
-    - [ ] Manage user's profile
-    - [ ] Manage user's authentication
-    - [ ] Manage user's security
-    - [ ] Manage user's billing (If applicable)
-    - [ ] Manage user's payment methods (If applicable)
-    - [ ] Manage user's subscription (If applicable)
-    - [ ] Manage user's activity
-- [ ] User boards management 
-    - [ ] Assign roles and permissions
-    - [ ] Manage user's teams
-    - [ ] Manage user's projects
-    - [ ] Manage user's tasks
-    - [ ] Manage user's chat groups
-    - [ ] Manage user's direct messages
-    - [ ] Manage user's workspace
-    - [ ] Manage user's notifications
-    - [ ] Manage user's authorization
-- [ ] User settings
-    - [ ] Manage user's profile
-    
-    
+### Boards
+- [ ] Create and manage boards
+    - [ ] Manage boards encapsulation
+        - [ ] Folder
+        - [ ] Categories
+        - [ ] Tags
+        - [ ] Teams/Team members
+        - [ ] Local/cloud
+    - [ ] Create boards
+    - [ ] Edit boards
+    - [ ] Delete boards
+    - [ ] Manage board's columns
+    - [ ] Manage board's tasks
+    - [ ] Manage board's users
+    - [ ] Manage board's permissions
+    - [ ] Manage board's AI
+- [ ] Create and manage boards with AI
+    - [ ] AI created boards
+    - [ ] AI boards review
+    - [ ] AI boards editing
+    - [ ] AI boards deletion
+    - [ ] AI boards permissions
+    - [ ] AI boards AI
+
+### Backlog
+- [ ] Create and manage backlog
+    - [ ] Manage backlog encapsulation
+        - [ ] Folder
+        - [ ] Categories
+        - [ ] Tags
+        - [ ] Teams/Team members
+        - [ ] Local/cloud
+    - [ ] Create backlog
+    - [ ] Edit backlog
+    - [ ] Delete backlog
+    - [ ] Manage backlog's columns
+    - [ ] Manage backlog's tasks
+    - [ ] Manage backlog's users
+    - [ ] Manage backlog's permissions
+    - [ ] Manage backlog's AI
+    - [ ] backlog tree structure
+    - [ ] backlog tree structure visualization
+    - [ ] backlog tree structure editing
+    - [ ] backlog tree structure deletion
+    - [ ] backlog tree structure permissions
+    - [ ] backlog tree structure AI
+
+### Chat
+- [ ] Create and manage chat
+    - [ ] Manage chat encapsulation
+        - [ ] Folder
+        - [ ] Categories
+        - [ ] Tags
+        - [ ] Teams/Team members
+        - [ ] Local/cloud
+        - [ ] Board and backlogs context
+        - [ ] AI context
+    - [ ] Create chat
+    - [ ] Edit chat
+    - [ ] Delete chat
+    - [ ] Manage chat's columns
+    - [ ] Manage chat's tasks
+    - [ ] Manage chat's users
+    - [ ] Manage chat's permissions
+    - [ ] Manage chat's AI
+    - [ ] Manage chat's voice chat
+    - [ ] Manage chat's video chat
+    - [ ] Manage chat's screen sharing
+    - [ ] Manage chat's file sharing
+    - [ ] Manage chat's roles
