@@ -15,7 +15,7 @@ It's the bridge between the Product Owner and the Developers.
 **Developers**: Responsible for developing the product.  
 They create and modify the code, selecting the architecture and technologies used.  
 
-**QA**: Responsible for testing the product and making sure the product fullfills the users requirements.  
+**QA**: Responsible for testing the product and making sure the product fulfills the users requirements.  
 
 **Epics**: Large bodies of work that can be broken down into smaller stories.  
 Contain the bulk of a feature or multiple related features.  
@@ -34,7 +34,7 @@ What went well, what could be better, and what can be done to improve in the nex
 ## ScrumHub Concepts
 
 **Folders**: Containers for organizing projects, backlogs, and boards.  
-A folder contents are deliberately selected by the user, and can contain group chats, boards and complete projects in acordance with the user's needs.  
+A folder contents are deliberately selected by the user, and can contain group chats, boards and complete projects in accordance with the user's needs.  
 
 **Categories**: Categories are used to group related items within a folder.  
 They can be used to create contextual relationships between projects, boards, workspaces and/or chats, useful to interact with the AI and organize the information.  
@@ -65,8 +65,8 @@ It also can be used to generate voice and video calls, and screen sharing.
 All of it can be done with the context of the project, and the AI can interpret and extract information from the voice chat (Only if allowed by the user) and create tasks or generate reports based on the conversation.  
 
 **AI**: It's an AI assistant that can be used to generate reports, review code and test.  
-It can generate complete backlogs and assignate tasks based on the team members capacities and profile.  
-Can be customized and assignate different roles and permissions.  
+It can generate complete backlogs and assign tasks based on the team members capacities and profile.  
+Can be customized and assign different roles and permissions.  
 The AI can be personal or project shared.  
 
 **Roles**: Roles are used to define the permissions of users within a project.  

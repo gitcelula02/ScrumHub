@@ -33,7 +33,7 @@ This workspace should be connected to the AI, so that the user can ask the AI to
 
 ### Boards
 - [ ] Create and manage boards
-    - [ ] Manage boards encapsulation
+    - [ ] Boards encapsulation
         - [ ] Folder
         - [ ] Categories
         - [ ] Tags
@@ -57,7 +57,7 @@ This workspace should be connected to the AI, so that the user can ask the AI to
 
 ### Backlog
 - [ ] Create and manage backlog
-    - [ ] Manage backlog encapsulation
+    - [ ] Backlog encapsulation
         - [ ] Folder
         - [ ] Categories
         - [ ] Tags
@@ -79,8 +79,8 @@ This workspace should be connected to the AI, so that the user can ask the AI to
     - [ ] backlog tree structure AI
 
 ### Chat
-- [ ] Create and manage chat
-    - [ ] Manage chat encapsulation
+- [ ] Create and manage chats
+    - [ ] Chat encapsulation
         - [ ] Folder
         - [ ] Categories
         - [ ] Tags
@@ -101,3 +101,41 @@ This workspace should be connected to the AI, so that the user can ask the AI to
     - [ ] Manage chat's screen sharing
     - [ ] Manage chat's file sharing
     - [ ] Manage chat's roles
+### Workspace
+- [ ] Create and manage workspace
+    - [ ] Workspace encapsulation
+        - [ ] Folder
+        - [ ] Categories
+        - [ ] Tags
+        - [ ] Teams/Team members
+        - [ ] Local/cloud
+        - [ ] Board and backlogs context
+        - [ ] AI context
+    - [ ] Create workspace
+    - [ ] Edit workspace
+    - [ ] Delete workspace
+    - [ ] Manage workspace's columns
+    - [ ] Manage workspace's tasks
+    - [ ] Manage workspace's users
+    - [ ] Manage workspace's permissions
+    - [ ] Manage workspace's AI
+- [ ] Implement Visual Studio interface workspace
+- [ ] AI integration
+    - [ ] Allow extension installation for personalization
+    - [ ] Allow AI integration for code generation and review
+    - [ ] Allow AI integration for code testing
+    - [ ] Allow AI integration for code documentation
+    - [ ] Allow AI integration for code refactoring
+    - [ ] Allow AI integration for code optimization
+    - [ ] Allow AI integration for code security
+    - [ ] Allow AI integration for code performance
+    - [ ] Allow AI integration for code quality
+    - [ ] Allow AI integration for code style
+    - [ ] Allow AI integration for code testing
+    - [ ] Allow AI integration for code documentation
+    - [ ] Allow AI integration for code refactoring
+    - [ ] Allow AI integration for code optimization
+    - [ ] Allow AI integration for code security
+    - [ ] Allow AI integration for code performance
+    - [ ] Allow AI integration for code quality
+    - [ ] Allow AI integration for code style
