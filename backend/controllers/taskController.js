@@ -231,9 +231,20 @@ class TaskController {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
-            const stats = Task.getStats();
+            const userProjects = Project.getByUser(req.session.userId);
+            let combinedStats = {
+                total: 0, todo: 0, inProgress: 0, review: 0, done: 0,
+                highPriority: 0, mediumPriority: 0, lowPriority: 0, overdue: 0
+            };
+
+            for (let proj of userProjects) {
+                const projStats = Task.getStats(proj.id);
+                for (let key in combinedStats) {
+                    combinedStats[key] += projStats[key];
+                }
+            }
             
-            res.json({ success: true, stats });
+            res.json({ success: true, stats: combinedStats });
         } catch (error) {
             console.error('Error obteniendo estadísticas:', error);
             res.status(500).json({ success: false, message: 'Error del servidor' });

@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - TaskFlow</title>
     <link rel="stylesheet" href="/css/dashboard.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
 </head>
+
 <body>
     <div class="app-container">
         <aside class="sidebar">
@@ -15,7 +18,7 @@
                     <span>📋</span> TaskFlow
                 </a>
             </div>
-            
+
             <nav class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Principal</div>
@@ -28,7 +31,7 @@
                         Mis Tareas
                     </a>
                 </div>
-                
+
                 <div class="nav-section">
                     <div class="nav-section-title">Proyectos</div>
                     <div id="projectsList" class="projects-list"></div>
@@ -54,7 +57,7 @@
                 <div class="topbar-actions">
                     <div class="search-box">
                         <span>🔍</span>
-                        <input type="text" placeholder="Buscar proyectos...">
+                        <input type="text" placeholder="Buscar..." onkeyup="filterCards(this.value)">
                     </div>
                     <button class="icon-btn" title="Notificaciones">🔔</button>
                     <button class="icon-btn" title="Configuración">⚙️</button>
@@ -150,8 +153,19 @@
             document.getElementById('userName').textContent = user.name;
             document.getElementById('userAvatar').textContent = user.avatar;
 
-            await loadProjects();
             await loadStats();
+            
+            if (window.location.hash === '#my-tasks') {
+                await showMyTasks();
+                // Also need to load sidebar projects for the layout
+                const response = await ProjectAPI.getAll();
+                if (response.success) {
+                    projects = response.projects;
+                    renderSidebarProjects();
+                }
+            } else {
+                await loadProjects();
+            }
         }
 
         async function loadProjects() {
@@ -176,7 +190,7 @@
 
         function renderProjects() {
             const grid = document.getElementById('projectsGrid');
-            
+
             if (projects.length === 0) {
                 grid.innerHTML = `
                     <div style="grid-column: 1/-1; text-align: center; padding: 80px 40px; color: var(--text-secondary); background: var(--bg-card); border-radius: 24px; border: 2px dashed var(--border);">
@@ -190,10 +204,10 @@
             }
 
             grid.innerHTML = projects.map(project => {
-                const progress = project.stats.total > 0 
-                    ? Math.round((project.stats.done / project.stats.total) * 100) 
+                const progress = project.stats.total > 0
+                    ? Math.round((project.stats.done / project.stats.total) * 100)
                     : 0;
-                
+
                 return `
                     <div class="project-card" onclick="window.location.href='/project/${project.id}'">
                         <div class="project-card-header">
@@ -239,7 +253,7 @@
 
         function openModal(type) {
             document.getElementById('modal' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
-            
+
             if (type === 'newProject') {
                 document.querySelectorAll('.color-option').forEach(opt => {
                     opt.addEventListener('click', () => {
@@ -265,7 +279,7 @@
             }
 
             const response = await ProjectAPI.create({ name, description, color });
-            
+
             if (response.success) {
                 showToast('✨ Proyecto creado exitosamente');
                 closeModal('newProject');
@@ -277,12 +291,107 @@
             }
         }
 
-        async function showMyTasks() {
+        async function showMyTasks(event) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            } else {
+                // Find Mis Tareas link and make active
+                const links = document.querySelectorAll('.nav-item');
+                for (let link of links) {
+                    if (link.textContent.includes('Mis Tareas')) {
+                        link.classList.add('active');
+                        break;
+                    }
+                }
+            }
+
+            const sectionTitle = document.querySelector('.section-header h2');
+            if (sectionTitle) sectionTitle.innerHTML = '📋 Mis Tareas';
+            
+            const grid = document.getElementById('projectsGrid');
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">Cargando tareas...</div>';
+            
             const response = await TaskAPI.getMyTasks();
-            console.log('Mis tareas:', response);
+            
+            if (response.success) {
+                if (!response.tasks || response.tasks.length === 0) {
+                    grid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 80px 40px; color: var(--text-secondary); background: var(--bg-card); border-radius: 24px; border: 2px dashed var(--border);">
+                            <div style="font-size: 72px; margin-bottom: 20px;">✅</div>
+                            <h3 style="font-size: 24px; margin-bottom: 12px; color: var(--text-primary);">No tienes tareas asignadas</h3>
+                            <p style="margin-bottom: 24px;">¡Todo al día!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                grid.innerHTML = response.tasks.map(task => {
+                    const priorityClass = TaskHelpers.getPriorityClass(task.priority);
+                    const statusText = TaskHelpers.getStatusText(task.status);
+                    const statusIcon = TaskHelpers.getStatusIcon(task.status);
+                    const date = TaskHelpers.formatDate(task.dueDate);
+                    
+                    return `
+                        <div class="project-card" style="border-left: 4px solid var(--primary); cursor: pointer;" onclick="window.location.href='/project/${task.projectId}'">
+                            <div class="project-card-header">
+                                <span class="task-priority ${priorityClass}" style="font-size: 10px; padding: 4px 10px; border-radius: 8px; font-weight: 700; text-transform: uppercase;">
+                                    ${task.priority}
+                                </span>
+                                <span class="status-badge" style="font-size: 12px; background: var(--bg-hover); padding: 4px 8px; border-radius: 12px;">
+                                    ${statusIcon} ${statusText}
+                                </span>
+                            </div>
+                            <h3 style="margin-top: 12px;">${task.title}</h3>
+                            <p>${task.description || 'Sin descripción'}</p>
+                            <div class="project-meta" style="margin-top: auto; padding-top: 16px; flex-direction: column; align-items: flex-start; gap: 8px;">
+                                <div style="font-size: 12px; color: var(--text-secondary);">
+                                    📅 Vencimiento: <span class="${task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'done' ? 'error' : ''}">${date || 'Sin fecha'}</span>
+                                </div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">
+                                    📁 Proyecto: ${task.projectData ? task.projectData.name : 'Desconocido'}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--error);">Error al cargar tareas</div>`;
+            }
+        }
+
+        function filterCards(query) {
+            const lowerQuery = query.toLowerCase();
+            const cards = document.querySelectorAll('.project-card');
+            
+            cards.forEach(card => {
+                const titleElement = card.querySelector('h3');
+                const pElement = card.querySelector('p');
+                
+                const title = titleElement ? titleElement.textContent.toLowerCase() : '';
+                const desc = pElement ? pElement.textContent.toLowerCase() : '';
+                
+                if (title.includes(lowerQuery) || desc.includes(lowerQuery)) {
+                    card.style.display = ''; 
+                } else {
+                    card.style.display = 'none'; 
+                }
+            });
+
+            // Also search in sidebar
+            const sidebarItems = document.querySelectorAll('.projects-list .project-item');
+            sidebarItems.forEach(item => {
+                const title = item.textContent.toLowerCase();
+                if (title.includes(lowerQuery)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
         }
 
         init();
     </script>
 </body>
+
 </html>

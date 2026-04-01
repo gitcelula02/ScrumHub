@@ -531,7 +531,7 @@
                         <span class="nav-item-icon">🏠</span>
                         Inicio
                     </a>
-                    <a href="#" class="nav-item">
+                    <a href="/dashboard#my-tasks" class="nav-item">
                         <span class="nav-item-icon">📋</span>
                         Mis Tareas
                     </a>
@@ -564,7 +564,9 @@
                     </div>
                 </div>
                 <div class="topbar-actions">
-                    <button class="btn-new-project" onclick="openTaskModal()">
+                    <button class="icon-btn" onclick="openEditProjectModal()" title="Editar Proyecto" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">✏️</button>
+                    <button class="icon-btn" onclick="deleteCurrentProject()" title="Eliminar Proyecto" style="background: var(--bg-card); border: 1px solid var(--error); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: var(--error);">🗑️</button>
+                    <button class="btn-new-project" onclick="openTaskModal('todo')">
                         + Nueva Tarea
                     </button>
                 </div>
@@ -580,28 +582,28 @@
                             </div>
                         </div>
                         <div class="board" id="board">
-                            <div class="board-column" data-status="todo" style="--column-color: #8b8baa;">
+                            <div class="board-column" data-status="todo" style="--column-color: #8b8baa;" ondrop="drop(event, 'todo')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                                 <div class="column-header">
                                     <h3>📋 Por Hacer <span class="column-count" id="countTodo">0</span></h3>
                                 </div>
                                 <div class="task-list" id="tasksTodo"></div>
                                 <button class="add-task-btn" onclick="openTaskModal('todo')">+ Agregar tarea</button>
                             </div>
-                            <div class="board-column" data-status="in-progress" style="--column-color: #f59e0b;">
+                            <div class="board-column" data-status="in-progress" style="--column-color: #f59e0b;" ondrop="drop(event, 'in-progress')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                                 <div class="column-header">
                                     <h3>🔄 En Progreso <span class="column-count" id="countInProgress">0</span></h3>
                                 </div>
                                 <div class="task-list" id="tasksInProgress"></div>
                                 <button class="add-task-btn" onclick="openTaskModal('in-progress')">+ Agregar tarea</button>
                             </div>
-                            <div class="board-column" data-status="review" style="--column-color: #3b82f6;">
+                            <div class="board-column" data-status="review" style="--column-color: #3b82f6;" ondrop="drop(event, 'review')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                                 <div class="column-header">
                                     <h3>👁️ En Revisión <span class="column-count" id="countReview">0</span></h3>
                                 </div>
                                 <div class="task-list" id="tasksReview"></div>
                                 <button class="add-task-btn" onclick="openTaskModal('review')">+ Agregar tarea</button>
                             </div>
-                            <div class="board-column" data-status="done" style="--column-color: #22c55e;">
+                            <div class="board-column" data-status="done" style="--column-color: #22c55e;" ondrop="drop(event, 'done')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                                 <div class="column-header">
                                     <h3>✅ Completadas <span class="column-count" id="countDone">0</span></h3>
                                 </div>
@@ -726,7 +728,43 @@
             </div>
         </div>
     </div>
-
+    <div class="modal-overlay" id="modalEditProject">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>✏️ Editar Proyecto</h2>
+                <button class="modal-close" onclick="closeModal('EditProject')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editProjectForm">
+                    <div class="form-group">
+                        <label>Nombre del proyecto</label>
+                        <input type="text" id="editProjectName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea id="editProjectDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Color del proyecto</label>
+                        <div class="color-picker">
+                            <div class="color-option" data-color="#0904DB" style="background: #0904DB;"></div>
+                            <div class="color-option" data-color="#9604DB" style="background: #9604DB;"></div>
+                            <div class="color-option" data-color="#5004DB" style="background: #5004DB;"></div>
+                            <div class="color-option" data-color="#A98CDE" style="background: #A98CDE;"></div>
+                            <div class="color-option" data-color="#22c55e" style="background: #22c55e;"></div>
+                            <div class="color-option" data-color="#f59e0b" style="background: #f59e0b;"></div>
+                            <div class="color-option" data-color="#ef4444" style="background: #ef4444;"></div>
+                            <div class="color-option" data-color="#3b82f6" style="background: #3b82f6;"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('EditProject')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveProjectChanges()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
     <script src="/js/api.js"></script>
     <script src="/js/projects.js"></script>
     <script src="/js/tasks.js"></script>
@@ -828,7 +866,7 @@
             const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'done';
             
             return `
-                <div class="task-card" onclick="openTaskDetails(${task.id})">
+                <div class="task-card" draggable="true" ondragstart="drag(event)" id="task-card-${task.id}" onclick="openTaskDetails(${task.id})">
                     <div class="task-header">
                         <span class="task-id">#${task.id}</span>
                         <span class="task-priority ${task.priority}">${task.priority}</span>
@@ -847,7 +885,63 @@
         }
 
         function openTaskModal(defaultStatus = 'todo') {
+            document.getElementById('taskPriority').value = 'medium'; // reset default
             document.getElementById('modalNewTask').classList.add('active');
+        }
+
+        function openEditProjectModal() {
+            if (!project) return;
+            document.getElementById('editProjectName').value = project.name;
+            document.getElementById('editProjectDescription').value = project.description || '';
+            
+            // Set color and handlers
+            document.querySelectorAll('#modalEditProject .color-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.dataset.color === project.color) {
+                    opt.classList.add('selected');
+                }
+                opt.onclick = () => {
+                    document.querySelectorAll('#modalEditProject .color-option').forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                };
+            });
+
+            document.getElementById('modalEditProject').classList.add('active');
+        }
+
+        async function saveProjectChanges() {
+            const name = document.getElementById('editProjectName').value;
+            const description = document.getElementById('editProjectDescription').value;
+            const color = document.querySelector('#modalEditProject .color-option.selected')?.dataset.color || project.color;
+
+            if (!name) {
+                showToast('El nombre es requerido', 'error');
+                return;
+            }
+
+            const response = await ProjectAPI.update(projectId, { name, description, color });
+            if (response.success) {
+                showToast('✨ Proyecto actualizado');
+                closeModal('EditProject');
+                document.getElementById('projectName').textContent = name;
+                document.title = `${name} - TaskFlow`;
+                await loadSidebarProjects();
+                await loadProject();
+            } else {
+                showToast(response.message || 'Error al actualizar', 'error');
+            }
+        }
+
+        async function deleteCurrentProject() {
+            if (!confirm('🚨 ¿Estás SEGURO de eliminar este proyecto y TODAS sus tareas? Esta acción es irreversible.')) return;
+            
+            const response = await ProjectAPI.delete(projectId);
+            if (response.success) {
+                showToast('🗑️ Proyecto eliminado exitosamente');
+                setTimeout(() => window.location.href = '/dashboard', 1500);
+            } else {
+                showToast(response.message || 'Error al eliminar', 'error');
+            }
         }
 
         function openTaskDetails(taskId) {
@@ -931,6 +1025,63 @@
 
         function closeModal(type) {
             document.getElementById('modal' + type).classList.remove('active');
+        }
+
+        // --- DRAG AND DROP HANDLERS ---
+        function allowDrop(ev) {
+            ev.preventDefault();
+            const col = ev.currentTarget;
+            col.style.background = 'rgba(150, 4, 219, 0.05)';
+            col.style.boxShadow = 'inset 0 0 20px rgba(150, 4, 219, 0.1)';
+        }
+
+        function dragLeave(ev) {
+            const col = ev.currentTarget;
+            col.style.background = '';
+            col.style.boxShadow = '';
+        }
+
+        function drag(ev) {
+            const taskId = ev.currentTarget.id.replace('task-card-', '');
+            ev.dataTransfer.setData("text", taskId);
+            // Hacer la tarjeta semi-transparente mientras se arrastra
+            setTimeout(() => { ev.target.style.opacity = '0.5'; }, 0);
+        }
+
+        document.addEventListener('dragend', function(ev) {
+            if (ev.target.classList && ev.target.classList.contains('task-card')) {
+                ev.target.style.opacity = '1';
+                // Limpiar posibles estilos colgados en las columnas
+                document.querySelectorAll('.board-column').forEach(col => {
+                    col.style.background = '';
+                    col.style.boxShadow = '';
+                });
+            }
+        });
+
+        async function drop(ev, status) {
+            ev.preventDefault();
+            const col = ev.currentTarget;
+            col.style.background = '';
+            col.style.boxShadow = '';
+            
+            const taskId = ev.dataTransfer.getData("text");
+            if (!taskId) return;
+
+            const task = tasks.find(t => t.id == taskId);
+            if (task && task.status !== status) {
+                // Actualización interactiva y rápida
+                task.status = status;
+                renderBoard(); // Redibujar tarjeta inmediatamente
+
+                const response = await TaskAPI.update(taskId, { status });
+                if (response.success) {
+                    showToast('✨ Tarea movida a ' + TaskHelpers.getStatusText(status));
+                } else {
+                    showToast('Error al mover la tarea', 'error');
+                    await loadProject(); // revertir visual si falla backend
+                }
+            }
         }
 
         window.openTask = openTaskDetails;
