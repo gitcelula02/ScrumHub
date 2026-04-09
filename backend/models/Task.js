@@ -1,107 +1,132 @@
-const db = require('../config/database');
+const { supabase } = require('../config/database');
+
+const STATUS_TO_DB = { 'todo': 'TODO', 'in-progress': 'IN_PROGRESS', 'review': 'BLOCKED', 'done': 'DONE' };
+const DB_TO_STATUS = { 'TODO': 'todo', 'IN_PROGRESS': 'in-progress', 'BLOCKED': 'review', 'DONE': 'done' };
+
+const PRIORITY_TO_DB = { 'high': 1, 'medium': 2, 'low': 3 };
+const DB_TO_PRIORITY = { 1: 'high', 2: 'medium', 3: 'low' };
+
+function mapFromDB(dbRow) {
+    if (!dbRow) return null;
+    return {
+        id: dbRow.id,
+        projectId: dbRow.project_id,
+        title: dbRow.title,
+        description: dbRow.description || '',
+        status: DB_TO_STATUS[dbRow.status] || 'todo',
+        priority: DB_TO_PRIORITY[dbRow.priority] || 'medium',
+        dueDate: dbRow.due_date,
+        assignee: null,
+        reporter: null,
+        tags: [],
+        subtasks: [],
+        attachments: [],
+        comments: [], // Comments are not supported in backlogitem currently
+        type: dbRow.type
+    };
+}
 
 class Task {
-    static getAll() {
-        return db.readJSON('tasks.json');
+    static async getAll() {
+        const { data, error } = await supabase.from('backlogitem').select('*').eq('type', 'TASK');
+        if (error) throw error;
+        return (data || []).map(mapFromDB);
     }
 
-    static getById(id) {
-        const tasks = db.readJSON('tasks.json');
-        return tasks.find(t => t.id === id);
+    static async getById(id) {
+        const { data, error } = await supabase.from('backlogitem').select('*').eq('id', id).single();
+        if (error && error.code !== 'PGRST116') throw error;
+        return mapFromDB(data);
     }
 
-    static getByProject(projectId) {
-        const tasks = db.readJSON('tasks.json');
-        return tasks.filter(t => t.projectId === projectId);
+    static async getByProject(projectId) {
+        const { data, error } = await supabase.from('backlogitem').select('*').eq('project_id', projectId).eq('type', 'TASK');
+        if (error) throw error;
+        return (data || []).map(mapFromDB);
     }
 
-    static getByUser(userId) {
-        const tasks = db.readJSON('tasks.json');
-        return tasks.filter(t => t.assignee === userId);
+    static async getByUser(userId) {
+        const { data: memberProjects } = await supabase.from('projectuser').select('project_id').eq('user_id', userId);
+        const projectIds = memberProjects ? memberProjects.map(mp => mp.project_id) : [];
+        
+        if (projectIds.length === 0) return [];
+        
+        const { data, error } = await supabase.from('backlogitem')
+            .select('*')
+            .eq('type', 'TASK')
+            .in('project_id', projectIds);
+            
+        if (error) throw error;
+        return (data || []).map(mapFromDB);
     }
 
-    static getByPriority(priority) {
-        const tasks = db.readJSON('tasks.json');
-        return tasks.filter(t => t.priority === priority);
+    static async getByPriority(priority) {
+        const mappedPri = PRIORITY_TO_DB[priority] || 2;
+        const { data, error } = await supabase.from('backlogitem').select('*').eq('priority', mappedPri).eq('type', 'TASK');
+        if (error) throw error;
+        return (data || []).map(mapFromDB);
     }
 
-    static getOverdue() {
-        const tasks = db.readJSON('tasks.json');
-        const now = new Date();
-        return tasks.filter(t => 
-            t.dueDate && 
-            new Date(t.dueDate) < now && 
-            t.status !== 'done'
-        );
+    static async getOverdue() {
+        const now = new Date().toISOString();
+        const { data, error } = await supabase.from('backlogitem')
+            .select('*')
+            .eq('type', 'TASK')
+            .neq('status', 'DONE')
+            .not('due_date', 'is', null)
+            .lt('due_date', now);
+        if (error) throw error;
+        return (data || []).map(mapFromDB);
     }
 
-    static create(taskData) {
-        const tasks = db.readJSON('tasks.json');
+    static async create(taskData) {
         const newTask = {
-            id: Date.now().toString(),
-            projectId: taskData.projectId,
+            project_id: taskData.projectId,
             title: taskData.title,
             description: taskData.description || '',
-            status: taskData.status || 'todo',
-            priority: taskData.priority || 'medium',
-            assignee: taskData.assignee || null,
-            reporter: taskData.reporter,
-            dueDate: taskData.dueDate || null,
-            tags: taskData.tags || [],
-            subtasks: taskData.subtasks || [],
-            attachments: [],
-            comments: [],
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+            status: STATUS_TO_DB[taskData.status] || 'TODO',
+            priority: PRIORITY_TO_DB[taskData.priority] || 2,
+            due_date: taskData.dueDate || null,
+            type: 'TASK'
         };
-        tasks.push(newTask);
-        db.writeJSON('tasks.json', tasks);
-        return newTask;
+        const { data, error } = await supabase.from('backlogitem').insert([newTask]).select().single();
+        if (error) throw error;
+        return mapFromDB(data);
     }
 
-    static update(id, data) {
-        const tasks = db.readJSON('tasks.json');
-        const index = tasks.findIndex(t => t.id === id);
-        if (index !== -1) {
-            tasks[index] = { 
-                ...tasks[index], 
-                ...data, 
-                updatedAt: new Date().toISOString() 
-            };
-            db.writeJSON('tasks.json', tasks);
-            return tasks[index];
-        }
-        return null;
+    static async update(id, updateData) {
+        const dbFields = {};
+        if (updateData.title !== undefined) dbFields.title = updateData.title;
+        if (updateData.description !== undefined) dbFields.description = updateData.description;
+        if (updateData.status) dbFields.status = STATUS_TO_DB[updateData.status] || 'TODO';
+        if (updateData.priority) dbFields.priority = PRIORITY_TO_DB[updateData.priority] || 2;
+        if (updateData.dueDate !== undefined) dbFields.due_date = updateData.dueDate;
+
+        const { data, error } = await supabase.from('backlogitem').update(dbFields).eq('id', id).select().single();
+        if (error) throw error;
+        return mapFromDB(data);
     }
 
-    static delete(id) {
-        const tasks = db.readJSON('tasks.json');
-        const filtered = tasks.filter(t => t.id !== id);
-        db.writeJSON('tasks.json', filtered);
+    static async delete(id) {
+        const { error } = await supabase.from('backlogitem').delete().eq('id', id);
+        if (error) throw error;
+        return true;
     }
 
-    static addComment(taskId, comment) {
-        const tasks = db.readJSON('tasks.json');
-        const index = tasks.findIndex(t => t.id === taskId);
-        if (index !== -1) {
-            const newComment = {
-                id: Date.now().toString(),
-                author: comment.author,
-                text: comment.text,
-                createdAt: new Date().toISOString()
-            };
-            tasks[index].comments.push(newComment);
-            tasks[index].updatedAt = new Date().toISOString();
-            db.writeJSON('tasks.json', tasks);
-            return newComment;
-        }
-        return null;
+    static async addComment(taskId, comment) {
+        // Obviamos esto de forma temporal porque backlogitem no admite comentarios ni arreglos.
+        return {
+            id: Date.now().toString(),
+            author: comment.author,
+            text: comment.text,
+            createdAt: new Date().toISOString()
+        };
     }
 
-    static getStats(projectId = null) {
+    static async getStats(projectId = null) {
         const tasks = projectId 
-            ? Task.getByProject(projectId) 
-            : Task.getAll();
+            ? await Task.getByProject(projectId) 
+            : await Task.getAll();
         
         return {
             total: tasks.length,

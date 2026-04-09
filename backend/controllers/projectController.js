@@ -14,18 +14,21 @@ class ProjectController {
         res.sendFile(__dirname + '/../../frontend/views/dashboard.html');
     }
 
-    static getAll(req, res) {
+    static async getAll(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
-            const projects = Project.getByUser(req.session.userId);
+            const projects = await Project.getByUser(req.session.userId);
             
-            const projectsWithData = projects.map(project => {
-                const tasks = Task.getByProject(project.id);
-                const members = project.members.map(mId => User.findById(mId)).filter(Boolean);
-                const stats = Task.getStats(project.id);
+            const projectsWithData = await Promise.all(projects.map(async project => {
+                const tasks = await Task.getByProject(project.id);
+                // Asegurar que project.members sea un array antes de mapear
+                const memberIds = Array.isArray(project.members) ? project.members : [];
+                const membersResult = await Promise.all(memberIds.map(mId => User.findById(mId)));
+                const members = membersResult.filter(Boolean);
+                const stats = await Task.getStats(project.id);
                 
                 return {
                     ...project,
@@ -36,7 +39,7 @@ class ProjectController {
                     })),
                     stats
                 };
-            });
+            }));
             
             res.json({ success: true, projects: projectsWithData });
         } catch (error) {
@@ -45,25 +48,27 @@ class ProjectController {
         }
     }
 
-    static getById(req, res) {
+    static async getById(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
-            const project = Project.getById(req.params.id);
+            const project = await Project.getById(req.params.id);
             
             if (!project) {
                 return res.status(404).json({ success: false, message: 'Proyecto no encontrado' });
             }
             
-            if (!project.members.includes(req.session.userId)) {
+            const memberIds = Array.isArray(project.members) ? project.members : [];
+            if (!memberIds.includes(req.session.userId)) {
                 return res.status(403).json({ success: false, message: 'Acceso denegado' });
             }
             
-            const tasks = Task.getByProject(project.id);
-            const members = project.members.map(mId => User.findById(mId)).filter(Boolean);
-            const stats = Task.getStats(project.id);
+            const tasks = await Task.getByProject(project.id);
+            const membersResult = await Promise.all(memberIds.map(mId => User.findById(mId)));
+            const members = membersResult.filter(Boolean);
+            const stats = await Task.getStats(project.id);
             
             res.json({ 
                 success: true, 
@@ -85,7 +90,7 @@ class ProjectController {
         }
     }
 
-    static create(req, res) {
+    static async create(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
@@ -97,7 +102,7 @@ class ProjectController {
                 return res.status(400).json({ success: false, message: 'El nombre es requerido' });
             }
             
-            const project = Project.create({
+            const project = await Project.create({
                 name,
                 description,
                 color,
@@ -112,13 +117,13 @@ class ProjectController {
         }
     }
 
-    static update(req, res) {
+    static async update(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
-            const project = Project.getById(req.params.id);
+            const project = await Project.getById(req.params.id);
             
             if (!project) {
                 return res.status(404).json({ success: false, message: 'Proyecto no encontrado' });
@@ -128,7 +133,7 @@ class ProjectController {
                 return res.status(403).json({ success: false, message: 'Solo el dueño puede editar' });
             }
             
-            const updated = Project.update(req.params.id, req.body);
+            const updated = await Project.update(req.params.id, req.body);
             
             res.json({ success: true, project: updated });
         } catch (error) {
@@ -137,13 +142,13 @@ class ProjectController {
         }
     }
 
-    static delete(req, res) {
+    static async delete(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
-            const project = Project.getById(req.params.id);
+            const project = await Project.getById(req.params.id);
             
             if (!project) {
                 return res.status(404).json({ success: false, message: 'Proyecto no encontrado' });
@@ -153,7 +158,7 @@ class ProjectController {
                 return res.status(403).json({ success: false, message: 'Solo el dueño puede eliminar' });
             }
             
-            Project.delete(req.params.id);
+            await Project.delete(req.params.id);
             
             res.json({ success: true });
         } catch (error) {
@@ -162,20 +167,20 @@ class ProjectController {
         }
     }
 
-    static addMember(req, res) {
+    static async addMember(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
             const { email } = req.body;
-            const user = User.findByEmail(email);
+            const user = await User.findByEmail(email);
             
             if (!user) {
                 return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
             }
             
-            Project.addMember(req.params.id, user.id);
+            await Project.addMember(req.params.id, user.id);
             
             res.json({ success: true });
         } catch (error) {

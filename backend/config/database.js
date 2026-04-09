@@ -1,56 +1,64 @@
-const fs = require('fs');
-const path = require('path');
-const bcrypt = require('bcryptjs');
+const { createClient } = require('@supabase/supabase-js');
+const { Redis } = require('@upstash/redis');
+require('dotenv').config();
 
-const dataPath = path.join(__dirname, '../../data');
+// Configuración de Supabase
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
-if (!fs.existsSync(dataPath)) {
-    fs.mkdirSync(dataPath, { recursive: true });
+if (!supabaseUrl || !supabaseKey) {
+    console.error('⚠️ Supabase credentials missing in environment variables');
 }
 
-const initFile = (filename, defaultData = []) => {
-    const filePath = path.join(dataPath, filename);
-    if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, JSON.stringify(defaultData, null, 2));
-    }
-    return filePath;
-};
+const supabase = supabaseUrl && supabaseKey 
+    ? createClient(supabaseUrl, supabaseKey) 
+    : null;
 
-const initDatabase = () => {
-    const adminPassword = bcrypt.hashSync('admin123', 10);
+// Configuración de Upstash Redis
+const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+let redis = null;
+if (redisUrl && redisToken) {
+    redis = new Redis({
+        url: redisUrl,
+        token: redisToken,
+    });
+} else {
+    console.error('⚠️ Redis credentials missing in environment variables');
+}
+
+const initDatabase = async () => {
+    console.log('Iniciando conexión a bases de datos...');
     
-    initFile('users.json', [
-        {
-            id: '1',
-            email: 'admin@proyecto.com',
-            password: adminPassword,
-            name: 'Administrador',
-            role: 'admin',
-            avatar: '👨‍💼',
-            createdAt: new Date().toISOString()
+    // Verificar conexión a Supabase
+    if (supabase) {
+        // Ejecutar una consulta simple para verificar la conexión
+        // Se utiliza 'User' (no 'users') basado en el schema actual de Supabase
+        const { data, error } = await supabase.from('User').select('id').limit(1);
+        if (error) {
+            console.error('❌ Error conectando a Supabase:', error.message);
+        } else {
+            console.log('✓ Conectado a Supabase correctamente');
         }
-    ]);
-    initFile('projects.json', []);
-    initFile('tasks.json', []);
-    initFile('comments.json', []);
-    initFile('activities.json', []);
-    
-    console.log('✓ Base de datos inicializada');
+    }
+
+    // Verificar conexión a Redis
+    if (redis) {
+        try {
+            await redis.set('ping', 'pong');
+            const pong = await redis.get('ping');
+            if (pong === 'pong') {
+                console.log('✓ Conectado a Upstash Redis correctamente');
+            }
+        } catch (error) {
+            console.error('❌ Error conectando a Redis:', error.message);
+        }
+    }
 };
 
 module.exports = {
     initDatabase,
-    readJSON: (filename) => {
-        const filePath = path.join(dataPath, filename);
-        try {
-            const data = fs.readFileSync(filePath, 'utf8');
-            return JSON.parse(data);
-        } catch (error) {
-            return [];
-        }
-    },
-    writeJSON: (filename, data) => {
-        const filePath = path.join(dataPath, filename);
-        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-    }
+    supabase,
+    redis
 };

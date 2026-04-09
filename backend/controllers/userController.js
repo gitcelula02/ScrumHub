@@ -1,13 +1,13 @@
 const User = require('../models/User');
 
 class UserController {
-    static getAll(req, res) {
+    static async getAll(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
-            const users = User.getAll();
+            const users = await User.getAll();
             const safeUsers = users.map(u => ({
                 id: u.id,
                 name: u.name,
@@ -23,13 +23,13 @@ class UserController {
         }
     }
 
-    static getById(req, res) {
+    static async getById(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
-            const user = User.findById(req.params.id);
+            const user = await User.findById(req.params.id);
             
             if (!user) {
                 return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
@@ -52,7 +52,7 @@ class UserController {
         }
     }
 
-    static updateProfile(req, res) {
+    static async updateProfile(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
@@ -60,7 +60,7 @@ class UserController {
             
             const { name, avatar } = req.body;
             
-            const updated = User.update(req.session.userId, { name, avatar });
+            const updated = await User.update(req.session.userId, { name, avatar });
             
             if (!updated) {
                 return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
