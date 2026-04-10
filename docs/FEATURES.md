@@ -26,8 +26,10 @@ This means that the AI must have access to the project's tasks, backlog, and boa
 - The AI can also be used to generate reports, summaries, or any other kind of information related to the project, based on the data in the database.  
 - The AI can interpret and extract information from the voice chat (Only if allowed by the user) and create tasks or generate reports based on the conversation.  
 
-Naturally, as GitHub, the application should have a workspace, where the user can generate code or review it based on the project context.  
-This workspace should be connected to the AI, so that the user can ask the AI to generate code, review it, or suggest changes, based on the project context.  
+The application will have a workspace, this workspace will not be for creating code but for SCRUM planing.
+It should allow to freely create any kind of diagrams, drawings and stick notes (similar to whimsical, miro, or mural), this can then be used as context for the AI for SCRUM planning, epic creation, editing, etc.
+It should be a space where the user can freely write all the ideas, functionalities and more, in natural language and without worrying over spending the AI tokens early, and the use it later for AI context. Discussing ideas with the AI and analyzing their own project.
+Changes can then be made later to create new features or change existing plans.
 
 ## Features
 
@@ -54,6 +56,13 @@ This workspace should be connected to the AI, so that the user can ask the AI to
     - [ ] AI boards deletion
     - [ ] AI boards permissions
     - [ ] AI boards AI
+- [ ] Create Markdown view for boards
+    - [ ] Markdown view for boards
+    - [ ] Markdown view for boards editing
+    - [ ] Markdown view for boards deletion
+    - [ ] Markdown view for boards permissions
+    - [ ] Markdown view for boards AI
+    - [ ] Markdown view download 
 
 ### Backlog
 - [ ] Create and manage backlog
@@ -77,6 +86,13 @@ This workspace should be connected to the AI, so that the user can ask the AI to
     - [ ] backlog tree structure deletion
     - [ ] backlog tree structure permissions
     - [ ] backlog tree structure AI
+- [ ] Create Markdown view for backlog
+    - [ ] Markdown view for backlog
+    - [ ] Markdown view for backlog editing
+    - [ ] Markdown view for backlog deletion
+    - [ ] Markdown view for backlog permissions
+    - [ ] Markdown view for backlog AI
+    - [ ] Markdown view download 
 
 ### Chat
 - [ ] Create and manage chats
@@ -109,33 +125,59 @@ This workspace should be connected to the AI, so that the user can ask the AI to
         - [ ] Tags
         - [ ] Teams/Team members
         - [ ] Local/cloud
-        - [ ] Board and backlogs context
-        - [ ] AI context
     - [ ] Create workspace
     - [ ] Edit workspace
     - [ ] Delete workspace
     - [ ] Manage workspace's columns
-    - [ ] Manage workspace's tasks
-    - [ ] Manage workspace's users
-    - [ ] Manage workspace's permissions
-    - [ ] Manage workspace's AI
-- [ ] Implement Visual Studio interface workspace
-- [ ] AI integration
-    - [ ] Allow extension installation for personalization
-    - [ ] Allow AI integration for code generation and review
-    - [ ] Allow AI integration for code testing
-    - [ ] Allow AI integration for code documentation
-    - [ ] Allow AI integration for code refactoring
-    - [ ] Allow AI integration for code optimization
-    - [ ] Allow AI integration for code security
-    - [ ] Allow AI integration for code performance
-    - [ ] Allow AI integration for code quality
-    - [ ] Allow AI integration for code style
-    - [ ] Allow AI integration for code testing
-    - [ ] Allow AI integration for code documentation
-    - [ ] Allow AI integration for code refactoring
-    - [ ] Allow AI integration for code optimization
-    - [ ] Allow AI integration for code security
-    - [ ] Allow AI integration for code performance
-    - [ ] Allow AI integration for code quality
-    - [ ] Allow AI integration for code style
+- [ ] Workspace drawing tools
+    - [ ] Geometrical forms
+    - [ ] Drawing tools editing
+    - [ ] Drawing tools deletion
+    - [ ] Drawing tools permissions
+    - [ ] Drawing tools AI
+    - [ ] Drawing tools download 
+    - [ ] Mapping elements
+    - [ ] Free draw tool
+    - [ ] Text tool
+    - [ ] Image tool
+    - [ ] Video tool
+    - [ ] Audio tool
+    - [ ] File tool
+    - [ ] Link tool
+    - [ ] Table tool
+    - [ ] List tool
+    - [ ] Checkbox tool
+    - [ ] Radio button tool
+    - [ ] Dropdown tool
+    - [ ] Button tool
+    - [ ] Input tool
+    - [ ] Textarea tool
+    - [ ] Select tool
+    - [ ] Option tool
+    - [ ] Optgroup tool
+    - [ ] Fieldset tool
+    - [ ] Legend tool
+    - [ ] Label tool
+    - [ ] Form tool
+- [ ] AI reading workspace
+    - [ ] AI reading workspace editing
+    - [ ] AI reading workspace deletion
+    - [ ] AI reading workspace permissions
+    - [ ] AI reading workspace AI
+    - [ ] AI reading workspace download 
+    - [ ] AI backlog modification
+- [ ] retrospective
+    - [ ] retrospective creation
+    - [ ] retrospective editing
+    - [ ] retrospective deletion
+    - [ ] retrospective AI permissions
+    - [ ] retrospective AI
+    - [ ] retrospective download 
+    - [ ] retrospective board
+    - [ ] retrospective backlog
+    - [ ] retrospective chat
+    - [ ] retrospective workspace
+    - [ ] retrospective AI
+    - [ ] retrospective download 
+
+### 

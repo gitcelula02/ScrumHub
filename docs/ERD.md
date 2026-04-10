@@ -2,7 +2,7 @@
 ## Entities
 
 ### User
-**id**: Int
+**ID**: INT
     - Primary Key
 **username**: String
     - Unique
@@ -14,7 +14,7 @@
     - Admin, User, Guest
 
 ### Task
-**id**: Int
+**ID**: INT
     - Primary Key
 **title**: String
 **description**: String
@@ -23,25 +23,25 @@
 **priority**: String
     - Low, Medium, High
 **due_date**: Date
-**assignee_id**: Int
+**assignee_id**: INT
     - Foreign Key to User
-**reporter_id**: Int
+**reporter_id**: INT
     - Foreign Key to User
-**project_id**: Int
+**project_id**: INT
     - Foreign Key to Project
 
 ### Comment
-**id**: Int
+**ID**: INT
     - Primary Key
-**user_id**: Int
+**user_id**: INT
     - Foreign Key to User
-**task_id**: Int
+**task_id**: INT
     - Foreign Key to Task
 **comment**: String
     - Comment text
 
 ### Project
-**id**: Int
+**ID**: INT
     - Primary Key
 **name**: String
 **description**: String
@@ -50,13 +50,13 @@
 **priority**: String
     - Low, Medium, High
 **due_date**: Date
-**assignee_id**: Int
+**assignee_id**: INT
     - Foreign Key to User
-**reporter_id**: Int
+**reporter_id**: INT
     - Foreign Key to User
 
 ### Epic
-**id**: Int
+**ID**: INT
     - Primary Key
 **name**: String
 **description**: String
@@ -65,15 +65,15 @@
 **priority**: String
     - Low, Medium, High
 **due_date**: Date
-**assignee_id**: Int
+**assignee_id**: INT
     - Foreign Key to User
-**reporter_id**: Int
+**reporter_id**: INT
     - Foreign Key to User
-**project_id**: Int
+**project_id**: INT
     - Foreign Key to Project
 
 ### User Story
-**id**: Int
+**ID**: INT
     - Primary Key
 **name**: String
 **description**: String
@@ -82,17 +82,17 @@
 **priority**: String
     - Low, Medium, High
 **due_date**: Date
-**assignee_id**: Int
+**assignee_id**: INT
     - Foreign Key to User
-**reporter_id**: Int
+**reporter_id**: INT
     - Foreign Key to User
-**project_id**: Int
+**project_id**: INT
     - Foreign Key to Project
-**epic_id**: Int
+**epic_id**: INT
     - Foreign Key to Epic
 
 ### Acceptance Criteria
-**id**: Int
+**ID**: INT
     - Primary Key
 **name**: String
 **description**: String
@@ -101,19 +101,19 @@
 **priority**: String
     - Low, Medium, High
 **due_date**: Date
-**assignee_id**: Int
+**assignee_id**: INT
     - Foreign Key to User
-**reporter_id**: Int
+**reporter_id**: INT
     - Foreign Key to User
-**project_id**: Int
+**project_id**: INT
     - Foreign Key to Project
-**epic_id**: Int
+**epic_id**: INT
     - Foreign Key to Epic
-**user_story_id**: Int
+**user_story_id**: INT
     - Foreign Key to User Story
 
 ### Sprint
-**id**: Int
+**ID**: INT
     - Primary Key
 **name**: String
 **description**: String
@@ -123,11 +123,11 @@
     - Low, Medium, High
 **due_date**: Date
 **start_date**: Date
-**assignee_id**: Int
+**assignee_id**: INT
     - Foreign Key to User
-**reporter_id**: Int
+**reporter_id**: INT
     - Foreign Key to User
-**project_id**: Int
+**project_id**: INT
     - Foreign Key to Project`
 
 
