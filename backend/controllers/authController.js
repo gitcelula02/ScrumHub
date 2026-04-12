@@ -12,7 +12,7 @@ class AuthController {
                 });
             }
             
-            const user = User.findByEmail(email);
+            const user = await User.findByEmail(email);
             
             if (!user) {
                 return res.status(401).json({ 
@@ -21,7 +21,7 @@ class AuthController {
                 });
             }
             
-            const isValidPassword = User.verifyPassword(password, user.password);
+            const isValidPassword = User.verifyPassword(password, user.password_hash);
             
             if (!isValidPassword) {
                 return res.status(401).json({ 
@@ -69,14 +69,15 @@ class AuthController {
                 });
             }
             
-            if (User.findByEmail(email)) {
+            const existingUser = await User.findByEmail(email);
+            if (existingUser) {
                 return res.status(400).json({ 
                     success: false, 
                     message: 'El email ya está registrado' 
                 });
             }
             
-            const user = User.create({ name, email, password });
+            const user = await User.create({ name, email, password });
             
             req.session.userId = user.id;
             
@@ -108,33 +109,41 @@ class AuthController {
         });
     }
 
-    static getCurrentUser(req, res) {
-        if (!req.session.userId) {
-            return res.status(401).json({ 
-                success: false, 
-                message: 'No autenticado' 
-            });
-        }
-        
-        const user = User.findById(req.session.userId);
-        
-        if (!user) {
-            return res.status(404).json({ 
-                success: false, 
-                message: 'Usuario no encontrado' 
-            });
-        }
-        
-        res.json({
-            success: true,
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                avatar: user.avatar
+    static async getCurrentUser(req, res) {
+        try {
+            if (!req.session.userId) {
+                return res.status(401).json({ 
+                    success: false, 
+                    message: 'No autenticado' 
+                });
             }
-        });
+            
+            const user = await User.findById(req.session.userId);
+            
+            if (!user) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: 'Usuario no encontrado' 
+                });
+            }
+            
+            res.json({
+                success: true,
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    avatar: user.avatar
+                }
+            });
+        } catch (error) {
+            console.error('Error obteniendo usuario actual:', error);
+            res.status(500).json({ 
+                success: false, 
+                message: 'Error del servidor. Intenta de nuevo.' 
+            });
+        }
     }
 }
 

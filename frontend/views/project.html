@@ -494,6 +494,98 @@
             background: rgba(239, 68, 68, 0.25);
         }
 
+        .btn-tree {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #22c55e, #3b82f6);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-tree:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-tree.active {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+        }
+
+        .tree-container {
+            display: none;
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 28px;
+            border: 1px solid var(--border);
+            min-height: 500px;
+            position: relative;
+        }
+
+        .tree-container.active {
+            display: block;
+        }
+
+        .board-container.hidden {
+            display: none;
+        }
+
+        .tree-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tree-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 22px;
+            background: linear-gradient(135deg, #22c55e, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tree-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        #treeVisualization {
+            width: 100%;
+            height: 600px;
+            background: var(--bg-input);
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .node {
+            cursor: pointer;
+        }
+
+        .node circle {
+            fill: #fff;
+            stroke: steelblue;
+            stroke-width: 3px;
+        }
+
+        .node text {
+            font: 12px sans-serif;
+        }
+
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
+
         @media (max-width: 1200px) {
             .project-layout {
                 grid-template-columns: 1fr;
@@ -573,12 +665,13 @@
             <div class="content-area">
                 <div class="project-layout">
                     <div class="board-container">
-                        <div class="board-header">
-                            <h2>📋 Tablero del Proyecto</h2>
-                            <div class="board-actions">
-                                <button class="icon-btn" onclick="loadProject()" title="Actualizar">🔄</button>
-                            </div>
-                        </div>
+                <div class="board-header">
+                    <h2>📋 Tablero del Proyecto</h2>
+                    <div class="board-actions">
+                        <button class="icon-btn" onclick="loadProject()" title="Actualizar">🔄</button>
+                        <button class="btn-tree" onclick="toggleTreeView()" id="treeToggle">🌳 Tablero Dinámico</button>
+                    </div>
+                </div>
                         <div class="board" id="board">
                             <div class="board-column" data-status="todo" style="--column-color: #8b8baa;">
                                 <div class="column-header">
@@ -608,9 +701,20 @@
                                 <div class="task-list" id="tasksDone"></div>
                             </div>
                         </div>
-                    </div>
+                     </div>
 
-                    <div class="chat-panel" id="chatPanel">
+                     <div class="tree-container" id="treeContainer">
+                         <div class="tree-header">
+                             <h2>🌳 Árbol de Tareas Dinámico</h2>
+                             <div class="tree-actions">
+                                 <button class="icon-btn" onclick="generateTreeWithAI()" title="Generar con IA">🤖</button>
+                                 <button class="icon-btn" onclick="refreshTree()" title="Actualizar">🔄</button>
+                             </div>
+                         </div>
+                         <div id="treeVisualization"></div>
+                     </div>
+
+                     <div class="chat-panel" id="chatPanel">
                         <div class="chat-header">
                             <div class="chat-header-icon">🤖</div>
                             <div>
@@ -731,6 +835,7 @@
     <script src="/js/projects.js"></script>
     <script src="/js/tasks.js"></script>
     <script src="/js/ai.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
         let projectId = null;
         let project = null;
@@ -931,6 +1036,251 @@
 
         function closeModal(type) {
             document.getElementById('modal' + type).classList.remove('active');
+        }
+
+        function toggleTreeView() {
+            const board = document.querySelector('.board-container');
+            const tree = document.getElementById('treeContainer');
+            const toggleBtn = document.getElementById('treeToggle');
+            if (tree.classList.contains('active')) {
+                tree.classList.remove('active');
+                board.classList.remove('hidden');
+                toggleBtn.classList.remove('active');
+                toggleBtn.textContent = '🌳 Tablero Dinámico';
+            } else {
+                tree.classList.add('active');
+                board.classList.add('hidden');
+                toggleBtn.classList.add('active');
+                toggleBtn.textContent = '📋 Tablero Kanban';
+                refreshTree();
+            }
+        }
+
+        async function refreshTree() {
+            if (!projectId) return;
+            const response = await ProjectAPI.getTree(projectId);
+            if (response.success) {
+                const treeData = response.tree;
+                // treeData es un array de tareas raíz con children
+                // Construir un nodo raíz artificial para compatibilidad
+                const rootNode = {
+                    name: 'Proyecto',
+                    children: treeData.map(task => convertTaskToNode(task))
+                };
+                buildTree([], rootNode);
+            } else {
+                // Fallback a la versión plana
+                const fallback = await TaskAPI.getByProject(projectId);
+                if (fallback.success) {
+                    buildTree(fallback.tasks);
+                }
+            }
+        }
+        
+        function convertTaskToNode(task) {
+            const node = {
+                name: `#${task.id} ${task.title}`,
+                status: task.status,
+                priority: task.priority,
+                children: []
+            };
+            if (task.children && task.children.length > 0) {
+                node.children = task.children.map(child => convertTaskToNode(child));
+            }
+            return node;
+        }
+
+        function buildTree(tasks, rootNode = null) {
+            console.log('Building tree with', tasks.length, 'tasks');
+            const container = document.getElementById('treeVisualization');
+            container.innerHTML = '';
+            if (tasks.length === 0 && !rootNode) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">No hay tareas para mostrar.</div>';
+                return;
+            }
+            let root;
+            if (rootNode) {
+                root = rootNode;
+            } else {
+                // Group tasks by priority
+                const high = tasks.filter(t => t.priority === 'high' || t.priority === 'urgent');
+                const medium = tasks.filter(t => t.priority === 'medium');
+                const low = tasks.filter(t => t.priority === 'low');
+                // Create hierarchical data
+                root = { name: 'Proyecto', children: [] };
+                high.forEach(task => {
+                    const node = {
+                        name: `#${task.id} ${task.title}`,
+                        status: task.status,
+                        priority: task.priority,
+                        children: []
+                    };
+                    medium.filter(t => t.assignee === task.assignee || t.id === task.id).forEach(sub => {
+                        const subNode = {
+                            name: `#${sub.id} ${sub.title}`,
+                            status: sub.status,
+                            priority: sub.priority,
+                            children: []
+                        };
+                        low.filter(l => l.assignee === sub.assignee || l.id === sub.id).forEach(leaf => {
+                            subNode.children.push({
+                                name: `#${leaf.id} ${leaf.title}`,
+                                status: leaf.status,
+                                priority: leaf.priority
+                            });
+                        });
+                        node.children.push(subNode);
+                    });
+                    root.children.push(node);
+                });
+            }
+            renderTree(root);
+        }
+
+        function renderTree(root) {
+            const container = document.getElementById('treeVisualization');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            const svg = d3.select('#treeVisualization')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${width / 2}, 50)`);
+            // Create tree layout
+            const treeLayout = d3.tree().size([height - 100, width - 200]);
+            const hierarchy = d3.hierarchy(root);
+            const treeData = treeLayout(hierarchy);
+            // Draw links
+            svg.selectAll('.link')
+                .data(treeData.links())
+                .enter()
+                .append('path')
+                .attr('class', 'link')
+                .attr('d', d3.linkVertical()
+                    .x(d => d.x)
+                    .y(d => d.y));
+            // Draw nodes
+            const node = svg.selectAll('.node')
+                .data(treeData.descendants())
+                .enter()
+                .append('g')
+                .attr('class', 'node')
+                .attr('transform', d => `translate(${d.y},${d.x})`);
+            node.append('circle')
+                .attr('r', d => d.data.status === 'done' ? 12 : 10)
+                .attr('fill', d => {
+                    if (d.data.priority === 'high' || d.data.priority === 'urgent') return '#ef4444';
+                    if (d.data.priority === 'medium') return '#f59e0b';
+                    if (d.data.priority === 'low') return '#22c55e';
+                    return '#3b82f6';
+                })
+                .attr('stroke', d => {
+                    if (d.data.status === 'done') return '#22c55e';
+                    if (d.data.status === 'in-progress') return '#3b82f6';
+                    if (d.data.status === 'review') return '#f59e0b';
+                    return '#ccc';
+                })
+                .attr('stroke-width', 2);
+            node.append('text')
+                .attr('dy', '0.31em')
+                .attr('x', d => d.children ? -12 : 12)
+                .attr('text-anchor', d => d.children ? 'end' : 'start')
+                .text(d => d.data.name)
+                .style('font-size', '10px')
+                .style('fill', 'var(--text-primary)');
+        }
+
+        const DEEPSEEK_API_KEY = "sk-1979a0e499854dab931fdeb14fd9b02e";
+        const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
+
+        async function generateTreeWithAI() {
+            if (!projectId) return;
+            showToast('Generando árbol con IA...', 'info');
+            const response = await TaskAPI.getByProject(projectId);
+            if (!response.success) {
+                showToast('Error al obtener tareas', 'error');
+                return;
+            }
+            const tasks = response.tasks;
+            if (tasks.length === 0) {
+                showToast('No hay tareas para generar árbol', 'warning');
+                return;
+            }
+            // Build prompt
+            const prompt = `Eres un asistente de gestión de proyectos. Necesito que generes una estructura de árbol jerárquico para las siguientes tareas. Las tareas tienen prioridad (high, medium, low) y estado (todo, in-progress, review, done). Las tareas de prioridad alta deben ser nodos principales (tallo), las de prioridad media ramas, las de prioridad baja hojas. También considera las dependencias naturales entre tareas basadas en su título y descripción.
+            
+            Tareas:
+            ${tasks.map(t => `- #${t.id} "${t.title}" (prioridad: ${t.priority}, estado: ${t.status})`).join('\n')}
+            
+            Devuélveme SOLO un objeto JSON con la siguiente estructura:
+            {
+                "root": {
+                    "name": "Proyecto",
+                    "children": [
+                        {
+                            "name": "Tarea principal 1",
+                            "priority": "high",
+                            "status": "todo",
+                            "children": [...]
+                        }
+                    ]
+                }
+            }
+            El JSON debe ser válido y no incluir ningún otro texto.`;
+            
+            const messages = [
+                {
+                    role: "system",
+                    content: "Eres un asistente especializado en generar estructuras de árbol jerárquicas para gestión de tareas. Responde únicamente con JSON válido."
+                },
+                {
+                    role: "user",
+                    content: prompt
+                }
+            ];
+            
+            try {
+                const apiResponse = await fetch(DEEPSEEK_API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: messages,
+                        max_tokens: 2000,
+                        temperature: 0.3
+                    })
+                });
+                const data = await apiResponse.json();
+                if (!apiResponse.ok) {
+                    throw new Error(data.error?.message || 'API error');
+                }
+                const text = data.choices[0].message.content.trim();
+                // Parse JSON from response
+                let json;
+                try {
+                    // Extract JSON from possible markdown code blocks
+                    const jsonMatch = text.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        json = JSON.parse(jsonMatch[0]);
+                    } else {
+                        json = JSON.parse(text);
+                    }
+                } catch (e) {
+                    console.error('Failed to parse AI response:', text);
+                    showToast('Error al parsear respuesta de IA', 'error');
+                    return;
+                }
+                // Use the JSON to build tree
+                buildTree([], json.root);
+                showToast('Árbol generado con IA', 'success');
+            } catch (error) {
+                console.error('AI generation error:', error);
+                showToast('Error al generar árbol con IA: ' + error.message, 'error');
+            }
         }
 
         window.openTask = openTaskDetails;

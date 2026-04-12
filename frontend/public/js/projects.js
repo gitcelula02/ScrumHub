@@ -3,6 +3,7 @@ const API_BASE = '/api/projects';
 async function api(endpoint, options = {}) {
     const response = await fetch(`${API_BASE}${endpoint}`, {
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         ...options
     });
     const data = await response.json();
@@ -45,11 +46,16 @@ async function addMember(projectId, email) {
     });
 }
 
+async function getTree(projectId) {
+    return api(`/${projectId}/tree`);
+}
+
 window.ProjectAPI = {
     getAll: getProjects,
     getById: getProject,
     create: createProject,
     update: updateProject,
     delete: deleteProject,
-    addMember
+    addMember,
+    getTree
 };

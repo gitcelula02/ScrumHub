@@ -9,7 +9,16 @@ const taskRoutes = require('./routes/tasks');
 const aiRoutes = require('./routes/ai');
 const NotificationService = require('./services/notificationService');
 
-initDatabase();
+// Inicializar base de datos
+(async () => {
+    try {
+        await initDatabase();
+        console.log('✅ Bases de datos inicializadas');
+    } catch (error) {
+        console.error('⚠️ Error inicializando bases de datos:', error.message);
+        console.log('⚠️ Continuando sin bases de datos...');
+    }
+})();
 
 const app = express();
 const PORT = process.env.PORT || 3000;

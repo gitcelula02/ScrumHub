@@ -3,6 +3,7 @@ const API_BASE = '/api/tasks';
 async function api(endpoint, options = {}) {
     const response = await fetch(`${API_BASE}${endpoint}`, {
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         ...options
     });
     const data = await response.json();

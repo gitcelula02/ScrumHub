@@ -5,6 +5,8 @@ node_modules/
 .env
 .env.local
 .env.*.local
+.env.*
+!.env.example
 
 # Data files (database)
 data/*.json
@@ -32,3 +34,52 @@ build/
 # Temporary files
 tmp/
 temp/
+
+# MCP Configuration
+mcp_config.json
+
+# Testing
+coverage/
+.nyc_output/
+
+# Cache and temporary files
+.cache/
+.npm/
+.parcel-cache/
+.webpack/
+*.pid
+*.seed
+*.sock
+
+# System files
+desktop.ini
+
+# Development scripts
+debug.js
+ping.js
+test.js
+test-*.js
+
+# Error logs
+*.err
+*.error
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# npm
+.npmrc
+.npmignore
+*.tgz
+
+# Configurations
+config.local.json
+credentials*.json
+secrets.*
+
+# SSL and keys
+*.pem
+*.key
+*.crt
