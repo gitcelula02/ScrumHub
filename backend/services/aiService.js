@@ -4,35 +4,35 @@ const Project = require('../models/Project');
 const User = require('../models/User');
 
 class AIService {
-    static parseCommand(userMessage, projectId, userId) {
+    static async parseCommand(userMessage, projectId, userId) {
         const message = userMessage.toLowerCase();
         
         if (message.includes('crear tarea') || message.includes('nueva tarea') || message.includes('crear task')) {
-            return this.parseCreateTask(userMessage, projectId, userId);
+            return await this.parseCreateTask(userMessage, projectId, userId);
         }
         
         if (message.includes('actualizar tarea') || message.includes('cambiar tarea')) {
-            return this.parseUpdateTask(userMessage, projectId);
+            return await this.parseUpdateTask(userMessage, projectId);
         }
         
         if (message.includes('asignar a') || message.includes('asignar tarea')) {
-            return this.parseAssignTask(userMessage, projectId);
+            return await this.parseAssignTask(userMessage, projectId);
         }
         
         if (message.includes('cambiar prioridad') || message.includes('prioridad')) {
-            return this.parseChangePriority(userMessage, projectId);
+            return await this.parseChangePriority(userMessage, projectId);
         }
         
         if (message.includes('fecha') || message.includes('vencimiento') || message.includes('due')) {
-            return this.parseSetDueDate(userMessage, projectId);
+            return await this.parseSetDueDate(userMessage, projectId);
         }
         
         if (message.includes('crear proyecto') || message.includes('nuevo proyecto')) {
-            return this.parseCreateProject(userMessage, userId);
+            return await this.parseCreateProject(userMessage, userId);
         }
         
         if (message.includes('buscar') || message.includes('mostrar')) {
-            return this.parseSearchTask(userMessage, projectId);
+            return await this.parseSearchTask(userMessage, projectId);
         }
         
         return {
@@ -47,7 +47,7 @@ class AIService {
         };
     }
 
-    static parseCreateTask(message, projectId, userId) {
+    static async parseCreateTask(message, projectId, userId) {
         const patterns = [
             /crear tarea[:\s]+(.+)/i,
             /nueva tarea[:\s]+(.+)/i,
@@ -79,9 +79,9 @@ class AIService {
         
         const priority = this.detectPriority(message);
         const dueDate = this.extractDate(message);
-        const assignee = this.extractAssignee(message);
+        const assignee = await this.extractAssignee(message);
         
-        const task = Task.create({
+        const task = await Task.create({
             projectId,
             title,
             priority,
@@ -96,7 +96,7 @@ class AIService {
         response += `⚡ Prioridad: ${task.priority}\n`;
         if (dueDate) response += `📅 Vence: ${dueDate}\n`;
         if (assignee) {
-            const user = User.findById(assignee);
+            const user = await User.findById(assignee);
             response += `👤 Asignado: ${user?.name || 'Usuario'}\n`;
         }
         
@@ -107,7 +107,7 @@ class AIService {
         };
     }
 
-    static parseUpdateTask(message, projectId) {
+    static async parseUpdateTask(message, projectId) {
         const idMatch = message.match(/#?(\d+)/);
         if (!idMatch) {
             return {
@@ -117,7 +117,7 @@ class AIService {
         }
         
         const taskId = idMatch[1];
-        const task = Task.getById(taskId);
+        const task = await Task.getById(taskId);
         
         if (!task) {
             return {
@@ -144,7 +144,7 @@ class AIService {
             updates.dueDate = this.extractDate(message);
         }
         
-        const updated = Task.update(taskId, updates);
+        const updated = await Task.update(taskId, updates);
         
         return {
             type: 'task_updated',
@@ -153,9 +153,9 @@ class AIService {
         };
     }
 
-    static parseAssignTask(message, projectId) {
+    static async parseAssignTask(message, projectId) {
         const idMatch = message.match(/#?(\d+)/);
-        const users = User.getAll();
+        const users = await User.getAll();
         
         let assigneeId = null;
         let assigneeName = null;
@@ -178,7 +178,7 @@ class AIService {
         
         if (idMatch) {
             const taskId = idMatch[1];
-            const updated = Task.update(taskId, { assignee: assigneeId });
+            const updated = await Task.update(taskId, { assignee: assigneeId });
             return {
                 type: 'task_updated',
                 task: updated,
@@ -194,7 +194,7 @@ class AIService {
         };
     }
 
-    static parseChangePriority(message, projectId) {
+    static async parseChangePriority(message, projectId) {
         const priority = this.detectPriority(message);
         const idMatch = message.match(/#?(\d+)/);
         
@@ -207,7 +207,7 @@ class AIService {
         
         if (idMatch) {
             const taskId = idMatch[1];
-            const updated = Task.update(taskId, { priority });
+            const updated = await Task.update(taskId, { priority });
             return {
                 type: 'task_updated',
                 task: updated,
@@ -223,7 +223,7 @@ class AIService {
         };
     }
 
-    static parseSetDueDate(message, projectId) {
+    static async parseSetDueDate(message, projectId) {
         const date = this.extractDate(message);
         const idMatch = message.match(/#?(\d+)/);
         
@@ -236,7 +236,7 @@ class AIService {
         
         if (idMatch) {
             const taskId = idMatch[1];
-            const updated = Task.update(taskId, { dueDate: date });
+            const updated = await Task.update(taskId, { dueDate: date });
             return {
                 type: 'task_updated',
                 task: updated,
@@ -252,7 +252,7 @@ class AIService {
         };
     }
 
-    static parseCreateProject(message, userId) {
+    static async parseCreateProject(message, userId) {
         const patterns = [
             /crear proyecto[:\s]+(.+)/i,
             /nuevo proyecto[:\s]+(.+)/i,
@@ -280,7 +280,7 @@ class AIService {
             };
         }
         
-        const project = Project.create({
+        const project = await Project.create({
             name,
             owner: userId
         });
@@ -288,11 +288,11 @@ class AIService {
         return {
             type: 'project_created',
             project,
-            message: `✅ Proyecto creado:\n📁 **${project.name}**\n🔑 Key: ${project.key}\n\nAhora puedes agregar tareas usando el chat.`
+            message: `✅ Proyecto creado:\n📁 **${project.name}**\n🔑 ID: ${project.id}\n\nAhora puedes agregar tareas usando el chat.`
         };
     }
 
-    static parseSearchTask(message, projectId) {
+    static async parseSearchTask(message, projectId) {
         const searchTerm = message
             .replace(/buscar/gi, '')
             .replace(/mostrar/gi, '')
@@ -300,8 +300,8 @@ class AIService {
             .trim();
         
         const tasks = projectId 
-            ? Task.getByProject(projectId) 
-            : Task.getAll();
+            ? await Task.getByProject(projectId) 
+            : await Task.getAll();
         
         const filtered = tasks.filter(t => 
             t.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -371,8 +371,8 @@ class AIService {
         return null;
     }
 
-    static extractAssignee(message) {
-        const users = User.getAll();
+    static async extractAssignee(message) {
+        const users = await User.getAll();
         for (const user of users) {
             if (message.toLowerCase().includes(user.name.toLowerCase())) {
                 return user.id;
@@ -381,11 +381,11 @@ class AIService {
         return null;
     }
 
-    static generateAlert(task) {
-        const user = User.findById(task.assignee);
+    static async generateAlert(task) {
+        const user = await User.findById(task.assignee);
         if (!user) return null;
         
-        const project = Project.getById(task.projectId);
+        const project = await Project.getById(task.projectId);
         const now = new Date();
         const dueDate = new Date(task.dueDate);
         const daysUntilDue = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
@@ -442,14 +442,14 @@ class AIService {
         return { to: user.email, subject, message };
     }
 
-    static checkAndGenerateAlerts() {
-        const tasks = Task.getAll();
+    static async checkAndGenerateAlerts() {
+        const tasks = await Task.getAll();
         const alerts = [];
         
         for (const task of tasks) {
             if (task.status === 'done') continue;
             
-            const alert = AIService.generateAlert(task);
+            const alert = await AIService.generateAlert(task);
             if (alert && alert.subject) {
                 alerts.push(alert);
             }

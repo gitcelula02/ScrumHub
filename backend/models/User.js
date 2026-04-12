@@ -1,52 +1,51 @@
-const db = require('../config/database');
+const { supabase } = require('../config/database');
 const bcrypt = require('bcryptjs');
 
 class User {
-    static getAll() {
-        return db.readJSON('users.json');
+    static async getAll() {
+        const { data, error } = await supabase.from('User').select('*');
+        if (error) throw error;
+        return data || [];
     }
 
-    static findById(id) {
-        const users = db.readJSON('users.json');
-        return users.find(u => u.id === id);
+    static async findById(id) {
+        const { data, error } = await supabase.from('User').select('*').eq('id', id).single();
+        if (error && error.code !== 'PGRST116') throw error; // PGRST116 is not found
+        // Return dummy role/avatar so frontend doesn't break
+        if (data) Object.assign(data, { role: 'member', avatar: '👤' });
+        return data;
     }
 
-    static findByEmail(email) {
-        const users = db.readJSON('users.json');
-        return users.find(u => u.email === email);
+    static async findByEmail(email) {
+        const { data, error } = await supabase.from('User').select('*').eq('email', email).single();
+        if (error && error.code !== 'PGRST116') throw error;
+        if (data) Object.assign(data, { role: 'member', avatar: '👤' });
+        return data;
     }
 
-    static create(userData) {
-        const users = db.readJSON('users.json');
+    static async create(userData) {
         const newUser = {
-            id: Date.now().toString(),
             email: userData.email,
-            password: bcrypt.hashSync(userData.password, 10),
-            name: userData.name,
-            role: userData.role || 'member',
-            avatar: userData.avatar || '👤',
-            createdAt: new Date().toISOString()
+            password_hash: bcrypt.hashSync(userData.password, 10),
+            name: userData.name
         };
-        users.push(newUser);
-        db.writeJSON('users.json', users);
-        return newUser;
+        const { data, error } = await supabase.from('User').insert([newUser]).select().single();
+        if (error) throw error;
+        if (data) Object.assign(data, { role: 'member', avatar: '👤' });
+        return data;
     }
 
-    static update(id, data) {
-        const users = db.readJSON('users.json');
-        const index = users.findIndex(u => u.id === id);
-        if (index !== -1) {
-            users[index] = { ...users[index], ...data };
-            db.writeJSON('users.json', users);
-            return users[index];
-        }
-        return null;
+    static async update(id, updateData) {
+        const { data, error } = await supabase.from('User').update(updateData).eq('id', id).select().single();
+        if (error) throw error;
+        if (data) Object.assign(data, { role: 'member', avatar: '👤' });
+        return data;
     }
 
-    static delete(id) {
-        const users = db.readJSON('users.json');
-        const filtered = users.filter(u => u.id !== id);
-        db.writeJSON('users.json', filtered);
+    static async delete(id) {
+        const { error } = await supabase.from('User').delete().eq('id', id);
+        if (error) throw error;
+        return true;
     }
 
     static verifyPassword(plainPassword, hashedPassword) {

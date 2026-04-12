@@ -39,9 +39,9 @@ class NotificationService {
     }
 
     static async sendTaskAssignment(taskId, userId) {
-        const task = Task.getById(taskId);
-        const user = User.findById(userId);
-        const project = Project.getById(task.projectId);
+        const task = await Task.getById(taskId);
+        const user = await User.findById(userId);
+        const project = await Project.getById(task.projectId);
         
         if (!user || !task) return false;
         
@@ -64,11 +64,11 @@ class NotificationService {
     }
 
     static async sendTaskUpdate(taskId) {
-        const task = Task.getById(taskId);
+        const task = await Task.getById(taskId);
         if (!task || !task.assignee) return false;
         
-        const user = User.findById(task.assignee);
-        const project = Project.getById(task.projectId);
+        const user = await User.findById(task.assignee);
+        const project = await Project.getById(task.projectId);
         
         if (!user) return false;
         
@@ -90,15 +90,15 @@ class NotificationService {
     }
 
     static async sendTaskDueReminder(taskId) {
-        const task = Task.getById(taskId);
+        const task = await Task.getById(taskId);
         if (!task || !task.assignee) return false;
         
-        const user = User.findById(task.assignee);
-        const project = Project.getById(task.projectId);
+        const user = await User.findById(task.assignee);
+        const project = await Project.getById(task.projectId);
         
         if (!user) return false;
         
-        const alert = AIService.generateAlert(task);
+        const alert = await AIService.generateAlert(task);
         if (alert) {
             return await this.sendEmail(alert.to, alert.subject, alert.message);
         }
@@ -106,8 +106,8 @@ class NotificationService {
     }
 
     static async sendProjectInvitation(projectId, email, invitedBy) {
-        const project = Project.getById(projectId);
-        const inviter = User.findById(invitedBy);
+        const project = await Project.getById(projectId);
+        const inviter = await User.findById(invitedBy);
         
         if (!project) return false;
         
@@ -129,7 +129,7 @@ class NotificationService {
     static async checkAllTasksAndNotify() {
         console.log('🔔 Verificando tareas para notificaciones...');
         
-        const tasks = Task.getAll();
+        const tasks = await Task.getAll();
         const now = new Date();
         
         for (const task of tasks) {

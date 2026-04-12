@@ -4,22 +4,22 @@ const User = require('../models/User');
 const NotificationService = require('../services/notificationService');
 
 class TaskController {
-    static getAll(req, res) {
+    static async getAll(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
-            const tasks = Task.getAll();
-            const tasksWithUsers = tasks.map(task => {
-                const assignee = task.assignee ? User.findById(task.assignee) : null;
-                const reporter = User.findById(task.reporter);
+            const tasks = await Task.getAll();
+            const tasksWithUsers = await Promise.all(tasks.map(async task => {
+                const assignee = task.assignee ? await User.findById(task.assignee) : null;
+                const reporter = task.reporter ? await User.findById(task.reporter) : null;
                 return {
                     ...task,
                     assigneeData: assignee ? { id: assignee.id, name: assignee.name, avatar: assignee.avatar } : null,
                     reporterData: reporter ? { id: reporter.id, name: reporter.name, avatar: reporter.avatar } : null
                 };
-            });
+            }));
             
             res.json({ success: true, tasks: tasksWithUsers });
         } catch (error) {
@@ -28,28 +28,28 @@ class TaskController {
         }
     }
 
-    static getByProject(req, res) {
+    static async getByProject(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
-            const project = Project.getById(req.params.projectId);
-            
-            if (!project || !project.members.includes(req.session.userId)) {
+            const project = await Project.getById(req.params.projectId);
+            const memberIds = project && Array.isArray(project.members) ? project.members : [];
+
+            if (!project || !memberIds.includes(req.session.userId)) {
                 return res.status(403).json({ success: false, message: 'Acceso denegado' });
             }
-            
-            const tasks = Task.getByProject(req.params.projectId);
-            const tasksWithUsers = tasks.map(task => {
-                const assignee = task.assignee ? User.findById(task.assignee) : null;
-                const reporter = User.findById(task.reporter);
+            const tasks = await Task.getByProject(req.params.projectId);
+            const tasksWithUsers = await Promise.all(tasks.map(async task => {
+                const assignee = task.assignee ? await User.findById(task.assignee) : null;
+                const reporter = task.reporter ? await User.findById(task.reporter) : null;
                 return {
                     ...task,
                     assigneeData: assignee ? { id: assignee.id, name: assignee.name, avatar: assignee.avatar } : null,
                     reporterData: reporter ? { id: reporter.id, name: reporter.name, avatar: reporter.avatar } : null
                 };
-            });
+            }));
             
             res.json({ success: true, tasks: tasksWithUsers });
         } catch (error) {
@@ -58,25 +58,26 @@ class TaskController {
         }
     }
 
-    static getById(req, res) {
+    static async getById(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
-            const task = Task.getById(req.params.id);
+            const task = await Task.getById(req.params.id);
             
             if (!task) {
                 return res.status(404).json({ success: false, message: 'Tarea no encontrada' });
             }
             
-            const project = Project.getById(task.projectId);
-            if (!project || !project.members.includes(req.session.userId)) {
+            const project = await Project.getById(task.projectId);
+            const memberIds = project && Array.isArray(project.members) ? project.members : [];
+            if (!project || !memberIds.includes(req.session.userId)) {
                 return res.status(403).json({ success: false, message: 'Acceso denegado' });
             }
             
-            const assignee = task.assignee ? User.findById(task.assignee) : null;
-            const reporter = User.findById(task.reporter);
+            const assignee = task.assignee ? await User.findById(task.assignee) : null;
+            const reporter = task.reporter ? await User.findById(task.reporter) : null;
             
             res.json({ 
                 success: true, 
@@ -93,7 +94,7 @@ class TaskController {
         }
     }
 
-    static create(req, res) {
+    static async create(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
@@ -105,12 +106,13 @@ class TaskController {
                 return res.status(400).json({ success: false, message: 'Proyecto y título son requeridos' });
             }
             
-            const project = Project.getById(projectId);
-            if (!project || !project.members.includes(req.session.userId)) {
+            const project = await Project.getById(projectId);
+            const memberIds = project && Array.isArray(project.members) ? project.members : [];
+            if (!project || !memberIds.includes(req.session.userId)) {
                 return res.status(403).json({ success: false, message: 'Acceso denegado' });
             }
             
-            const task = Task.create({
+            const task = await Task.create({
                 projectId,
                 title,
                 description,
@@ -121,6 +123,7 @@ class TaskController {
             });
             
             if (assignee) {
+                // Notificaciones asíncronas no necesitan await para no bloquear
                 NotificationService.sendTaskAssignment(task.id, assignee);
             }
             
@@ -131,25 +134,26 @@ class TaskController {
         }
     }
 
-    static update(req, res) {
+    static async update(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
-            const task = Task.getById(req.params.id);
+            const task = await Task.getById(req.params.id);
             
             if (!task) {
                 return res.status(404).json({ success: false, message: 'Tarea no encontrada' });
             }
             
-            const project = Project.getById(task.projectId);
-            if (!project || !project.members.includes(req.session.userId)) {
+            const project = await Project.getById(task.projectId);
+            const memberIds = project && Array.isArray(project.members) ? project.members : [];
+            if (!project || !memberIds.includes(req.session.userId)) {
                 return res.status(403).json({ success: false, message: 'Acceso denegado' });
             }
             
             const previousAssignee = task.assignee;
-            const updated = Task.update(req.params.id, req.body);
+            const updated = await Task.update(req.params.id, req.body);
             
             if (req.body.assignee && req.body.assignee !== previousAssignee) {
                 NotificationService.sendTaskAssignment(updated.id, req.body.assignee);
@@ -164,24 +168,25 @@ class TaskController {
         }
     }
 
-    static delete(req, res) {
+    static async delete(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
-            const task = Task.getById(req.params.id);
+            const task = await Task.getById(req.params.id);
             
             if (!task) {
                 return res.status(404).json({ success: false, message: 'Tarea no encontrada' });
             }
             
-            const project = Project.getById(task.projectId);
-            if (!project || !project.members.includes(req.session.userId)) {
+            const project = await Project.getById(task.projectId);
+            const memberIds = project && Array.isArray(project.members) ? project.members : [];
+            if (!project || !memberIds.includes(req.session.userId)) {
                 return res.status(403).json({ success: false, message: 'Acceso denegado' });
             }
             
-            Task.delete(req.params.id);
+            await Task.delete(req.params.id);
             
             res.json({ success: true });
         } catch (error) {
@@ -190,7 +195,7 @@ class TaskController {
         }
     }
 
-    static addComment(req, res) {
+    static async addComment(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
@@ -202,18 +207,19 @@ class TaskController {
                 return res.status(400).json({ success: false, message: 'Texto requerido' });
             }
             
-            const task = Task.getById(req.params.id);
+            const task = await Task.getById(req.params.id);
             
             if (!task) {
                 return res.status(404).json({ success: false, message: 'Tarea no encontrada' });
             }
             
-            const project = Project.getById(task.projectId);
-            if (!project || !project.members.includes(req.session.userId)) {
+            const project = await Project.getById(task.projectId);
+            const memberIds = project && Array.isArray(project.members) ? project.members : [];
+            if (!project || !memberIds.includes(req.session.userId)) {
                 return res.status(403).json({ success: false, message: 'Acceso denegado' });
             }
             
-            const comment = Task.addComment(req.params.id, {
+            const comment = await Task.addComment(req.params.id, {
                 author: req.session.userId,
                 text
             });
@@ -225,35 +231,46 @@ class TaskController {
         }
     }
 
-    static getStats(req, res) {
+    static async getStats(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
-            const stats = Task.getStats();
+            const userProjects = await Project.getByUser(req.session.userId);
+            let combinedStats = {
+                total: 0, todo: 0, inProgress: 0, review: 0, done: 0,
+                highPriority: 0, mediumPriority: 0, lowPriority: 0, overdue: 0
+            };
+
+            for (let proj of userProjects) {
+                const projStats = await Task.getStats(proj.id);
+                for (let key in combinedStats) {
+                    combinedStats[key] += projStats[key];
+                }
+            }
             
-            res.json({ success: true, stats });
+            res.json({ success: true, stats: combinedStats });
         } catch (error) {
             console.error('Error obteniendo estadísticas:', error);
             res.status(500).json({ success: false, message: 'Error del servidor' });
         }
     }
 
-    static getMyTasks(req, res) {
+    static async getMyTasks(req, res) {
         try {
             if (!req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
             
-            const tasks = Task.getByUser(req.session.userId);
-            const tasksWithProjects = tasks.map(task => {
-                const project = Project.getById(task.projectId);
+            const tasks = await Task.getByUser(req.session.userId);
+            const tasksWithProjects = await Promise.all(tasks.map(async task => {
+                const project = await Project.getById(task.projectId);
                 return {
                     ...task,
                     projectData: project ? { id: project.id, name: project.name, key: project.key } : null
                 };
-            });
+            }));
             
             res.json({ success: true, tasks: tasksWithProjects });
         } catch (error) {

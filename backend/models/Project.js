@@ -1,82 +1,113 @@
-const db = require('../config/database');
+const { supabase } = require('../config/database');
 
 class Project {
-    static getAll() {
-        return db.readJSON('projects.json');
+    static async getAll() {
+        const { data, error } = await supabase.from('project').select('*, projectuser(user_id)');
+        if (error) throw error;
+        return (data || []).map(p => {
+            p.owner = p.owner_id;
+            p.members = p.projectuser ? p.projectuser.map(pu => pu.user_id) : [];
+            p.color = '#667eea'; p.icon = '📁'; p.status = 'active'; // dummy values
+            delete p.projectuser;
+            return p;
+        });
     }
 
-    static getById(id) {
-        const projects = db.readJSON('projects.json');
-        return projects.find(p => p.id === id);
+    static async getById(id) {
+        const { data, error } = await supabase.from('project').select('*, projectuser(user_id)').eq('id', id).single();
+        if (error && error.code !== 'PGRST116') throw error;
+        if (data) {
+            data.owner = data.owner_id;
+            data.members = data.projectuser ? data.projectuser.map(pu => pu.user_id) : [];
+            data.color = '#667eea'; data.icon = '📁'; data.status = 'active';
+            delete data.projectuser;
+        }
+        return data;
     }
 
-    static getByUser(userId) {
-        const projects = db.readJSON('projects.json');
-        return projects.filter(p => p.members.includes(userId));
+    static async getByUser(userId) {
+        // Find projects where user is member
+        const { data: memberProjects } = await supabase.from('projectuser').select('project_id').eq('user_id', userId);
+        const projectIds = memberProjects ? memberProjects.map(mp => mp.project_id) : [];
+        
+        let query = supabase.from('project').select('*, projectuser(user_id)');
+        if (projectIds.length > 0) {
+            query = query.or(`owner_id.eq.${userId},id.in.(${projectIds.join(',')})`);
+        } else {
+            query = query.eq('owner_id', userId);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        return (data || []).map(p => {
+            p.owner = p.owner_id;
+            p.members = p.projectuser ? p.projectuser.map(pu => pu.user_id) : [];
+            p.color = '#667eea'; p.icon = '📁'; p.status = 'active';
+            delete p.projectuser;
+            return p;
+        });
     }
 
-    static create(projectData) {
-        const projects = db.readJSON('projects.json');
+    static async create(projectData) {
         const newProject = {
-            id: Date.now().toString(),
             name: projectData.name,
             description: projectData.description || '',
-            key: projectData.key || generateKey(projectData.name),
-            owner: projectData.owner,
-            members: projectData.members || [projectData.owner],
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            status: 'active',
-            color: projectData.color || '#667eea',
-            icon: projectData.icon || '📁'
+            owner_id: projectData.owner
         };
-        projects.push(newProject);
-        db.writeJSON('projects.json', projects);
-        return newProject;
-    }
-
-    static update(id, data) {
-        const projects = db.readJSON('projects.json');
-        const index = projects.findIndex(p => p.id === id);
-        if (index !== -1) {
-            projects[index] = { 
-                ...projects[index], 
-                ...data, 
-                updatedAt: new Date().toISOString() 
-            };
-            db.writeJSON('projects.json', projects);
-            return projects[index];
-        }
-        return null;
-    }
-
-    static delete(id) {
-        const projects = db.readJSON('projects.json');
-        const filtered = projects.filter(p => p.id !== id);
-        db.writeJSON('projects.json', filtered);
+        const { data, error } = await supabase.from('project').insert([newProject]).select().single();
+        if (error) throw error;
         
-        const tasks = db.readJSON('tasks.json');
-        db.writeJSON('tasks.json', tasks.filter(t => t.projectId !== id));
+        // Add owner as a member (PO)
+        await supabase.from('projectuser').insert([{
+            project_id: data.id,
+            user_id: projectData.owner,
+            role: 'PO'
+        }]);
+
+        data.owner = data.owner_id;
+        data.members = [projectData.owner];
+        data.color = '#667eea'; data.icon = '📁'; data.status = 'active';
+        return data;
     }
 
-    static addMember(projectId, userId) {
-        const projects = db.readJSON('projects.json');
-        const index = projects.findIndex(p => p.id === projectId);
-        if (index !== -1 && !projects[index].members.includes(userId)) {
-            projects[index].members.push(userId);
-            projects[index].updatedAt = new Date().toISOString();
-            db.writeJSON('projects.json', projects);
-            return true;
+    static async update(id, updateData) {
+        const dbFields = {};
+        if (updateData.name) dbFields.name = updateData.name;
+        if (updateData.description !== undefined) dbFields.description = updateData.description;
+        
+        const { data, error } = await supabase.from('project').update(dbFields).eq('id', id).select().single();
+        if (error) throw error;
+        
+        if (data) {
+            data.owner = data.owner_id;
+            data.color = '#667eea'; data.icon = '📁'; data.status = 'active';
         }
-        return false;
+        return data;
     }
-}
 
-function generateKey(name) {
-    return name.split(' ')
-        .map(word => word.charAt(0).toUpperCase())
-        .slice(0, 3)
-        .join('') + '-' + Math.floor(Math.random() * 1000);
+    static async delete(id) {
+        const { error } = await supabase.from('project').delete().eq('id', id);
+        if (error) throw error;
+        
+        // Asumiendo que backlogitem se borra en cascada, de lo contrario esto podría fallar, pero limpiamos por si a caso.
+        await supabase.from('backlogitem').delete().eq('project_id', id);
+        
+        return true;
+    }
+
+    static async addMember(projectId, userId) {
+        // Verificar si ya es miembro
+        const { data } = await supabase.from('projectuser').select('id').eq('project_id', projectId).eq('user_id', userId).single();
+        if (data) return true; // Ya existe
+
+        const { error } = await supabase.from('projectuser').insert([{
+            project_id: projectId,
+            user_id: userId,
+            role: 'DEV'
+        }]);
+        return !error;
+    }
 }
 
 module.exports = Project;
