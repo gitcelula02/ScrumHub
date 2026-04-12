@@ -1,118 +1,123 @@
-const API_BASE = '/api/tasks';
+// tasks.js - API helper for tasks
+(function() {
+    const TASKS_BASE = '/api/tasks';
 
-async function api(endpoint, options = {}) {
-    const response = await fetch(`${API_BASE}${endpoint}`, {
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        ...options
-    });
-    const data = await response.json();
-    if (!response.ok && response.status === 401) {
-        window.location.href = '/login';
+    async function apiCall(endpoint, options = {}) {
+        const response = await fetch(`${TASKS_BASE}${endpoint}`, {
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            ...options
+        });
+        const data = await response.json();
+        if (!response.ok && response.status === 401) {
+            window.location.href = '/login';
+        }
+        return data;
     }
-    return data;
-}
 
-async function getTasks() {
-    return api('/');
-}
+    async function getTasks() {
+        return apiCall('/');
+    }
 
-async function getMyTasks() {
-    return api('/my-tasks');
-}
+    async function getMyTasks() {
+        return apiCall('/my-tasks');
+    }
 
-async function getTaskById(id) {
-    return api(`/${id}`);
-}
+    async function getTaskById(id) {
+        return apiCall(`/${id}`);
+    }
 
-async function getTasksByProject(projectId) {
-    return api(`/project/${projectId}`);
-}
+    async function getTasksByProject(projectId) {
+        return apiCall(`/project/${projectId}`);
+    }
 
-async function getStats() {
-    return api('/stats');
-}
+    async function getStats() {
+        return apiCall('/stats');
+    }
 
-async function createTask(data) {
-    return api('/', {
-        method: 'POST',
-        body: JSON.stringify(data)
-    });
-}
+    async function createTask(data) {
+        return apiCall('/', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
 
-async function updateTask(id, data) {
-    return api(`/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data)
-    });
-}
+    async function updateTask(id, data) {
+        return apiCall(`/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+    }
 
-async function deleteTask(id) {
-    return api(`/${id}`, { method: 'DELETE' });
-}
+    async function deleteTask(id) {
+        return apiCall(`/${id}`, { method: 'DELETE' });
+    }
 
-async function addComment(taskId, text) {
-    return api(`/${taskId}/comments`, {
-        method: 'POST',
-        body: JSON.stringify({ text })
-    });
-}
+    async function addComment(taskId, text) {
+        return apiCall(`/${taskId}/comments`, {
+            method: 'POST',
+            body: JSON.stringify({ text })
+        });
+    }
 
-function formatDate(dateString) {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-    });
-}
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    }
 
-function getPriorityClass(priority) {
-    const classes = {
-        low: 'priority-low',
-        medium: 'priority-medium',
-        high: 'priority-high',
-        urgent: 'priority-urgent'
+    function getPriorityClass(priority) {
+        const classes = {
+            low: 'priority-low',
+            medium: 'priority-medium',
+            high: 'priority-high',
+            urgent: 'priority-urgent'
+        };
+        return classes[priority] || 'priority-medium';
+    }
+
+    function getStatusText(status) {
+        const statuses = {
+            'todo': 'Por hacer',
+            'in-progress': 'En progreso',
+            'review': 'En revisión',
+            'done': 'Completada'
+        };
+        return statuses[status] || status;
+    }
+
+    function getStatusIcon(status) {
+        const icons = {
+            'todo': '📋',
+            'in-progress': '🔄',
+            'review': '👁️',
+            'done': '✅'
+        };
+        return icons[status] || '📋';
+    }
+
+    window.TaskAPI = {
+        getAll: getTasks,
+        getMyTasks,
+        getById: getTaskById,
+        getByProject: getTasksByProject,
+        getStats,
+        create: createTask,
+        update: updateTask,
+        delete: deleteTask,
+        addComment
     };
-    return classes[priority] || 'priority-medium';
-}
 
-function getStatusText(status) {
-    const statuses = {
-        'todo': 'Por hacer',
-        'in-progress': 'En progreso',
-        'review': 'En revisión',
-        'done': 'Completada'
+    window.TaskHelpers = {
+        formatDate,
+        getPriorityClass,
+        getStatusText,
+        getStatusIcon
     };
-    return statuses[status] || status;
-}
 
-function getStatusIcon(status) {
-    const icons = {
-        'todo': '📋',
-        'in-progress': '🔄',
-        'review': '👁️',
-        'done': '✅'
-    };
-    return icons[status] || '📋';
-}
-
-window.TaskAPI = {
-    getAll: getTasks,
-    getMyTasks,
-    getById: getTaskById,
-    getByProject: getTasksByProject,
-    getStats,
-    create: createTask,
-    update: updateTask,
-    delete: deleteTask,
-    addComment
-};
-
-window.TaskHelpers = {
-    formatDate,
-    getPriorityClass,
-    getStatusText,
-    getStatusIcon
-};
+    console.log('TaskAPI loaded:', typeof window.TaskAPI);
+})();
