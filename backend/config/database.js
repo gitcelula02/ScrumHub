@@ -10,53 +10,59 @@ if (!supabaseUrl || !supabaseKey) {
     console.error('⚠️ Supabase credentials missing in environment variables');
 }
 
-const supabase = supabaseUrl && supabaseKey 
-    ? createClient(supabaseUrl, supabaseKey) 
+const supabase = supabaseUrl && supabaseKey
+    ? createClient(supabaseUrl, supabaseKey, {
+        auth: {
+            autoRefreshToken: false,
+            persistSession: false
+        }
+    })
     : null;
 
 // Configuración de MongoDB
 const mongodbUri = process.env.MONGODB_URI;
-
 let mongodbConnected = false;
 
 const initDatabase = async () => {
     console.log('Iniciando conexión a bases de datos...');
-    
+
     // Verificar conexión a Supabase
     if (supabase) {
-        console.log(`📡 Conectando a Supabase: ${supabaseUrl?.substring(0, 30)}...`);
-        // Ejecutar una consulta simple para verificar la conexión
-        // Se utiliza 'User' (no 'users') basado en el schema actual de Supabase
-        const { data, error } = await supabase.from('User').select('id').limit(1);
-        if (error) {
-            console.error('❌ Error conectando a Supabase:', error.message);
-            console.error('🔍 Detalles:', error);
-        } else {
-            console.log(`✓ Conectado a Supabase correctamente. Tabla User tiene ${data?.length || 0} registros`);
+        console.log(`📡 Conectando a Supabase: ${supabaseUrl?.substring(0, 40)}...`);
+        try {
+            // Verificar con la tabla User (mayúscula, según schema real)
+            const { data, error } = await supabase.from('User').select('id').limit(1);
+            if (error) {
+                console.error('❌ Error conectando a Supabase:', error.message);
+                console.error('🔍 Detalles:', JSON.stringify(error));
+            } else {
+                console.log(`✅ Conectado a Supabase correctamente.`);
+            }
+        } catch (err) {
+            console.error('❌ Excepción al conectar Supabase:', err.message);
         }
+    } else {
+        console.error('❌ No se pudo crear cliente Supabase. Verifica las variables de entorno.');
     }
 
-    // Verificar conexión a MongoDB (opcional, se omite si hay error)
-    if (mongodbUri && false) { // Deshabilitado temporalmente
+    // Conectar a MongoDB para historial de chat
+    if (mongodbUri) {
         try {
             await mongoose.connect(mongodbUri, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
                 serverSelectionTimeoutMS: 5000,
                 connectTimeoutMS: 5000
             });
             mongodbConnected = true;
-            console.log('✓ Conectado a MongoDB correctamente');
+            console.log('✅ Conectado a MongoDB correctamente');
         } catch (error) {
             console.error('❌ Error conectando a MongoDB:', error.message);
-            console.log('⚠️ Continuando sin MongoDB');
+            console.log('⚠️ Continuando sin MongoDB (historial de chat no disponible)');
         }
     } else {
-        console.log('⚠️ MongoDB deshabilitado temporalmente');
+        console.log('⚠️ MONGODB_URI no configurado, saltando conexión MongoDB');
     }
 };
 
-// Exportar mongoose para usarlo en modelos
 module.exports = {
     initDatabase,
     supabase,

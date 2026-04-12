@@ -1,38 +1,69 @@
 const { supabase } = require('../config/database');
 
+// Colores e iconos por defecto (no existen en el schema, los generamos en runtime)
+const DEFAULT_COLOR = '#667eea';
+const DEFAULT_ICON = '📁';
+
+function enrichProject(p) {
+    if (!p) return null;
+    return {
+        ...p,
+        owner: p.owner_id,
+        color: DEFAULT_COLOR,
+        icon: DEFAULT_ICON,
+        status: 'active',
+        members: p._members || [],
+    };
+}
+
 class Project {
     static async getAll() {
-        const { data, error } = await supabase.from('project').select('*, projectuser(user_id)');
+        const { data, error } = await supabase
+            .from('project')
+            .select('*, projectuser(user_id)')
+            .is('deleted_at', null);
         if (error) throw error;
         return (data || []).map(p => {
-            p.owner = p.owner_id;
-            p.members = p.projectuser ? p.projectuser.map(pu => pu.user_id) : [];
-            p.color = '#667eea'; p.icon = '📁'; p.status = 'active'; // dummy values
-            delete p.projectuser;
-            return p;
+            const members = p.projectuser ? p.projectuser.map(pu => pu.user_id) : [];
+            const { projectuser, ...rest } = p;
+            return enrichProject({ ...rest, _members: members });
         });
     }
 
     static async getById(id) {
-        const { data, error } = await supabase.from('project').select('*, projectuser(user_id)').eq('id', id).single();
+        if (!id) return null;
+        const { data, error } = await supabase
+            .from('project')
+            .select('*, projectuser(user_id)')
+            .eq('id', id)
+            .is('deleted_at', null)
+            .single();
         if (error && error.code !== 'PGRST116') throw error;
-        if (data) {
-            data.owner = data.owner_id;
-            data.members = data.projectuser ? data.projectuser.map(pu => pu.user_id) : [];
-            data.color = '#667eea'; data.icon = '📁'; data.status = 'active';
-            delete data.projectuser;
-        }
-        return data;
+        if (!data) return null;
+        const members = data.projectuser ? data.projectuser.map(pu => pu.user_id) : [];
+        const { projectuser, ...rest } = data;
+        return enrichProject({ ...rest, _members: members });
     }
 
     static async getByUser(userId) {
-        // Find projects where user is member
-        const { data: memberProjects } = await supabase.from('projectuser').select('project_id').eq('user_id', userId);
-        const projectIds = memberProjects ? memberProjects.map(mp => mp.project_id) : [];
-        
-        let query = supabase.from('project').select('*, projectuser(user_id)');
-        if (projectIds.length > 0) {
-            query = query.or(`owner_id.eq.${userId},id.in.(${projectIds.join(',')})`);
+        if (!userId) return [];
+
+        // Proyectos donde el usuario es miembro
+        const { data: memberRows } = await supabase
+            .from('projectuser')
+            .select('project_id')
+            .eq('user_id', userId);
+
+        const memberProjectIds = (memberRows || []).map(r => r.project_id);
+
+        // Traer proyectos propios + proyectos miembro
+        let query = supabase
+            .from('project')
+            .select('*, projectuser(user_id)')
+            .is('deleted_at', null);
+
+        if (memberProjectIds.length > 0) {
+            query = query.or(`owner_id.eq.${userId},id.in.(${memberProjectIds.join(',')})`);
         } else {
             query = query.eq('owner_id', userId);
         }
@@ -41,72 +72,97 @@ class Project {
         if (error) throw error;
 
         return (data || []).map(p => {
-            p.owner = p.owner_id;
-            p.members = p.projectuser ? p.projectuser.map(pu => pu.user_id) : [];
-            p.color = '#667eea'; p.icon = '📁'; p.status = 'active';
-            delete p.projectuser;
-            return p;
+            const members = p.projectuser ? p.projectuser.map(pu => pu.user_id) : [];
+            const { projectuser, ...rest } = p;
+            return enrichProject({ ...rest, _members: members });
         });
     }
 
     static async create(projectData) {
+        if (!projectData.name || !projectData.owner) {
+            throw new Error('name y owner son requeridos para crear un proyecto');
+        }
+
         const newProject = {
-            name: projectData.name,
+            name: projectData.name.trim(),
             description: projectData.description || '',
             owner_id: projectData.owner
         };
-        const { data, error } = await supabase.from('project').insert([newProject]).select().single();
-        if (error) throw error;
-        
-        // Add owner as a member (PO)
-        await supabase.from('projectuser').insert([{
-            project_id: data.id,
-            user_id: projectData.owner,
-            role: 'PO'
-        }]);
 
-        data.owner = data.owner_id;
-        data.members = [projectData.owner];
-        data.color = '#667eea'; data.icon = '📁'; data.status = 'active';
-        return data;
+        console.log('Creando proyecto en Supabase:', newProject);
+
+        const { data, error } = await supabase
+            .from('project')
+            .insert([newProject])
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error Supabase al crear proyecto:', error);
+            throw error;
+        }
+
+        console.log('Proyecto creado:', data);
+
+        // Agregar al dueño como miembro con rol PO
+        const { error: memberError } = await supabase
+            .from('projectuser')
+            .insert([{
+                project_id: data.id,
+                user_id: projectData.owner,
+                role: 'PO'
+            }]);
+
+        if (memberError) {
+            console.error('Error al agregar miembro inicial:', memberError);
+            // No lanzamos error aquí para no perder el proyecto ya creado
+        }
+
+        return enrichProject({ ...data, _members: [projectData.owner] });
     }
 
     static async update(id, updateData) {
         const dbFields = {};
         if (updateData.name) dbFields.name = updateData.name;
         if (updateData.description !== undefined) dbFields.description = updateData.description;
-        
-        const { data, error } = await supabase.from('project').update(dbFields).eq('id', id).select().single();
+
+        const { data, error } = await supabase
+            .from('project')
+            .update(dbFields)
+            .eq('id', id)
+            .select()
+            .single();
         if (error) throw error;
-        
-        if (data) {
-            data.owner = data.owner_id;
-            data.color = '#667eea'; data.icon = '📁'; data.status = 'active';
-        }
-        return data;
+        return enrichProject({ ...data, _members: [] });
     }
 
     static async delete(id) {
-        const { error } = await supabase.from('project').delete().eq('id', id);
+        // Soft delete
+        const { error } = await supabase
+            .from('project')
+            .update({ deleted_at: new Date().toISOString() })
+            .eq('id', id);
         if (error) throw error;
-        
-        // Asumiendo que backlogitem se borra en cascada, de lo contrario esto podría fallar, pero limpiamos por si a caso.
-        await supabase.from('backlogitem').delete().eq('project_id', id);
-        
         return true;
     }
 
     static async addMember(projectId, userId) {
         // Verificar si ya es miembro
-        const { data } = await supabase.from('projectuser').select('id').eq('project_id', projectId).eq('user_id', userId).single();
-        if (data) return true; // Ya existe
+        const { data: existing } = await supabase
+            .from('projectuser')
+            .select('id')
+            .eq('project_id', projectId)
+            .eq('user_id', userId)
+            .single();
 
-        const { error } = await supabase.from('projectuser').insert([{
-            project_id: projectId,
-            user_id: userId,
-            role: 'DEV'
-        }]);
-        return !error;
+        if (existing) return true;
+
+        const { error } = await supabase
+            .from('projectuser')
+            .insert([{ project_id: projectId, user_id: userId, role: 'DEV' }]);
+
+        if (error) throw error;
+        return true;
     }
 }
 

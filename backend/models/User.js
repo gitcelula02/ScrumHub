@@ -3,43 +3,63 @@ const bcrypt = require('bcryptjs');
 
 class User {
     static async getAll() {
-        const { data, error } = await supabase.from('User').select('*');
+        const { data, error } = await supabase.from('User').select('id, name, email, created_at');
         if (error) throw error;
-        return data || [];
+        return (data || []).map(u => ({ ...u, role: 'member', avatar: '👤' }));
     }
 
     static async findById(id) {
-        const { data, error } = await supabase.from('User').select('*').eq('id', id).single();
-        if (error && error.code !== 'PGRST116') throw error; // PGRST116 is not found
-        // Return dummy role/avatar so frontend doesn't break
-        if (data) Object.assign(data, { role: 'member', avatar: '👤' });
-        return data;
+        if (!id) return null;
+        const { data, error } = await supabase
+            .from('User')
+            .select('id, name, email, created_at')
+            .eq('id', id)
+            .single();
+        if (error && error.code !== 'PGRST116') throw error;
+        if (data) return { ...data, role: 'member', avatar: '👤' };
+        return null;
     }
 
     static async findByEmail(email) {
-        const { data, error } = await supabase.from('User').select('*').eq('email', email).single();
+        if (!email) return null;
+        const { data, error } = await supabase
+            .from('User')
+            .select('*')
+            .eq('email', email.toLowerCase().trim())
+            .single();
         if (error && error.code !== 'PGRST116') throw error;
-        if (data) Object.assign(data, { role: 'member', avatar: '👤' });
-        return data;
+        if (data) return { ...data, role: 'member', avatar: '👤' };
+        return null;
     }
 
     static async create(userData) {
         const newUser = {
-            email: userData.email,
+            email: userData.email.toLowerCase().trim(),
             password_hash: bcrypt.hashSync(userData.password, 10),
-            name: userData.name
+            name: userData.name.trim()
         };
-        const { data, error } = await supabase.from('User').insert([newUser]).select().single();
+        const { data, error } = await supabase
+            .from('User')
+            .insert([newUser])
+            .select('id, name, email, created_at')
+            .single();
         if (error) throw error;
-        if (data) Object.assign(data, { role: 'member', avatar: '👤' });
-        return data;
+        return { ...data, role: 'member', avatar: '👤' };
     }
 
     static async update(id, updateData) {
-        const { data, error } = await supabase.from('User').update(updateData).eq('id', id).select().single();
+        const fields = {};
+        if (updateData.name) fields.name = updateData.name;
+        if (updateData.avatar) fields.avatar = updateData.avatar; // guardado como texto si la columna existe
+
+        const { data, error } = await supabase
+            .from('User')
+            .update(fields)
+            .eq('id', id)
+            .select('id, name, email, created_at')
+            .single();
         if (error) throw error;
-        if (data) Object.assign(data, { role: 'member', avatar: '👤' });
-        return data;
+        return { ...data, role: 'member', avatar: updateData.avatar || '👤' };
     }
 
     static async delete(id) {
