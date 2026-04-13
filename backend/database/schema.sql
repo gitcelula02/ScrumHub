@@ -1,9 +1,9 @@
 -- ============================================
 -- ScrumHub Database Schema for Supabase
--- Ejecuta este script en el SQL Editor de Supabase
+-- VERSIÓN CORREGIDA - Ejecuta en SQL Editor
 -- ============================================
 
--- 1. Tabla de Usuarios (tabla principal de autenticación)
+-- 1. Tabla de Usuarios
 CREATE TABLE IF NOT EXISTS "User" (
   id BIGSERIAL PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
@@ -13,105 +13,84 @@ CREATE TABLE IF NOT EXISTS "User" (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Tabla de Proyectos
+-- 2. Tabla de Proyectos (SIN deleted_at - se usa hard delete)
 CREATE TABLE IF NOT EXISTS project (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL,
-  description TEXT,
+  description TEXT DEFAULT '',
   owner_id BIGINT REFERENCES "User"(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Tabla intermedia Proyecto-Usuario (miembros del proyecto)
+-- 3. Tabla intermedia Proyecto-Usuario
 CREATE TABLE IF NOT EXISTS projectuser (
   id BIGSERIAL PRIMARY KEY,
   project_id BIGINT REFERENCES project(id) ON DELETE CASCADE,
   user_id BIGINT REFERENCES "User"(id) ON DELETE CASCADE,
-  role TEXT DEFAULT 'DEV', -- PO, DEV, VIEWER
+  role TEXT DEFAULT 'DEV',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(project_id, user_id)
 );
 
--- 4. Tabla de Elementos del Backlog (Tareas, Historias)
+-- 4. Tabla de Items del Backlog
 CREATE TABLE IF NOT EXISTS backlogitem (
   id BIGSERIAL PRIMARY KEY,
   project_id BIGINT REFERENCES project(id) ON DELETE CASCADE,
+  parent_id BIGINT REFERENCES backlogitem(id) ON DELETE SET NULL,
   title TEXT NOT NULL,
-  description TEXT,
-  status TEXT DEFAULT 'TODO', -- TODO, IN_PROGRESS, BLOCKED, DONE
-  priority INTEGER DEFAULT 2, -- 1=high, 2=medium, 3=low
+  description TEXT DEFAULT '',
+  status TEXT DEFAULT 'TODO',
+  priority INTEGER DEFAULT 2,
   due_date TIMESTAMPTZ,
-  type TEXT DEFAULT 'TASK', -- TASK, STORY, BUG, EPIC
+  type TEXT DEFAULT 'TASK',
+  order_index INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ============================================
--- Índices para mejorar el rendimiento
+-- Índices
 -- ============================================
-
 CREATE INDEX IF NOT EXISTS idx_project_owner ON project(owner_id);
 CREATE INDEX IF NOT EXISTS idx_projectuser_project ON projectuser(project_id);
 CREATE INDEX IF NOT EXISTS idx_projectuser_user ON projectuser(user_id);
 CREATE INDEX IF NOT EXISTS idx_backlogitem_project ON backlogitem(project_id);
 CREATE INDEX IF NOT EXISTS idx_backlogitem_status ON backlogitem(status);
 CREATE INDEX IF NOT EXISTS idx_backlogitem_type ON backlogitem(type);
+CREATE INDEX IF NOT EXISTS idx_backlogitem_parent ON backlogitem(parent_id);
 CREATE INDEX IF NOT EXISTS idx_user_email ON "User"(email);
 
 -- ============================================
--- Datos de prueba (opcional)
+-- Si ya tienes las tablas, solo agrega columnas faltantes:
 -- ============================================
+-- ALTER TABLE backlogitem ADD COLUMN IF NOT EXISTS parent_id BIGINT REFERENCES backlogitem(id) ON DELETE SET NULL;
+-- ALTER TABLE backlogitem ADD COLUMN IF NOT EXISTS order_index INTEGER DEFAULT 0;
 
--- Usuario admin por defecto (password: admin123)
--- El hash es generado con bcrypt con 10 rounds
+-- ============================================
+-- IMPORTANTE: Deshabilitar RLS para que el backend
+-- (service_role) pueda acceder sin restricciones
+-- ============================================
+ALTER TABLE "User" DISABLE ROW LEVEL SECURITY;
+ALTER TABLE project DISABLE ROW LEVEL SECURITY;
+ALTER TABLE projectuser DISABLE ROW LEVEL SECURITY;
+ALTER TABLE backlogitem DISABLE ROW LEVEL SECURITY;
+
+-- ============================================
+-- Usuario de prueba (password: admin123)
+-- Hash generado con bcrypt 10 rounds
+-- ============================================
+-- Para generar el hash correcto ejecuta en Node.js:
+-- require('bcryptjs').hashSync('admin123', 10)
+-- Luego reemplaza el hash de abajo:
+
 INSERT INTO "User" (email, password_hash, name)
 VALUES (
   'admin@proyecto.com',
-  '$2a$10$rQZ8vXJh5K9jZJZ5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5',
+  '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
   'Administrador'
 )
 ON CONFLICT (email) DO NOTHING;
-
--- Nota: El hash de contraseña de arriba es un ejemplo.
--- Para usar la contraseña 'admin123', genera el hash correcto con bcrypt:
--- bcrypt.hashSync('admin123', 10) en Node.js
-
--- ============================================
--- Row Level Security (RLS) - Opcional pero recomendado
--- ============================================
-
--- Habilitar RLS en las tablas
-ALTER TABLE "User" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE project ENABLE ROW LEVEL SECURITY;
-ALTER TABLE projectuser ENABLE ROW LEVEL SECURITY;
-ALTER TABLE backlogitem ENABLE ROW LEVEL SECURITY;
-
--- Políticas para User (cada usuario solo puede ver su propio registro)
-CREATE POLICY "Users can view own data" ON "User"
-  FOR SELECT USING (auth.uid()::text = id::text);
-
-CREATE POLICY "Users can insert own data" ON "User"
-  FOR INSERT WITH CHECK (auth.uid()::text = id::text);
-
--- Políticas para Project (usuarios pueden ver proyectos donde son miembros)
-CREATE POLICY "Users can view projects" ON project
-  FOR SELECT USING (
-    owner_id = auth.uid()::bigint OR
-    EXISTS (SELECT 1 FROM projectuser WHERE project_id = project.id AND user_id = auth.uid()::bigint)
-  );
-
--- Políticas para BacklogItem (usuarios pueden ver items de proyectos donde son miembros)
-CREATE POLICY "Users can view backlog items" ON backlogitem
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM project
-      WHERE id = backlogitem.project_id
-      AND (owner_id = auth.uid()::bigint OR EXISTS (
-        SELECT 1 FROM projectuser WHERE project_id = project.id AND user_id = auth.uid()::bigint
-      ))
-    )
-  );
 
 -- ============================================
 -- Fin del script

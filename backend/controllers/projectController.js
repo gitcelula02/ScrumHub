@@ -2,6 +2,12 @@ const Project = require('../models/Project');
 const Task = require('../models/Task');
 const User = require('../models/User');
 
+// Comparar IDs de forma segura (pueden venir como number o string)
+function isMember(members, userId) {
+    const uid = String(userId);
+    return members.some(m => String(m) === uid);
+}
+
 class ProjectController {
     static async getAll(req, res) {
         try {
@@ -21,7 +27,7 @@ class ProjectController {
                     return {
                         ...project,
                         members: members.map(m => ({
-                            id: m.id,
+                            id: String(m.id),
                             name: m.name,
                             avatar: m.avatar
                         })),
@@ -56,12 +62,14 @@ class ProjectController {
                 return res.status(404).json({ success: false, message: 'Proyecto no encontrado' });
             }
 
-            const memberIds = Array.isArray(project.members) ? project.members : [];
-            if (!memberIds.includes(req.session.userId)) {
+            // Verificar que el usuario tenga acceso (como miembro o dueño)
+            if (!isMember(project.members, req.session.userId) &&
+                String(project.owner) !== String(req.session.userId)) {
                 return res.status(403).json({ success: false, message: 'Acceso denegado' });
             }
 
             const tasks = await Task.getByProject(project.id);
+            const memberIds = Array.isArray(project.members) ? project.members : [];
             const membersResult = await Promise.all(memberIds.map(mId => User.findById(mId)));
             const members = membersResult.filter(Boolean);
             const stats = await Task.getStats(project.id);
@@ -71,7 +79,7 @@ class ProjectController {
                 project: {
                     ...project,
                     members: members.map(m => ({
-                        id: m.id,
+                        id: String(m.id),
                         name: m.name,
                         email: m.email,
                         avatar: m.avatar
@@ -126,7 +134,7 @@ class ProjectController {
             if (!project) {
                 return res.status(404).json({ success: false, message: 'Proyecto no encontrado' });
             }
-            if (project.owner !== req.session.userId) {
+            if (String(project.owner) !== String(req.session.userId)) {
                 return res.status(403).json({ success: false, message: 'Solo el dueño puede editar' });
             }
 
@@ -148,7 +156,7 @@ class ProjectController {
             if (!project) {
                 return res.status(404).json({ success: false, message: 'Proyecto no encontrado' });
             }
-            if (project.owner !== req.session.userId) {
+            if (String(project.owner) !== String(req.session.userId)) {
                 return res.status(403).json({ success: false, message: 'Solo el dueño puede eliminar' });
             }
 
@@ -188,9 +196,13 @@ class ProjectController {
             }
 
             const project = await Project.getById(req.params.id);
-            const memberIds = project && Array.isArray(project.members) ? project.members : [];
 
-            if (!project || !memberIds.includes(req.session.userId)) {
+            if (!project) {
+                return res.status(404).json({ success: false, message: 'Proyecto no encontrado' });
+            }
+
+            if (!isMember(project.members, req.session.userId) &&
+                String(project.owner) !== String(req.session.userId)) {
                 return res.status(403).json({ success: false, message: 'Acceso denegado' });
             }
 

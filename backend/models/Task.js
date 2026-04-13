@@ -21,9 +21,9 @@ const DB_TO_PRIORITY = { 0: 'urgent', 1: 'high', 2: 'medium', 3: 'low' };
 function mapFromDB(row) {
     if (!row) return null;
     return {
-        id: row.id,
-        projectId: row.project_id,
-        parentId: row.parent_id || null,
+        id: String(row.id),
+        projectId: String(row.project_id),
+        parentId: row.parent_id ? String(row.parent_id) : null,
         title: row.title,
         description: row.description || '',
         status: DB_TO_STATUS[row.status] || 'todo',
@@ -46,8 +46,7 @@ class Task {
         const { data, error } = await supabase
             .from('backlogitem')
             .select('*')
-            .eq('type', 'TASK')
-            .is('deleted_at', null);
+            .order('created_at', { ascending: false });
         if (error) throw error;
         return (data || []).map(mapFromDB);
     }
@@ -69,9 +68,7 @@ class Task {
             .from('backlogitem')
             .select('*')
             .eq('project_id', projectId)
-            .eq('type', 'TASK')
-            .is('deleted_at', null)
-            .order('order_index', { ascending: true });
+            .order('created_at', { ascending: true });
         if (error) throw error;
         return (data || []).map(mapFromDB);
     }
@@ -88,9 +85,8 @@ class Task {
         const { data, error } = await supabase
             .from('backlogitem')
             .select('*')
-            .eq('type', 'TASK')
-            .is('deleted_at', null)
-            .in('project_id', projectIds);
+            .in('project_id', projectIds)
+            .order('created_at', { ascending: false });
         if (error) throw error;
         return (data || []).map(mapFromDB);
     }
@@ -103,8 +99,7 @@ class Task {
             status: STATUS_TO_DB[taskData.status] || 'TODO',
             priority: PRIORITY_TO_DB[taskData.priority] ?? 2,
             due_date: taskData.dueDate || null,
-            type: 'TASK',
-            order_index: 0
+            type: 'TASK'
         };
         const { data, error } = await supabase
             .from('backlogitem')
@@ -119,8 +114,10 @@ class Task {
         const dbFields = {};
         if (updateData.title !== undefined) dbFields.title = updateData.title;
         if (updateData.description !== undefined) dbFields.description = updateData.description;
-        if (updateData.status) dbFields.status = STATUS_TO_DB[updateData.status] || 'TODO';
-        if (updateData.priority) dbFields.priority = PRIORITY_TO_DB[updateData.priority] ?? 2;
+        if (updateData.status) dbFields.status = STATUS_TO_DB[updateData.status] || updateData.status;
+        if (updateData.priority !== undefined) {
+            dbFields.priority = PRIORITY_TO_DB[updateData.priority] ?? 2;
+        }
         if (updateData.dueDate !== undefined) dbFields.due_date = updateData.dueDate;
 
         const { data, error } = await supabase
@@ -136,15 +133,13 @@ class Task {
     static async delete(id) {
         const { error } = await supabase
             .from('backlogitem')
-            .update({ deleted_at: new Date().toISOString() })
+            .delete()
             .eq('id', id);
         if (error) throw error;
         return true;
     }
 
     static async addComment(taskId, comment) {
-        // backlogitem no tiene tabla de comentarios en el schema actual
-        // Retornamos objeto simulado para no romper la API
         return {
             id: require('crypto').randomUUID(),
             author: comment.author,
@@ -172,17 +167,7 @@ class Task {
     }
 
     static async getTreeByProject(projectId) {
-        const { data, error } = await supabase
-            .from('backlogitem')
-            .select('*')
-            .eq('project_id', projectId)
-            .eq('type', 'TASK')
-            .is('deleted_at', null)
-            .order('order_index', { ascending: true });
-
-        if (error) throw error;
-
-        const tasks = (data || []).map(mapFromDB);
+        const tasks = await Task.getByProject(projectId);
         const taskMap = new Map();
         const rootTasks = [];
 
