@@ -84,6 +84,22 @@ class AIController {
             res.status(500).json({ success: false, message: 'Error del servidor' });
         }
     }
+
+    static async getHistory(req, res) {
+        try {
+            if (!req.session.userId) {
+                return res.status(401).json({ success: false, message: 'No autenticado' });
+            }
+
+            const { projectId } = req.query;
+            const history = await ChatMessage.getChatHistory(req.session.userId, projectId);
+
+            res.json({ success: true, history });
+        } catch (error) {
+            console.error('Error al obtener historial de chat:', error);
+            res.status(500).json({ success: false, message: 'Error interno del servidor' });
+        }
+    }
 }
 
 module.exports = AIController;

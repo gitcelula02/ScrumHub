@@ -2,11 +2,13 @@ const db = require('../config/database');
 const Task = require('../models/Task');
 const Project = require('../models/Project');
 const User = require('../models/User');
+const axios = require('axios');
 
 class AIService {
     static async parseCommand(userMessage, projectId, userId) {
         const message = userMessage.toLowerCase();
         
+        // 1. Intentar comandos rápidos (Regex) para tareas comunes
         if (message.includes('crear tarea') || message.includes('nueva tarea') || message.includes('crear task')) {
             return await this.parseCreateTask(userMessage, projectId, userId);
         }
@@ -27,12 +29,13 @@ class AIService {
             return await this.parseSetDueDate(userMessage, projectId);
         }
         
-        if (message.includes('crear proyecto') || message.includes('nuevo proyecto')) {
-            return await this.parseCreateProject(userMessage, userId);
-        }
-        
         if (message.includes('buscar') || message.includes('mostrar')) {
             return await this.parseSearchTask(userMessage, projectId);
+        }
+
+        // 2. Si no es un comando de tarea rápido, o si menciona "proyecto", usar procesamiento NL con DeepSeek
+        if (message.includes('proyecto') || message.includes('crear') || message.includes('nuevo') || message.length > 20) {
+            return await this.processWithDeepSeek(userMessage, userId, projectId);
         }
         
         return {
@@ -45,6 +48,89 @@ class AIService {
                 '• "crear proyecto [nombre]" - Crear nuevo proyecto\n' +
                 '• "buscar [texto]" - Buscar tareas'
         };
+    }
+
+    static async processWithDeepSeek(userMessage, userId, currentProjectId) {
+        try {
+            const apiKey = process.env.DEEPSEEK_API_KEY;
+            if (!apiKey || apiKey.includes('your_deepseek_api_key')) {
+                // Fallback a regex si no hay API key configurada
+                return await this.parseCreateProject(userMessage, userId);
+            }
+
+            const prompt = `Analiza el siguiente mensaje del usuario y determina si quiere realizar una acción.
+Mensaje: "${userMessage}"
+
+Si el usuario quiere crear un proyecto:
+Responde ÚNICAMENTE con un JSON en este formato: {"action": "create_project", "name": "Nombre del Proyecto", "description": "Descripción si existe"}
+
+Si el usuario quiere crear una tarea:
+Responde ÚNICAMENTE con un JSON en este formato: {"action": "create_task", "title": "Título de la tarea", "priority": "high/medium/low"}
+
+Si es una pregunta general o no hay una acción clara:
+Responde de forma natural como un asistente de gestión de proyectos.
+
+IMPORTANTE: Si detectas una acción, el JSON debe ser lo ÚNICO en tu respuesta.`;
+
+            const response = await axios.post('https://api.deepseek.com/v1/chat/completions', {
+                model: "deepseek-chat",
+                messages: [
+                    { role: "system", content: "Eres un asistente de gestión de proyectos experto. Si detectas una intención de crear proyecto o tarea, respondes solo con JSON. Si no, respondes amable y brevemente." },
+                    { role: "user", content: prompt }
+                ],
+                temperature: 0.3
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const content = response.data.choices[0].message.content.trim();
+            
+            // Intentar parsear JSON de acción
+            try {
+                const actionData = JSON.parse(content);
+                
+                if (actionData.action === 'create_project') {
+                    const project = await Project.create({
+                        name: actionData.name,
+                        description: actionData.description || 'Creado vía Chat IA',
+                        owner: userId
+                    });
+                    return {
+                        type: 'project_created',
+                        project,
+                        message: `✅ ¡Proyecto creado con éxito!\n\n📁 **${project.name}**\n📝 ${project.description}\n🔑 ID: ${project.id}\n\nYa puedes empezar a añadir tareas.`
+                    };
+                }
+
+                if (actionData.action === 'create_task') {
+                    const task = await Task.create({
+                        projectId: currentProjectId,
+                        title: actionData.title,
+                        priority: actionData.priority || 'medium',
+                        reporter: userId
+                    });
+                    return {
+                        type: 'task_created',
+                        task,
+                        message: `✅ Tarea creada:\n📋 **${task.title}**\n⚡ Prioridad: ${task.priority}`
+                    };
+                }
+            } catch (e) {
+                // No era JSON, es una respuesta normal
+                return {
+                    type: 'ai_response',
+                    message: content
+                };
+            }
+
+        } catch (error) {
+            console.error('Error llamando a DeepSeek:', error.message);
+            // Fallback final a regex
+            return await this.parseCreateProject(userMessage, userId);
+        }
     }
 
     static async parseCreateTask(message, projectId, userId) {
