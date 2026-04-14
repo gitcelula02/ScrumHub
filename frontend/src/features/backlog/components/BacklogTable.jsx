@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { EpicBadge, StatusBadge } from '@components/ui';
+import { EpicBadge, StatusBadge, PriorityTag } from '@/components/ui';
 import { useEntityTheme } from '@/hooks/useEntityTheme';
 
 /**

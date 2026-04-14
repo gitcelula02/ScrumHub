@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const cors = require('cors');
 const path = require('path');
 const { initDatabase } = require('./config/database');
 const authRoutes = require('./routes/auth');
@@ -13,17 +14,18 @@ initDatabase();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+app.use(cors()); //Cors Policy
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(express.static(path.join(__dirname, '../frontend/public')));
+//app.use(express.static(path.join(__dirname, '../frontend/public')));
 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'secret_key_12345',
     resave: false,
     saveUninitialized: false,
-    cookie: { 
+    cookie: {
         secure: false,
         maxAge: 24 * 60 * 60 * 1000
     }
@@ -33,47 +35,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/ai', aiRoutes);
-
-app.get('/', (req, res) => {
-    if (req.session.userId) {
-        res.redirect('/dashboard');
-    } else {
-        res.sendFile(path.join(__dirname, '../frontend/views/landing.html'));
-    }
-});
-
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/views/login.html'));
-});
-
-app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/views/register.html'));
-});
-
-app.get('/dashboard', (req, res) => {
-    if (!req.session.userId) {
-        return res.redirect('/login');
-    }
-    res.sendFile(path.join(__dirname, '../frontend/views/dashboard.html'));
-});
-
-app.get('/project/:id', (req, res) => {
-    if (!req.session.userId) {
-        return res.redirect('/login');
-    }
-    res.sendFile(path.join(__dirname, '../frontend/views/project.html'));
-});
-
-app.get('/profile', (req, res) => {
-    if (!req.session.userId) {
-        return res.redirect('/login');
-    }
-    res.sendFile(path.join(__dirname, '../frontend/views/profile.html'));
-});
-
-app.get('/landing', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/views/landing.html'));
-});
 
 setInterval(() => {
     NotificationService.checkAllTasksAndNotify();

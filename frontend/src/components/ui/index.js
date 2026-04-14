@@ -6,5 +6,5 @@
  *   import { EpicBadge, StatusBadge, PriorityTag } from '@/components/ui';
  */
 export { EpicBadge } from './EpicBadge';
-export { StatusBadge } from './StatusBadge';
-//export { PriorityTag } from './PriorityTag';
+export { StatusBadge, PriorityTag } from './StatusBadge';
+export { ColorPickerSwatch } from './ColorPickerSwatch';

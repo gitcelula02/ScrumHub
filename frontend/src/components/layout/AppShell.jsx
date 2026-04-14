@@ -1,39 +1,31 @@
+import { useState, useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
+import { Sidebar } from './Sidebar';
+import { TopBar }  from './TopBar';
 
 /**
  * @component AppShell
- * @description Authenticated layout wrapper. Renders the Sidebar and TopBar
+ * @description Authenticated layout wrapper. Composes Sidebar + TopBar
  * around any child route via React Router's <Outlet />.
  *
- * All authenticated pages are children of this component in App.jsx.
- * It never fetches data — layout only.
+ * Manages the sidebar collapsed state so both Sidebar and TopBar
+ * can respond to the same toggle action.
  *
  * RESPONSIVE:
- * On mobile (<768px) the sidebar collapses to a bottom nav.
- * Add a useSidebarToggle hook here when implementing mobile support.
+ * On mobile (<768px) the sidebar can be toggled via the TopBar hamburger button.
  */
 export function AppShell() {
+  const [collapsed, setCollapsed] = useState(false);
+
+  const toggle = useCallback(() => setCollapsed(c => !c), []);
+
   return (
-    <div className="app-shell">
-      <aside className="app-sidebar">
-        <div className="p-3 border-bottom d-flex align-items-center gap-2">
-          <span style={{
-            width: '24px', height: '24px', borderRadius: 'var(--radius-sm)',
-            background: 'var(--color-brand-500)', display: 'inline-block',
-          }} />
-          <span className="fw-medium text-sm">ScrumHub</span>
-        </div>
-        <nav className="p-2 flex-grow-1">
-          {/* Sidebar nav items — replace with SidebarNav feature component */}
-          <p className="text-xs text-secondary px-2 mt-3 mb-1">Projects</p>
-        </nav>
-      </aside>
+    <div className={`app-shell ${collapsed ? 'app-shell--sidebar-collapsed' : ''}`}>
+      <Sidebar collapsed={collapsed} onToggle={toggle} />
 
       <div className="app-main">
-        <header className="app-topbar">
-          <span className="text-sm text-secondary ms-auto">User menu</span>
-        </header>
-        <main className="app-content">
+        <TopBar onSidebarToggle={toggle} />
+        <main className="app-content" id="main-content" aria-label="Page content">
           <Outlet />
         </main>
       </div>

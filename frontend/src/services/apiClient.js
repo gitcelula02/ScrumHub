@@ -18,7 +18,7 @@
  * const epic = await apiClient.post('/epics', { name: 'MVP', color: '#4668f0' });
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
+const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api';
 
 async function _request(method, path, body) {
   const token = localStorage.getItem('scrumhub_token');
@@ -38,7 +38,7 @@ async function _request(method, path, body) {
     const message = data?.message ?? `Request failed: ${response.status}`;
     const err = new Error(message);
     err.status = response.status;
-    err.data   = data;
+    err.data = data;
     throw err;
   }
 
@@ -46,9 +46,9 @@ async function _request(method, path, body) {
 }
 
 export const apiClient = {
-  get:    (path)         => _request('GET',    path),
-  post:   (path, body)   => _request('POST',   path, body),
-  patch:  (path, body)   => _request('PATCH',  path, body),
-  put:    (path, body)   => _request('PUT',    path, body),
-  delete: (path)         => _request('DELETE', path),
+  get: (path) => _request('GET', path),
+  post: (path, body) => _request('POST', path, body),
+  patch: (path, body) => _request('PATCH', path, body),
+  put: (path, body) => _request('PUT', path, body),
+  delete: (path) => _request('DELETE', path),
 };

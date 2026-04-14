@@ -19,10 +19,18 @@
   --color-brand-50:  #eef3ff;
   --color-brand-100: #d9e4ff;
   --color-brand-400: #6284f5;
-  --color-brand-500: #4668f0;   /* primary action */
-  --color-brand-600: #3352d4;
-  --color-brand-700: #2540a8;
-  --color-brand-900: #0f1a52;
+  --color-brand-500: #6B5CFF;   /* primary action — violet per skill spec */
+  --color-brand-600: #5548e8;
+  --color-brand-700: #3d33c4;
+  --color-brand-900: #1a1460;
+
+  /* ── Dark sidebar/nav palette (per skill spec: #181e4b / #171E4A) ── */
+  --color-dark-nav:       #181e4b;
+  --color-dark-nav-deep:  #171E4A;
+  --color-dark-nav-hover: rgba(255,255,255,0.07);
+  --color-dark-nav-active:rgba(107,92,255,0.18);
+  --color-dark-text:      rgba(255,255,255,0.85);
+  --color-dark-text-muted:rgba(255,255,255,0.45);
 
   /* ── Neutrals ── */
   --color-gray-50:  #f8f9fc;
@@ -70,9 +78,10 @@
   --shadow-lg:   0 8px 28px rgba(16, 20, 46, 0.14), 0 2px 6px rgba(16,20,46,0.06);
 
   /* ── Layout ── */
-  --sidebar-width:   220px;
-  --topbar-height:   56px;
-  --panel-width:     380px;  /* detail side-panel */
+  --sidebar-width:        240px;
+  --sidebar-width-sm:      60px;
+  --topbar-height:         56px;
+  --panel-width:          380px;
 
   /* ── Transitions ── */
   --transition-fast:   120ms ease;
@@ -91,7 +100,7 @@
   --bs-border-radius-sm:   var(--radius-sm);
   --bs-border-radius-lg:   var(--radius-lg);
   --bs-primary:            var(--color-brand-500);
-  --bs-primary-rgb:        70, 104, 240;
+  --bs-primary-rgb:        107, 92, 255;
   --bs-link-color:         var(--color-brand-600);
   --bs-link-hover-color:   var(--color-brand-700);
   --bs-box-shadow-sm:      var(--shadow-sm);

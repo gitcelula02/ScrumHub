@@ -1,9 +1,19 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeRegistryProvider } from '@/store/ThemeRegistry';
-import { AuthProvider } from '@/store/AuthContext';
-import { AppShell } from '@/components/layout/AppShell';
-import BacklogPage from '@/pages/BacklogPage';
-import NotFound from '@/pages/NotFound';
+import { AuthProvider }          from '@/store/AuthContext';
+import { AppShell }              from '@/components/layout/AppShell';
+
+import LandingPage   from '@/pages/LandingPage';
+import LoginPage     from '@/pages/LoginPage';
+import RegisterPage  from '@/pages/RegisterPage';
+import ProjectPage   from '@/pages/ProjectPage';
+import BacklogPage   from '@/pages/BacklogPage';
+import BoardPage     from '@/pages/BoardPage';
+import SprintPage    from '@/pages/SprintPage';
+import CalendarPage  from '@/pages/CalendarPage';
+import ChatPage      from '@/pages/ChatPage';
+import NotFound      from '@/pages/NotFound';
+
 import '@/styles/main.css';
 
 /**
@@ -13,13 +23,11 @@ import '@/styles/main.css';
  * Provider order (outermost → innermost):
  *   BrowserRouter → AuthProvider → ThemeRegistryProvider → routes
  *
- * ThemeRegistry must be inside Auth so feature hooks (which need auth)
- * can call registerEntities() freely after data fetches.
+ * Route groups:
+ *   Public  — LandingPage, LoginPage, RegisterPage (no AppShell)
+ *   Private — everything inside AppShell (requires auth)
  *
- * ADDING ROUTES:
- * Authenticated routes go inside the AppShell element.
- * Public routes (login, register) go outside AppShell.
- * See AGENTS.md → "How to add a new view".
+ * See docs/AGENTS.md → "How to add a new view".
  */
 export default function App() {
   return (
@@ -27,16 +35,27 @@ export default function App() {
       <AuthProvider>
         <ThemeRegistryProvider>
           <Routes>
-            {/* Public routes */}
-            <Route path="/login"    element={<div>Login page</div>} />
-            <Route path="/register" element={<div>Register page</div>} />
+            {/* ── Public routes ── */}
+            <Route path="/"          element={<LandingPage />} />
+            <Route path="/login"     element={<LoginPage />} />
+            <Route path="/register"  element={<RegisterPage />} />
 
-            {/* Authenticated routes — wrapped in AppShell */}
+            {/* ── Authenticated routes — wrapped in AppShell ── */}
             <Route element={<AppShell />}>
-              <Route index element={<Navigate to="/projects" replace />} />
-              <Route path="/projects/:projectId/backlog" element={<BacklogPage />} />
-              {/* Add new pages here following the pattern in AGENTS.md */}
+              {/* /projects → redirect to project list (sidebar shows projects) */}
+              <Route path="/projects" element={<Navigate to="/" replace />} />
+
+              {/* Project views */}
+              <Route path="/projects/:projectId"           element={<ProjectPage />} />
+              <Route path="/projects/:projectId/backlog"   element={<BacklogPage />} />
+              <Route path="/projects/:projectId/board"     element={<BoardPage />} />
+              <Route path="/projects/:projectId/sprints"   element={<SprintPage />} />
+              <Route path="/projects/:projectId/calendar"  element={<CalendarPage />} />
+              <Route path="/projects/:projectId/chat"      element={<ChatPage />} />
             </Route>
+
+            {/* ── 404 ── */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </ThemeRegistryProvider>
       </AuthProvider>
