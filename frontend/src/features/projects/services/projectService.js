@@ -13,7 +13,8 @@ export const projectService = {
    * @returns {Promise<Object[]>}
    */
   async getAll() {
-    return apiClient.get('/projects/all');
+    const response = await apiClient.get('/projects/all');
+    return response.projects || [];
   },
 
   /**
@@ -22,7 +23,8 @@ export const projectService = {
    * @returns {Promise<Object>}
    */
   async getById(projectId) {
-    return apiClient.get(`/projects/${projectId}`);
+    const response = await apiClient.get(`/projects/${projectId}`);
+    return response.project || null;
   },
 
   /**
@@ -31,7 +33,8 @@ export const projectService = {
    * @returns {Promise<Object>}
    */
   async create(data) {
-    return apiClient.post('/projects', data);
+    const response = await apiClient.post('/projects', data);
+    return response.project || response;
   },
 
   /**
@@ -41,7 +44,8 @@ export const projectService = {
    * @returns {Promise<Object>}
    */
   async update(projectId, data) {
-    return apiClient.put(`/projects/${projectId}`, data);
+    const response = await apiClient.put(`/projects/${projectId}`, data);
+    return response.project || response;
   },
 
   /**
@@ -50,7 +54,7 @@ export const projectService = {
    * @returns {Promise<void>}
    */
   async remove(projectId) {
-    return apiClient.delete(`/projects/${projectId}`);
+    await apiClient.delete(`/projects/${projectId}`);
   },
 
   /**
@@ -60,6 +64,6 @@ export const projectService = {
    * @returns {Promise<Object>}
    */
   async addMember(projectId, data) {
-    return apiClient.post(`/projects/${projectId}/members`, data);
+    await apiClient.post(`/projects/${projectId}/members`, data);
   },
 };

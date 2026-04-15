@@ -3,16 +3,17 @@ import { ThemeRegistryProvider } from '@/store/ThemeRegistry';
 import { AuthProvider }          from '@/store/AuthContext';
 import { AppShell }              from '@/components/layout/AppShell';
 
-import LandingPage   from '@/pages/LandingPage';
-import LoginPage     from '@/pages/LoginPage';
-import RegisterPage  from '@/pages/RegisterPage';
-import ProjectPage   from '@/pages/ProjectPage';
-import BacklogPage   from '@/pages/BacklogPage';
-import BoardPage     from '@/pages/BoardPage';
-import SprintPage    from '@/pages/SprintPage';
-import CalendarPage  from '@/pages/CalendarPage';
-import ChatPage      from '@/pages/ChatPage';
-import NotFound      from '@/pages/NotFound';
+import LandingPage       from '@/pages/LandingPage';
+import LoginPage         from '@/pages/LoginPage';
+import RegisterPage      from '@/pages/RegisterPage';
+import ProjectListPage   from '@/pages/ProjectListPage';
+import ProjectPage       from '@/pages/ProjectPage';
+import BacklogPage       from '@/pages/BacklogPage';
+import BoardPage         from '@/pages/BoardPage';
+import SprintPage        from '@/pages/SprintPage';
+import CalendarPage      from '@/pages/CalendarPage';
+import ChatPage          from '@/pages/ChatPage';
+import NotFound          from '@/pages/NotFound';
 
 import '@/styles/main.css';
 
@@ -42,8 +43,8 @@ export default function App() {
 
             {/* ── Authenticated routes — wrapped in AppShell ── */}
             <Route element={<AppShell />}>
-              {/* /projects → redirect to project list (sidebar shows projects) */}
-              <Route path="/projects" element={<Navigate to="/" replace />} />
+              {/* /projects → project list dashboard */}
+              <Route path="/projects" element={<ProjectListPage />} />
 
               {/* Project views */}
               <Route path="/projects/:projectId"           element={<ProjectPage />} />

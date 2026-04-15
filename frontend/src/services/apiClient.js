@@ -21,14 +21,12 @@
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api';
 
 async function _request(method, path, body) {
-  const token = localStorage.getItem('scrumhub_token');
-
   const response = await fetch(`${BASE_URL}${path}`, {
     method,
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
+    credentials: 'include',
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
   });
 

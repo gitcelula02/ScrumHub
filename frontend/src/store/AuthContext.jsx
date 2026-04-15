@@ -17,8 +17,6 @@ export function AuthProvider({ children }) {
 
   // Restore session on app load
   useEffect(() => {
-    const token = localStorage.getItem('scrumhub_token');
-    if (!token) { setAuthLoading(false); return; }
     authService.getCurrentUser()
       .then(data => setUser(data?.user ?? data))
       .catch(() => localStorage.removeItem('scrumhub_token'))
@@ -27,9 +25,8 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (credentials) => {
     const data = await authService.login(credentials);
-    // Backend returns session cookie; also store a flag for client state
+    // Backend returns session cookie
     const loggedUser = data?.user ?? data;
-    localStorage.setItem('scrumhub_token', loggedUser?.id ?? 'session');
     setUser(loggedUser);
     return loggedUser;
   }, []);
