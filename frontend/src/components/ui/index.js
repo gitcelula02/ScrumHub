@@ -8,3 +8,4 @@
 export { EpicBadge } from './EpicBadge';
 export { StatusBadge, PriorityTag } from './StatusBadge';
 export { ColorPickerSwatch } from './ColorPickerSwatch';
+export { SprintPill } from './SprintPill';
