@@ -46,3 +46,6 @@ This document discusses the user experience of ScrumHub, and how it should be de
 This is a sketch of the interface, it is not final, and it is subject to change.
 Some of the elements are placeholders and should be replaced with actual implementation.
 Currently, there are missing sections that will be added to them, all section without an actual functionality should not be added into the frontend.
+```mermaid
+
+```
