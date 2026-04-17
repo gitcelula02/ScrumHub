@@ -14,7 +14,7 @@ import { workspaceService } from '@/features/workspace/services';
  */
 export default function WorkspacePage() {
   const { projectId } = useParams();
-  const { workspace, loading, error, refetch } = useWorkspace(projectId);
+  const { workspace, loading, error } = useWorkspace(projectId);
 
   const {
     elements,

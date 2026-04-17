@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 /**
  * @component CanvasElement
@@ -44,17 +44,6 @@ export function CanvasElement({
   const elementRef = useRef(null);
   const textareaRef = useRef(null);
 
-  useEffect(() => {
-    setEditContent(element.content);
-  }, [element.content]);
-
-  useEffect(() => {
-    if (isEditing && textareaRef.current) {
-      textareaRef.current.focus();
-      textareaRef.current.select();
-    }
-  }, [isEditing]);
-
   const handleMouseDown = useCallback((e) => {
     if (isEditing) return;
     if (e.target.closest('.canvas-el-resize') || e.target.closest('.canvas-el-delete')) {
@@ -92,12 +81,19 @@ export function CanvasElement({
     document.addEventListener('mouseup', handleMouseUp);
   }, [isEditing, element.x, element.y, onSelect, onUpdate, onBringToFront]);
 
-  const handleDoubleClick = useCallback((e) => {
-    e.stopPropagation();
-    if (element.type === 'sticky' || element.type === 'text') {
-      setIsEditing(true);
-    }
-  }, [element.type]);
+const handleDoubleClick = (e) => {
+  e.stopPropagation();
+  if (element.type === 'sticky' || element.type === 'text') {
+    setEditContent(element.content);
+    setIsEditing(true);
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        textareaRef.current.select();
+      }
+    }, 0);
+  }
+};
 
   const handleBlur = useCallback(() => {
     setIsEditing(false);
