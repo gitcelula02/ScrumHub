@@ -3,17 +3,18 @@ import { ThemeRegistryProvider } from '@/store/ThemeRegistry';
 import { AuthProvider }          from '@/store/AuthContext';
 import { AppShell }              from '@/components/layout/AppShell';
 
-import LandingPage       from '@/pages/LandingPage';
-import LoginPage         from '@/pages/LoginPage';
-import RegisterPage      from '@/pages/RegisterPage';
-import ProjectListPage   from '@/pages/ProjectListPage';
-import ProjectPage       from '@/pages/ProjectPage';
-import BacklogPage       from '@/pages/BacklogPage';
-import BoardPage         from '@/pages/BoardPage';
-import SprintPage        from '@/pages/SprintPage';
-import CalendarPage      from '@/pages/CalendarPage';
-import ChatPage          from '@/pages/ChatPage';
-import NotFound          from '@/pages/NotFound';
+import LandingPage from '@/pages/LandingPage';
+import LoginPage from '@/pages/LoginPage';
+import RegisterPage from '@/pages/RegisterPage';
+import ProjectListPage from '@/pages/ProjectListPage';
+import ProjectPage from '@/pages/ProjectPage';
+import BacklogPage from '@/pages/BacklogPage';
+import BoardPage from '@/pages/BoardPage';
+import SprintPage from '@/pages/SprintPage';
+import CalendarPage from '@/pages/CalendarPage';
+import ChatPage from '@/pages/ChatPage';
+import WorkspacePage from '@/pages/WorkspacePage';
+import NotFound from '@/pages/NotFound';
 
 import '@/styles/main.css';
 
@@ -46,13 +47,14 @@ export default function App() {
               {/* /projects → project list dashboard */}
               <Route path="/projects" element={<ProjectListPage />} />
 
-              {/* Project views */}
-              <Route path="/projects/:projectId"           element={<ProjectPage />} />
-              <Route path="/projects/:projectId/backlog"   element={<BacklogPage />} />
-              <Route path="/projects/:projectId/board"     element={<BoardPage />} />
-              <Route path="/projects/:projectId/sprints"   element={<SprintPage />} />
-              <Route path="/projects/:projectId/calendar"  element={<CalendarPage />} />
-              <Route path="/projects/:projectId/chat"      element={<ChatPage />} />
+{/* Project views */}
+              <Route path="/projects/:projectId" element={<ProjectPage />} />
+              <Route path="/projects/:projectId/backlog" element={<BacklogPage />} />
+              <Route path="/projects/:projectId/board" element={<BoardPage />} />
+              <Route path="/projects/:projectId/sprints" element={<SprintPage />} />
+              <Route path="/projects/:projectId/calendar" element={<CalendarPage />} />
+              <Route path="/projects/:projectId/chat" element={<ChatPage />} />
+              <Route path="/projects/:projectId/workspace" element={<WorkspacePage />} />
             </Route>
 
             {/* ── 404 ── */}

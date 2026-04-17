@@ -895,3 +895,338 @@
 .chat-member-row:hover { background: var(--color-dark-nav-hover); }
 .chat-member-row .text-xs { color: var(--color-dark-text-muted); }
 .chat-member-row .fw-medium { color: var(--color-dark-text); }
+
+/* ══════════════════════════════════════════════════════════════
+WORKSPACE CANVAS
+IDE aesthetic: "Sober, Structured, Sophisticated"
+No rounded corners exceeding 4px. 1px borders. 150ms transitions.
+══════════════════════════════════════════════════════════════ */
+.workspace-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-surface-alt);
+}
+
+/* Toolbar */
+.workspace-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  height: 52px;
+}
+
+.workspace-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.workspace-toolbar-sep {
+  width: 1px;
+  height: 24px;
+  background: var(--color-border);
+  margin: 0 8px;
+}
+
+.workspace-toolbar-spacer {
+  flex: 1;
+}
+
+.workspace-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: all 150ms linear;
+  white-space: nowrap;
+}
+
+.workspace-tool-btn:hover {
+  background: var(--color-gray-100);
+  border-color: var(--color-border);
+}
+
+.workspace-tool-btn:active {
+  background: var(--color-gray-200);
+}
+
+.workspace-tool-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.workspace-tool-btn:disabled:hover {
+  background: transparent;
+  border-color: transparent;
+}
+
+.workspace-tool-btn--primary {
+  background: var(--color-brand-500);
+  border-color: var(--color-brand-500);
+  color: #fff;
+}
+
+.workspace-tool-btn--primary:hover {
+  background: var(--color-brand-600);
+  border-color: var(--color-brand-600);
+}
+
+.workspace-tool-btn--danger {
+  color: var(--color-danger);
+}
+
+.workspace-tool-btn--danger:hover {
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger);
+}
+
+.workspace-tool-icon {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.workspace-tool-label {
+  font-size: 0.8125rem;
+}
+
+.workspace-hidden-input {
+  display: none;
+}
+
+/* Toolbar placeholder (loading state) */
+.workspace-toolbar-placeholder {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  height: 52px;
+}
+
+/* Canvas area */
+.workspace-canvas {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, var(--color-gray-200) 1px, transparent 1px),
+    linear-gradient(var(--color-gray-200) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: -1px -1px;
+}
+
+.workspace-canvas--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.workspace-loading-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Empty state */
+.workspace-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: var(--color-gray-400);
+  pointer-events: none;
+}
+
+.workspace-empty-icon {
+  font-size: 4rem;
+  opacity: 0.25;
+  margin-bottom: 1rem;
+}
+
+.workspace-empty-text {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Error state */
+.workspace-error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 2rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  max-width: 360px;
+}
+
+.workspace-error-icon {
+  font-size: 3rem;
+  opacity: 0.4;
+  margin-bottom: 0.75rem;
+}
+
+.workspace-error-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  margin: 0 0 0.5rem;
+}
+
+.workspace-error-message {
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+  margin: 0;
+}
+
+/* Canvas elements */
+.canvas-element {
+  position: absolute;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  transition:
+    box-shadow 150ms linear,
+    border-color 150ms linear;
+  user-select: none;
+}
+
+.canvas-element:hover {
+  border-color: var(--color-gray-400);
+}
+
+.canvas-element--selected {
+  border-color: var(--color-brand-500);
+  box-shadow: 0 0 0 2px rgba(107, 92, 255, 0.2);
+}
+
+.canvas-element--dragging {
+  box-shadow: var(--shadow-md);
+  opacity: 0.9;
+}
+
+.canvas-element--sticky {
+  background: transparent;
+}
+
+.canvas-el-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-xs);
+  opacity: 0.95;
+}
+
+.canvas-el-sticky-content {
+  position: relative;
+  z-index: 1;
+  padding: 10px 12px;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #1a1a1a;
+  height: 100%;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.canvas-el-placeholder {
+  color: rgba(26, 26, 26, 0.4);
+  font-style: italic;
+}
+
+.canvas-el-textarea {
+  position: relative;
+  z-index: 1;
+}
+
+.canvas-el-shape {
+  width: 100%;
+  height: 100%;
+}
+
+.canvas-el-text-content {
+  padding: 4px 0;
+}
+
+.canvas-element--text {
+  cursor: text;
+}
+
+.canvas-element--text.canvas-element--selected {
+  border-color: var(--color-brand-500);
+  background: rgba(107, 92, 255, 0.03);
+}
+
+/* Resize handle */
+.canvas-el-resize {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--color-gray-400);
+  cursor: se-resize;
+  opacity: 0;
+  transition: opacity 150ms linear;
+}
+
+.canvas-element:hover .canvas-el-resize,
+.canvas-element--selected .canvas-el-resize {
+  opacity: 1;
+}
+
+.canvas-el-resize:hover {
+  color: var(--color-brand-500);
+}
+
+/* Delete button */
+.canvas-el-delete {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-danger);
+  color: #fff;
+  border: 2px solid var(--color-surface);
+  border-radius: 50%;
+  font-size: 10px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 150ms linear, background 150ms linear;
+  padding: 0;
+  line-height: 1;
+}
+
+.canvas-element:hover .canvas-el-delete,
+.canvas-element--selected .canvas-el-delete {
+  opacity: 1;
+}
+
+.canvas-el-delete:hover {
+  background: #dc2626;
+}

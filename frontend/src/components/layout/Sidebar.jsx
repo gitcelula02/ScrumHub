@@ -135,14 +135,15 @@ function ProjectNavItem({ project, activeProjectId, expanded, collapsed, onToggl
   const theme = useEntityTheme(project.color);
   const isActive = project.id === activeProjectId;
 
-  const views = [
-    { label: 'Overview',  path: `/projects/${project.id}`,          icon: '◈' },
-    { label: 'Backlog',   path: `/projects/${project.id}/backlog`,   icon: '≡' },
-    { label: 'Board',     path: `/projects/${project.id}/board`,     icon: '⊞' },
-    { label: 'Sprints',   path: `/projects/${project.id}/sprints`,   icon: '▷' },
-    { label: 'Calendar',  path: `/projects/${project.id}/calendar`,  icon: '◻' },
-    { label: 'Chat',      path: `/projects/${project.id}/chat`,      icon: '◉' },
-  ];
+const views = [
+  { label: 'Overview', path: `/projects/${project.id}`, icon: '◈' },
+  { label: 'Backlog', path: `/projects/${project.id}/backlog`, icon: '≡' },
+  { label: 'Board', path: `/projects/${project.id}/board`, icon: '⊞' },
+  { label: 'Sprints', path: `/projects/${project.id}/sprints`, icon: '▷' },
+  { label: 'Calendar', path: `/projects/${project.id}/calendar`, icon: '◻' },
+  { label: 'Workspace', path: `/projects/${project.id}/workspace`, icon: '◇' },
+  { label: 'Chat', path: `/projects/${project.id}/chat`, icon: '◉' },
+];
 
   return (
     <div className="sidebar-project-group">
