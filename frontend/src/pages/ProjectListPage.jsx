@@ -1,5 +1,7 @@
-import { useProjects } from '@/features/projects/hooks/useProjects';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useProjects } from '@/features/projects/hooks/useProjects';
+import { ProjectCreateModal } from '@/features/projects/components/ProjectCreateModal';
 
 /**
  * @page ProjectListPage
@@ -8,26 +10,64 @@ import { Link } from 'react-router-dom';
  * Serves as the default landing page after login.
  */
 export default function ProjectListPage() {
-  const { projects, loading } = useProjects();
+  const { projects, loading, error, refetch } = useProjects();
+  const [showModal, setShowModal] = useState(false);
 
-  if (loading) {
-    return (
-      <div className="container py-5">
-        <div className="row">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="col-md-4 mb-4">
-              <div className="card border-0 shadow-sm placeholder-glow">
-                <div className="card-body">
-                  <span className="placeholder col-6 rounded" style={{ height: '24px' }} />
-                  <span className="placeholder col-10 rounded mt-2" style={{ height: '16px' }} />
-                </div>
+  const handleProjectCreated = async () => {
+    await refetch();
+    setShowModal(false);
+  };
+
+if (loading) {
+  return (
+    <div className="container py-5">
+      <div className="row">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="col-md-4 mb-4">
+            <div className="card border-0 shadow-sm placeholder-glow">
+              <div className="card-body">
+                <span className="placeholder col-6 rounded" style={{ height: '24px' }} />
+                <span className="placeholder col-10 rounded mt-2" style={{ height: '16px' }} />
               </div>
             </div>
-          ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+if (error) {
+  return (
+    <div className="container py-5">
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+          <div className="card border-0">
+            <div className="card-body text-center py-5">
+              <div
+                className="mb-4"
+                style={{ fontSize: '3rem', opacity: 0.4 }}
+                aria-hidden="true"
+              >
+                ⚠
+              </div>
+              <h3 className="h5 fw-medium mb-2">Failed to load projects</h3>
+              <p className="text-secondary mb-4">{error}</p>
+              <button
+                className="btn btn-primary"
+                onClick={refetch}
+                title="Retry loading projects"
+                aria-label="Retry loading projects"
+              >
+                Try again
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   return (
     <div className="container py-5">
@@ -40,8 +80,9 @@ export default function ProjectListPage() {
         </div>
         <button
           className="btn btn-primary"
-          onClick={() => {/* TODO: open new project modal */}}
+          onClick={() => setShowModal(true)}
           title="Create a new project"
+          aria-label="Create new project"
         >
           + New Project
         </button>
@@ -56,7 +97,8 @@ export default function ProjectListPage() {
           </p>
           <button
             className="btn btn-primary"
-            onClick={() => {/* TODO: open new project modal */}}
+            onClick={() => setShowModal(true)}
+            aria-label="Create your first project"
           >
             Create your first project
           </button>
@@ -95,6 +137,12 @@ export default function ProjectListPage() {
           ))}
         </div>
       )}
+
+      <ProjectCreateModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSuccess={handleProjectCreated}
+      />
     </div>
   );
 }

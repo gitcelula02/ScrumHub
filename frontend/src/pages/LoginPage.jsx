@@ -1,20 +1,23 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/store/AuthContext';
+import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 
 /**
  * @page LoginPage
  * @route /login
  * @description Authenticated login form. Calls authService via AuthContext.
- * On success, redirects to /projects.
+ * On success, redirects to /projects. Redirects to /projects if already authenticated.
  */
 export default function LoginPage() {
-  const { login } = useAuth();
-  const navigate   = useNavigate();
+  useAuthRedirect();
 
-  const [form, setForm]       = useState({ email: '', password: '' });
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -37,24 +40,23 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-card animate-in">
-        {/* Brand */}
         <div className="text-center mb-4">
           <div className="d-flex justify-content-center align-items-center gap-2 mb-3">
             <div className="auth-logo-mark" aria-hidden="true" />
             <span className="auth-logo-text">ScrumHub</span>
           </div>
-          <h1 className="h5 fw-medium mb-1" style={{ color: 'var(--color-gray-900)' }}>Welcome back</h1>
+          <h1 className="h5 fw-medium mb-1" style={{ color: 'var(--color-gray-900)' }}>
+            Welcome back
+          </h1>
           <p className="text-sm text-secondary">Sign in to continue to your workspace</p>
         </div>
 
-        {/* Error */}
         {error && (
-          <div className="alert alert-danger alert-sm py-2 text-sm" role="alert" aria-live="polite">
+          <div className="alert alert-danger alert-sm py-2 text-sm" role="alert">
             {error}
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} aria-label="Login form" noValidate>
           <div className="mb-3">
             <label htmlFor="login-email" className="form-label" title="Your registered email address">
@@ -81,7 +83,9 @@ export default function LoginPage() {
               <label htmlFor="login-password" className="form-label mb-0" title="Your account password">
                 Password
               </label>
-              <a href="#" className="text-xs text-brand" title="Reset your password">Forgot password?</a>
+              <a href="#" className="text-xs text-brand" title="Reset your password">
+                Forgot password?
+              </a>
             </div>
             <input
               id="login-password"
@@ -125,7 +129,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Demo hint */}
         <div className="auth-demo-hint" title="Demo credentials for testing">
           <span className="text-xs" style={{ color: 'var(--color-gray-400)' }}>
             Demo: <code>admin@proyecto.com</code> / <code>admin123</code>

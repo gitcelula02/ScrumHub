@@ -1,20 +1,24 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/store/AuthContext';
+import { useAuthRedirect } from '@/hooks/useAuthRedirect';
+import { authService } from '@/features/auth/services/authService';
 
 /**
  * @page RegisterPage
  * @route /register
  * @description New user registration form.
- * On success, redirects to /projects.
+ * On success, redirects to /projects. Redirects to /projects if already authenticated.
  */
 export default function RegisterPage() {
-  const { login } = useAuth();
-  const navigate   = useNavigate();
+  useAuthRedirect();
 
-  const [form, setForm]       = useState({ name: '', email: '', password: '', confirm: '' });
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -34,8 +38,6 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
     try {
-      // Register then immediately log in
-      const { authService } = await import('@/features/auth/services/authService');
       await authService.register({ name: form.name, email: form.email, password: form.password });
       await login({ email: form.email, password: form.password });
       navigate('/projects', { replace: true });
@@ -49,27 +51,28 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-card animate-in">
-        {/* Brand */}
         <div className="text-center mb-4">
           <div className="d-flex justify-content-center align-items-center gap-2 mb-3">
             <div className="auth-logo-mark" aria-hidden="true" />
             <span className="auth-logo-text">ScrumHub</span>
           </div>
-          <h1 className="h5 fw-medium mb-1" style={{ color: 'var(--color-gray-900)' }}>Create your account</h1>
+          <h1 className="h5 fw-medium mb-1" style={{ color: 'var(--color-gray-900)' }}>
+            Create your account
+          </h1>
           <p className="text-sm text-secondary">Start managing projects the smart way</p>
         </div>
 
-        {/* Error */}
         {error && (
-          <div className="alert alert-danger alert-sm py-2 text-sm" role="alert" aria-live="polite">
+          <div className="alert alert-danger alert-sm py-2 text-sm" role="alert">
             {error}
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} aria-label="Registration form" noValidate>
           <div className="mb-3">
-            <label htmlFor="reg-name" className="form-label" title="Your full name">Full name</label>
+            <label htmlFor="reg-name" className="form-label" title="Your full name">
+              Full name
+            </label>
             <input
               id="reg-name"
               type="text"
@@ -86,7 +89,9 @@ export default function RegisterPage() {
             />
           </div>
           <div className="mb-3">
-            <label htmlFor="reg-email" className="form-label" title="Your email address">Email address</label>
+            <label htmlFor="reg-email" className="form-label" title="Your email address">
+              Email address
+            </label>
             <input
               id="reg-email"
               type="email"
@@ -102,7 +107,9 @@ export default function RegisterPage() {
             />
           </div>
           <div className="mb-3">
-            <label htmlFor="reg-password" className="form-label" title="Choose a password">Password</label>
+            <label htmlFor="reg-password" className="form-label" title="Choose a password">
+              Password
+            </label>
             <input
               id="reg-password"
               type="password"
@@ -119,7 +126,9 @@ export default function RegisterPage() {
             />
           </div>
           <div className="mb-3">
-            <label htmlFor="reg-confirm" className="form-label" title="Confirm your password">Confirm password</label>
+            <label htmlFor="reg-confirm" className="form-label" title="Confirm your password">
+              Confirm password
+            </label>
             <input
               id="reg-confirm"
               type="password"
