@@ -4,7 +4,7 @@ import { useAuth } from '@/store/useAuth';
 /**
  * @component TopBar
  * @description Fixed top header showing breadcrumb path and user actions.
- * 
+ * On mobile, shows hamburger menu button instead of sidebar toggle.
  *
  * @param {{ onSidebarToggle?: Function }} props
  */
@@ -22,14 +22,13 @@ export function TopBar({ onSidebarToggle }) {
       className="app-topbar"
       role="banner"
       aria-label="Top navigation bar"
-      title="Application top bar"
     >
-      {/* Mobile sidebar toggle */}
+      {/* Mobile hamburger menu button - always visible on mobile */}
       <button
-        className="topbar-menu-btn d-md-none"
+        className="topbar-menu-btn"
         onClick={onSidebarToggle}
-        title="Toggle sidebar"
-        aria-label="Toggle navigation sidebar"
+        title="Open navigation menu"
+        aria-label="Open navigation menu"
       >
         ☰
       </button>

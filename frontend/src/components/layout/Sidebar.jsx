@@ -38,24 +38,26 @@ export function Sidebar({ collapsed, onToggle }) {
       title="Navigation sidebar"
     >
 {/* Brand header — clickable to go back to projects list */}
-  <button
-    className="sidebar-brand sidebar-brand-btn"
-    onClick={() => navigate('/projects')}
-    title="Go to Your Projects"
-    aria-label="ScrumHub — go to Your Projects"
-  >
-    <div className="sidebar-logo-mark" aria-hidden="true" />
-    {!collapsed && <span className="sidebar-logo-text">ScrumHub</span>}
-  </button>
-  <button
-    className="sidebar-collapse-btn"
-    onClick={onToggle}
-    title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-    aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-    aria-expanded={!collapsed}
-  >
-    {collapsed ? '›' : '‹'}
-  </button>
+  <div className="sidebar-brand">
+    <button
+      className="sidebar-brand-btn"
+      onClick={() => navigate('/projects')}
+      title="Go to Your Projects"
+      aria-label="ScrumHub — go to Your Projects"
+    >
+      <div className="sidebar-logo-mark" aria-hidden="true" />
+      {!collapsed && <span className="sidebar-logo-text">ScrumHub</span>}
+    </button>
+    <button
+      className="sidebar-collapse-btn"
+      onClick={onToggle}
+      title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      aria-expanded={!collapsed}
+    >
+      {collapsed ? '›' : '‹'}
+    </button>
+  </div>
 
 {/* Nav */}
   <nav className="sidebar-nav flex-grow-1" aria-label="Project navigation">
