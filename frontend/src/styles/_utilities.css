@@ -111,6 +111,21 @@
   border-bottom: 1px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
 }
+.sidebar-brand-btn {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  padding: 0;
+  flex-grow: 1;
+  text-align: left;
+  color: #fff;
+}
+.sidebar-brand-btn:hover .sidebar-logo-mark {
+  box-shadow: 0 2px 12px rgba(107,92,255,0.7);
+}
 .sidebar-logo-mark {
   width: 28px;
   height: 28px;

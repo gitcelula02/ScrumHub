@@ -37,26 +37,42 @@ export function Sidebar({ collapsed, onToggle }) {
       aria-label="Application sidebar"
       title="Navigation sidebar"
     >
-      {/* Brand header */}
-      <div className="sidebar-brand">
-        <div className="sidebar-logo-mark" aria-hidden="true" />
-        {!collapsed && <span className="sidebar-logo-text">ScrumHub</span>}
+{/* Brand header — clickable to go back to projects list */}
+  <button
+    className="sidebar-brand sidebar-brand-btn"
+    onClick={() => navigate('/projects')}
+    title="Go to Your Projects"
+    aria-label="ScrumHub — go to Your Projects"
+  >
+    <div className="sidebar-logo-mark" aria-hidden="true" />
+    {!collapsed && <span className="sidebar-logo-text">ScrumHub</span>}
+  </button>
+  <button
+    className="sidebar-collapse-btn"
+    onClick={onToggle}
+    title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+    aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+    aria-expanded={!collapsed}
+  >
+    {collapsed ? '›' : '‹'}
+  </button>
+
+{/* Nav */}
+  <nav className="sidebar-nav flex-grow-1" aria-label="Project navigation">
+    {!collapsed && (
+      <div className="d-flex align-items-center justify-content-between px-3 pt-2 pb-1">
+        <div className="sidebar-section-label" title="Your projects">Projects</div>
         <button
-          className="sidebar-collapse-btn ms-auto"
-          onClick={onToggle}
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          aria-expanded={!collapsed}
+          className="sidebar-icon-btn p-0 border-0 bg-transparent"
+          onClick={() => {/* TODO: folder creation */}}
+          title="Create a new folder"
+          aria-label="Create new folder"
+          style={{ fontSize: '0.9rem' }}
         >
-          {collapsed ? '›' : '‹'}
+          +
         </button>
       </div>
-
-      {/* Nav */}
-      <nav className="sidebar-nav flex-grow-1" aria-label="Project navigation">
-        {!collapsed && (
-          <div className="sidebar-section-label" title="Your projects">Projects</div>
-        )}
+    )}
 
         {loading && (
           <div className="px-3 py-2">
@@ -83,15 +99,15 @@ export function Sidebar({ collapsed, onToggle }) {
           />
         ))}
 
-        <button
-          className="sidebar-add-btn"
-          title="Create a new project"
-          aria-label="Create new project"
-          onClick={() => {/* TODO: open new project modal */}}
-        >
-          <span aria-hidden="true">+</span>
-          {!collapsed && <span className="text-xs">New project</span>}
-        </button>
+<button
+      className="sidebar-add-btn"
+      title="Create a new project"
+      aria-label="Create new project"
+      onClick={() => navigate('/projects/new')}
+    >
+      <span aria-hidden="true">+</span>
+      {!collapsed && <span className="text-xs">New project</span>}
+    </button>
       </nav>
 
       {/* Bottom user zone */}

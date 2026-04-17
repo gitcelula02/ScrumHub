@@ -58,11 +58,17 @@ export default function LandingPage() {
             <div className="landing-logo-mark" aria-hidden="true" />
             <span className="landing-logo-text">ScrumHub</span>
           </div>
-          <nav className="d-flex align-items-center gap-3" aria-label="Main navigation">
-            <a href="#features" className="landing-nav-link" title="View features">Features</a>
-            <Link to="/login" className="btn btn-outline-primary btn-sm" title="Log in to your account">Log in</Link>
-            <Link to="/register" className="btn btn-primary btn-sm" title="Create a free account">Get Started</Link>
-          </nav>
+<nav className="d-flex align-items-center gap-3" aria-label="Main navigation">
+          <a href="#features" className="landing-nav-link" title="View features">Features</a>
+          {user ? (
+            <Link to="/projects" className="btn btn-primary btn-sm" title="Go to your workspace">Go to Workspace →</Link>
+          ) : (
+            <>
+              <Link to="/login" className="btn btn-outline-primary btn-sm" title="Log in to your account">Log in</Link>
+              <Link to="/register" className="btn btn-primary btn-sm" title="Create a free account">Get Started</Link>
+            </>
+          )}
+        </nav>
         </div>
       </header>
 
@@ -174,10 +180,16 @@ export default function LandingPage() {
           <p className="text-xs mb-0" style={{ color: 'var(--color-gray-400)' }}>
             © {new Date().getFullYear()} ScrumHub. Built for Scrum teams.
           </p>
-          <nav className="d-flex gap-3" aria-label="Footer navigation">
-            <Link to="/login"    className="text-xs" style={{ color: 'var(--color-gray-400)' }} title="Log in">Log in</Link>
+<nav className="d-flex gap-3" aria-label="Footer navigation">
+        {user ? (
+          <Link to="/projects" className="text-xs" style={{ color: 'var(--color-gray-400)' }} title="Go to workspace">Go to workspace →</Link>
+        ) : (
+          <>
+            <Link to="/login" className="text-xs" style={{ color: 'var(--color-gray-400)' }} title="Log in">Log in</Link>
             <Link to="/register" className="text-xs" style={{ color: 'var(--color-gray-400)' }} title="Sign up">Sign up</Link>
-          </nav>
+          </>
+        )}
+      </nav>
         </div>
       </footer>
     </div>

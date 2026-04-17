@@ -7,6 +7,7 @@ import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import ProjectListPage from '@/pages/ProjectListPage';
+import ProjectCreatePage from '@/pages/ProjectCreatePage';
 import ProjectPage from '@/pages/ProjectPage';
 import BacklogPage from '@/pages/BacklogPage';
 import BoardPage from '@/pages/BoardPage';
@@ -42,10 +43,11 @@ export default function App() {
             <Route path="/login"     element={<LoginPage />} />
             <Route path="/register"  element={<RegisterPage />} />
 
-            {/* ── Authenticated routes — wrapped in AppShell ── */}
-            <Route element={<AppShell />}>
-              {/* /projects → project list dashboard */}
-              <Route path="/projects" element={<ProjectListPage />} />
+{/* ── Authenticated routes — wrapped in AppShell ── */}
+          <Route element={<AppShell />}>
+          {/* /projects → project list dashboard */}
+          <Route path="/projects" element={<ProjectListPage />} />
+          <Route path="/projects/new" element={<ProjectCreatePage />} />
 
 {/* Project views */}
               <Route path="/projects/:projectId" element={<ProjectPage />} />
