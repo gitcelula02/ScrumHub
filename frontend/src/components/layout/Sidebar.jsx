@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { NavLink, useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '@/store/AuthContext';
+import { useAuth } from '@/store/useAuth';
 import { useProjects } from '@/features/projects/hooks/useProjects';
 import { useEntityTheme } from '@/hooks/useEntityTheme';
 

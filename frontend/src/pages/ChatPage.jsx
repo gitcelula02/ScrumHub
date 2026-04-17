@@ -8,7 +8,7 @@ import { ChatLayout } from '@/features/chat/components/ChatLayout';
  * No real-time WebSocket connection in this version. See ENDPOINTS.md.
  */
 export default function ChatPage() {
-  const { projectId } = useParams();
+  useParams();
 
   return (
     <div style={{ height: '100%', overflow: 'hidden', margin: '-1.5rem' }}>

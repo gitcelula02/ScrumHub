@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
+import { createContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { authService } from '@/features/auth/services/authService';
 
 /**
@@ -12,10 +12,9 @@ import { authService } from '@/features/auth/services/authService';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser]           = useState(null);
+  const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Restore session on app load
   useEffect(() => {
     authService.getCurrentUser()
       .then(data => setUser(data?.user ?? data))
@@ -25,7 +24,6 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (credentials) => {
     const data = await authService.login(credentials);
-    // Backend returns session cookie
     const loggedUser = data?.user ?? data;
     setUser(loggedUser);
     return loggedUser;
@@ -42,12 +40,4 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-/**
- * @hook useAuth
- * @returns {{ user: Object|null, login: Function, logout: Function }}
- */
-export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
-  return ctx;
-}
+export { AuthContext };

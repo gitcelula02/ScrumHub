@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { EpicBadge, StatusBadge, PriorityTag } from '@/components/ui';
 import { useEntityTheme } from '@/hooks/useEntityTheme';
 

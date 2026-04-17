@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useThemeRegistry } from '@/store/ThemeRegistry';
+import { useThemeRegistry } from '@/store/useThemeRegistry';
 import { backlogService } from '../services/backlogService';
 
 /**

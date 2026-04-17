@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useThemeRegistry } from '@/store/ThemeRegistry';
+import { useThemeRegistry } from '@/store/useThemeRegistry';
 import { projectService } from '../services/projectService';
 
 /**

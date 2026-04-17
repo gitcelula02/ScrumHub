@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useThemeRegistry } from '@/store/ThemeRegistry';
+import { useThemeRegistry } from '@/store/useThemeRegistry';
 import { sprintService } from '../services/sprintService';
 
 /**
@@ -10,17 +10,17 @@ import { sprintService } from '../services/sprintService';
  * @param {string | null} projectId
  *
  * @returns {{
- *   sprints: Object[],
- *   loading: boolean,
- *   error: string | null,
- *   refetch: Function,
+ * sprints: Object[],
+ * loading: boolean,
+ * error: string | null,
+ * refetch: Function,
  * }}
  */
 export function useSprints(projectId) {
-  const [sprints, setSprints]  = useState([]);
-  const [loading, setLoading]  = useState(false);
-  const [error, setError]      = useState(null);
-  const { registerEntities }   = useThemeRegistry();
+  const [sprints, setSprints] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { registerEntities } = useThemeRegistry();
 
   const fetchSprints = useCallback(async () => {
     if (!projectId) return;
@@ -31,16 +31,16 @@ export function useSprints(projectId) {
       const list = Array.isArray(data) ? data : [];
       setSprints(list);
       registerEntities(list.map(s => ({ id: s.id, color: s.color ?? '#22c55e' })));
-    } catch (err) {
-      // Sprint endpoint may not exist yet — fail silently with empty state
+    } catch {
       setError(null);
       setSprints([]);
-    } finally {
-      setLoading(false);
     }
   }, [projectId, registerEntities]);
 
-  useEffect(() => { fetchSprints(); }, [fetchSprints]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchSprints();
+  }, [fetchSprints]);
 
   return { sprints, loading, error, refetch: fetchSprints };
 }
