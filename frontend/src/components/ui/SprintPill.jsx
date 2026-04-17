@@ -1,4 +1,4 @@
-import { useEntityTheme } from '../../hooks/useEntityTheme';
+import { useEntityTheme } from '@/hooks/useEntityTheme';
 
 /**
  * @component SprintPill
