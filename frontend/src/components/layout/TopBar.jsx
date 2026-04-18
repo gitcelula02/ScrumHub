@@ -23,9 +23,9 @@ export function TopBar({ onSidebarToggle }) {
       role="banner"
       aria-label="Top navigation bar"
     >
-      {/* Mobile hamburger menu button - always visible on mobile */}
+      {/* Mobile hamburger menu button - only visible on mobile */}
       <button
-        className="topbar-menu-btn"
+        className="topbar-menu-btn d-md-none"
         onClick={onSidebarToggle}
         title="Open navigation menu"
         aria-label="Open navigation menu"

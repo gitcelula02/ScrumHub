@@ -1,102 +1,76 @@
+import { useState } from 'react';
+
 /**
  * @component ChatLayout
- * @description Unified project chat layout — styling and structure only.
- * No WebSocket or real-time utilities. UI mirrors Discord-style channel layout.
+ * @description Full-width project chat layout with toggle sidebar for online members.
  *
- * Panels:
- *   Left  — channel / member list sidebar
- *   Center — message area + input bar
- *   Right — member roster (hidden on mobile)
+ * Layout:
+ * - Full-height chat area with message history
+ * - Sticky header with channel name, online count toggle, and close button
+ * - Toggle sidebar slides in from right showing online/offline members
+ * - Message input at bottom
  *
  * @param {Object} props
  * @param {string} [props.projectName] - Project name for the chat header
  */
 export function ChatLayout({ projectName = 'Project' }) {
-  const MOCK_CHANNELS = [
-    { id: 'general',     label: 'general',      icon: '#' },
-    { id: 'planning',    label: 'planning',      icon: '#' },
-    { id: 'standups',    label: 'standups',      icon: '#' },
-    { id: 'ai-context',  label: 'ai-context',    icon: '🤖' },
-  ];
+  const [membersOpen, setMembersOpen] = useState(false);
 
   const MOCK_MEMBERS = [
-    { id: '1', name: 'Alice Chen',    role: 'Scrum Master',    online: true  },
-    { id: '2', name: 'Bob Martínez',  role: 'Developer',       online: true  },
-    { id: '3', name: 'Carol Osei',    role: 'Product Owner',   online: false },
-    { id: '4', name: 'David Kim',     role: 'Developer',       online: true  },
+    { id: '1', name: 'Alice Chen', role: 'Scrum Master', online: true },
+    { id: '2', name: 'Bob Martínez', role: 'Developer', online: true },
+    { id: '3', name: 'Carol Osei', role: 'Product Owner', online: false },
+    { id: '4', name: 'David Kim', role: 'Developer', online: true },
   ];
 
   const MOCK_MESSAGES = [
-    { id: '1', author: 'Alice Chen',   time: '09:14', text: 'Good morning team! Sprint planning in 30 min 🚀', online: true },
+    { id: '1', author: 'Alice Chen', time: '09:14', text: 'Good morning team! Sprint planning in 30 min 🚀', online: true },
     { id: '2', author: 'Bob Martínez', time: '09:16', text: "On it. I'll finish the auth ticket before the meeting.", online: true },
-    { id: '3', author: 'Carol Osei',   time: '09:18', text: 'Backlog is updated with 3 new user stories from the stakeholder call.', online: false },
+    { id: '3', author: 'Carol Osei', time: '09:18', text: 'Backlog is updated with 3 new user stories from the stakeholder call.', online: false },
     { id: '4', author: 'ScrumHub AI', time: '09:20', text: '📋 Sprint 4 is 78% complete. 2 tasks are blocked — "API rate limiting" and "Image upload". Would you like me to create a blockers report?', isAI: true },
-    { id: '5', author: 'David Kim',    time: '09:21', text: 'Yes please @AI!', online: true },
+    { id: '5', author: 'David Kim', time: '09:21', text: 'Yes please @AI!', online: true },
   ];
 
-  return (
-    <div className="chat-shell animate-in" aria-label="Project chat" title={`${projectName} chat`}>
-      {/* Left — channels */}
-      <aside className="chat-channels" aria-label="Chat channels" title="Channel list">
-        <div className="chat-channels-header" title={`${projectName} channels`}>
-          <span className="fw-medium text-sm truncate">{projectName}</span>
-        </div>
-        <nav aria-label="Channels navigation">
-          <div className="chat-channels-section-label" title="Text channels">Text Channels</div>
-          {MOCK_CHANNELS.map(ch => (
-            <button
-              key={ch.id}
-              className={`chat-channel-btn ${ch.id === 'general' ? 'active' : ''}`}
-              title={`# ${ch.label} channel`}
-              aria-label={`Channel: ${ch.label}`}
-              aria-current={ch.id === 'general' ? 'page' : undefined}
-            >
-              <span className="chat-channel-icon" aria-hidden="true">{ch.icon}</span>
-              {ch.label}
-            </button>
-          ))}
-          <div className="chat-channels-section-label mt-3" title="Direct messages">Direct Messages</div>
-          {MOCK_MEMBERS.slice(0, 3).map(m => (
-            <button
-              key={m.id}
-              className="chat-channel-btn"
-              title={`Direct message with ${m.name}`}
-              aria-label={`Direct message: ${m.name}`}
-            >
-              <span
-                className="chat-dm-avatar"
-                title={m.online ? `${m.name} is online` : `${m.name} is offline`}
-                aria-label={m.online ? 'Online' : 'Offline'}
-              >
-                {m.name[0]}
-                <span className={`chat-online-dot ${m.online ? 'online' : 'offline'}`} aria-hidden="true" />
-              </span>
-              {m.name.split(' ')[0]}
-            </button>
-          ))}
-        </nav>
-      </aside>
+  const onlineCount = MOCK_MEMBERS.filter(m => m.online).length;
 
-      {/* Center — messages + input */}
-      <div className="chat-main" aria-label="Message area">
+  const toggleMembers = () => setMembersOpen(o => !o);
+
+  return (
+    <div className="chat-full-shell animate-in" aria-label="Project chat">
+      {/* Main chat area */}
+      <div className="chat-full-main">
         {/* Chat header */}
-        <header className="chat-main-header" aria-label="Channel header" title="general channel">
-          <span className="chat-channel-icon fw-medium me-1" aria-hidden="true">#</span>
-          <span className="fw-medium text-sm">general</span>
-          <span className="text-xs text-secondary ms-2" aria-label="Channel description">Team channel for general discussion</span>
+        <header className="chat-full-header" aria-label="Chat header">
+          <div className="chat-full-header-left">
+            <span className="chat-channel-icon fw-medium me-1" aria-hidden="true">#</span>
+            <span className="fw-medium">{projectName}</span>
+            <span className="text-secondary mx-2">|</span>
+            <span className="text-sm text-secondary">general</span>
+          </div>
+          <div className="chat-full-header-right">
+            <button
+              className="chat-full-members-toggle"
+              onClick={toggleMembers}
+              title={`${onlineCount} members online — click to view`}
+              aria-label={`${onlineCount} members online — click to view`}
+              aria-expanded={membersOpen}
+            >
+              <span className="chat-online-indicator" aria-hidden="true" />
+              Online {onlineCount}
+            </button>
+          </div>
         </header>
 
-        {/* Messages */}
-        <div className="chat-messages" role="log" aria-label="Chat messages" aria-live="polite">
+        {/* Messages area */}
+        <div className="chat-full-messages" role="log" aria-label="Chat messages" aria-live="polite">
           {MOCK_MESSAGES.map(msg => (
             <ChatMessage key={msg.id} msg={msg} />
           ))}
-          {/* Scroll anchor */}
           <div id="chat-scroll-bottom" aria-hidden="true" />
         </div>
 
         {/* Input bar */}
-        <div className="chat-input-bar" role="form" aria-label="Message input">
+        <div className="chat-full-input-bar" role="form" aria-label="Message input">
           <div className="chat-input-wrap">
             <button
               className="chat-input-attach"
@@ -109,7 +83,7 @@ export function ChatLayout({ projectName = 'Project' }) {
               id="chat-message-input"
               type="text"
               className="chat-input"
-              placeholder="Message #general  — type @AI to involve the assistant"
+              placeholder="Message — type @AI to involve the assistant"
               aria-label="Type a message. Use @AI to involve the AI assistant."
               title="Message input"
             />
@@ -118,26 +92,50 @@ export function ChatLayout({ projectName = 'Project' }) {
               title="Mention the AI assistant"
               aria-label="Mention AI"
             >
-              🤖
+              ✦
             </button>
           </div>
         </div>
       </div>
 
-      {/* Right — members roster */}
-      <aside className="chat-members" aria-label="Team members" title="Online members">
-        <div className="chat-channels-section-label" title="Online members">
-          ONLINE — {MOCK_MEMBERS.filter(m => m.online).length}
+      {/* Members sidebar - slides in from right */}
+      <aside
+        className={`chat-full-members ${membersOpen ? 'chat-full-members--open' : ''}`}
+        aria-label="Team members"
+        title="Team members"
+        aria-hidden={!membersOpen}
+      >
+        <div className="chat-full-members-header">
+          <span className="fw-medium text-sm">Team Members</span>
+          <button
+            className="chat-full-members-close"
+            onClick={() => setMembersOpen(false)}
+            title="Close members panel"
+            aria-label="Close members panel"
+          >
+            ✕
+          </button>
         </div>
-        {MOCK_MEMBERS.filter(m => m.online).map(m => (
-          <MemberRow key={m.id} member={m} />
-        ))}
-        <div className="chat-channels-section-label mt-3" title="Offline members">
-          OFFLINE — {MOCK_MEMBERS.filter(m => !m.online).length}
+
+        <div className="chat-full-members-list">
+          <div className="chat-full-members-section">
+            <span className="chat-full-members-label">
+              ONLINE — {onlineCount}
+            </span>
+            {MOCK_MEMBERS.filter(m => m.online).map(m => (
+              <MemberRow key={m.id} member={m} />
+            ))}
+          </div>
+
+          <div className="chat-full-members-section">
+            <span className="chat-full-members-label">
+              OFFLINE — {MOCK_MEMBERS.filter(m => !m.online).length}
+            </span>
+            {MOCK_MEMBERS.filter(m => !m.online).map(m => (
+              <MemberRow key={m.id} member={m} />
+            ))}
+          </div>
         </div>
-        {MOCK_MEMBERS.filter(m => !m.online).map(m => (
-          <MemberRow key={m.id} member={m} />
-        ))}
       </aside>
     </div>
   );
@@ -157,7 +155,7 @@ function ChatMessage({ msg }) {
         aria-hidden="true"
         style={{ background: msg.isAI ? 'var(--color-brand-500)' : undefined }}
       >
-        {msg.isAI ? '🤖' : msg.author[0]}
+        {msg.isAI ? '✦' : msg.author[0]}
       </div>
       <div className="chat-msg-body">
         <div className="d-flex align-items-baseline gap-2">

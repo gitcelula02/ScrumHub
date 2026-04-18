@@ -911,6 +911,160 @@
 .chat-member-row .fw-medium { color: var(--color-dark-text); }
 
 /* ══════════════════════════════════════════════════════════════
+CHAT — FULL WIDTH LAYOUT
+Full-height chat with toggle sidebar for team members
+══════════════════════════════════════════════════════════════ */
+.chat-full-shell {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  background: #1e2444;
+  position: relative;
+}
+
+.chat-full-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Chat header */
+.chat-full-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--topbar-height);
+  padding: 0 1rem;
+  background: var(--color-dark-nav);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+.chat-full-header-left {
+  display: flex;
+  align-items: center;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.chat-full-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chat-full-members-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-dark-text);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.chat-full-members-toggle:hover {
+  background: var(--color-dark-nav-hover);
+  color: #fff;
+}
+
+.chat-online-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+}
+
+/* Messages area */
+.chat-full-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Input bar */
+.chat-full-input-bar {
+  padding: 0.75rem 1rem 1rem;
+  flex-shrink: 0;
+}
+
+/* Members sidebar — slides in from right */
+.chat-full-members {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 260px;
+  background: var(--color-dark-nav-deep);
+  border-left: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 200ms ease;
+  z-index: 50;
+}
+
+.chat-full-members--open {
+  transform: translateX(0);
+}
+
+.chat-full-members-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--topbar-height);
+  padding: 0 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.chat-full-members-close {
+  background: none;
+  border: none;
+  color: var(--color-dark-text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: var(--radius-xs);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.chat-full-members-close:hover {
+  color: #fff;
+  background: var(--color-dark-nav-hover);
+}
+
+.chat-full-members-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+.chat-full-members-section {
+  margin-bottom: 1rem;
+}
+
+.chat-full-members-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-dark-text-muted);
+  padding: 0.5rem 1rem 0.25rem;
+}
+
+/* ══════════════════════════════════════════════════════════════
 WORKSPACE CANVAS
 IDE aesthetic: "Sober, Structured, Sophisticated"
 No rounded corners exceeding 4px. 1px borders. 150ms transitions.
@@ -1362,7 +1516,7 @@ Full-screen overlay navigation for mobile (<768px)
 
 /* ══════════════════════════════════════════════════════════════
 AI ASSISTANT BUTTON
-Fixed position button at bottom-left of screen
+Fixed position button — left on mobile, right on desktop
 ══════════════════════════════════════════════════════════════ */
 .ai-assistant-btn {
   position: fixed;
@@ -1382,6 +1536,13 @@ Fixed position button at bottom-left of screen
   align-items: center;
   justify-content: center;
   transition: transform 150ms linear, box-shadow 150ms linear, background 150ms linear;
+}
+
+@media (min-width: 768px) {
+  .ai-assistant-btn {
+    left: auto;
+    right: 1.5rem;
+  }
 }
 
 .ai-assistant-btn:hover {
