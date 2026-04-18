@@ -32,7 +32,11 @@ export function useProjects() {
       setProjects(list);
       registerEntities(list.map(p => ({ id: p.id, color: p.color ?? '#6B5CFF' })));
     } catch (err) {
-      setError(err.message ?? 'Failed to load projects');
+      if (err.status === 401) {
+        setError('Session expired. Please log in again.');
+      } else {
+        setError(err.message ?? 'Failed to load projects');
+      }
       setProjects([]);
     } finally {
       setLoading(false);

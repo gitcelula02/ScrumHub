@@ -15,7 +15,8 @@ export const boardService = {
    * @returns {Promise<Object[]>}
    */
   async getTasksByProject(projectId) {
-    return apiClient.get(`/tasks/project/${projectId}`);
+    const response = await apiClient.get(`/tasks/project/${projectId}`);
+    return response.tasks || [];
   },
 
   /**

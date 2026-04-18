@@ -15,7 +15,8 @@ export const calendarService = {
    * @returns {Promise<Object[]>}
    */
   async getTasksForCalendar(projectId) {
-    return apiClient.get(`/tasks/project/${projectId}`);
+    const response = await apiClient.get(`/tasks/project/${projectId}`);
+    return response.tasks || [];
   },
 
   /**

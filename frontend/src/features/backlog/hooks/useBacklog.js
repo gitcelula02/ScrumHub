@@ -48,7 +48,11 @@ export function useBacklog(projectId) {
       // no prop drilling of colors required.
       registerEntities(data.map(epic => ({ id: epic.id, color: epic.color })));
     } catch (err) {
-      setError(err.message ?? 'Failed to load backlog');
+      if (err.status === 401) {
+        setError('Session expired. Please log in again.');
+      } else {
+        setError(err.message ?? 'Failed to load backlog');
+      }
     } finally {
       setLoading(false);
     }

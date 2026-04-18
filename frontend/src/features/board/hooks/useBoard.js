@@ -30,7 +30,11 @@ export function useBoard(projectId) {
       const data = await boardService.getTasksByProject(projectId);
       setTasks(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message ?? 'Failed to load board');
+      if (err.status === 401) {
+        setError('Session expired. Please log in again.');
+      } else {
+        setError(err.message ?? 'Failed to load board');
+      }
     } finally {
       setLoading(false);
     }

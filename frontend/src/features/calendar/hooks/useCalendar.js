@@ -35,7 +35,11 @@ export function useCalendar(projectId) {
       const data = await calendarService.getTasksForCalendar(projectId);
       setTasks(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message ?? 'Failed to load calendar');
+      if (err.status === 401) {
+        setError('Session expired. Please log in again.');
+      } else {
+        setError(err.message ?? 'Failed to load calendar');
+      }
     } finally {
       setLoading(false);
     }

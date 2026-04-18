@@ -18,7 +18,12 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     authService.getCurrentUser()
       .then(data => setUser(data?.user ?? data))
-      .catch(() => localStorage.removeItem('scrumhub_token'))
+      .catch((err) => {
+        if (err.status === 401) {
+          setUser(null);
+        }
+        localStorage.removeItem('scrumhub_token');
+      })
       .finally(() => setAuthLoading(false));
   }, []);
 

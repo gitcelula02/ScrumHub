@@ -31,7 +31,11 @@ export function useWorkspace(projectId) {
       const data = await workspaceService.getByProject(projectId);
       setWorkspace(data);
     } catch (err) {
-      setError(err.message ?? 'Failed to load workspace');
+      if (err.status === 401) {
+        setError('Session expired. Please log in again.');
+      } else {
+        setError(err.message ?? 'Failed to load workspace');
+      }
     } finally {
       setLoading(false);
     }

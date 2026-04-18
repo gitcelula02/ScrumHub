@@ -25,14 +25,14 @@ app.use(express.urlencoded({ extended: true }));
 //app.use(express.static(path.join(__dirname, '../frontend/public')));
 
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'secret_key_12345',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 24 * 60 * 60 * 1000,
-        sameSite: 'lax'
-    }
+  secret: process.env.SESSION_SECRET || 'secret_key_12345',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000,
+    sameSite: false
+  }
 }));
 
 app.use('/api/auth', authRoutes);
