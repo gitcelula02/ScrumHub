@@ -1,4 +1,4 @@
-import { createContext, useContext, useCallback, useMemo, useRef } from 'react';
+import { createContext, useCallback, useMemo, useRef } from 'react';
 import { buildEntityTheme } from '../utils/themeUtils';
 
 /**
@@ -14,40 +14,27 @@ import { buildEntityTheme } from '../utils/themeUtils';
  *
  * USAGE:
  * Wrap the app (inside RouterProvider, outside page components):
- *   <ThemeRegistryProvider>
- *     <App />
- *   </ThemeRegistryProvider>
+ * <ThemeRegistryProvider>
+ * <App />
+ * </ThemeRegistryProvider>
  *
  * Then inside any component:
- *   const { getTheme, registerEntities } = useThemeRegistry();
- *   const theme = getTheme(epic.id);   // returns CSS vars object
+ * const { getTheme, registerEntities } = useThemeRegistry();
+ * const theme = getTheme(epic.id); // returns CSS vars object
  *
  * POPULATING THE CACHE:
  * Feature hooks call registerEntities() when API data arrives.
  * See useProjects, useBacklog, useSprints for examples.
- *
- * @example
- * // In useProjects.js, after fetching:
- * registerEntities(projects.map(p => ({ id: p.id, color: p.color })));
  */
-
 const ThemeRegistryContext = createContext(null);
 
 export function ThemeRegistryProvider({ children }) {
-  // useRef so cache mutations never trigger re-renders
   const cacheRef = useRef(new Map());
 
-  /**
-   * Registers an array of color-carrying entities into the cache.
-   * Safe to call on every data fetch — only recomputes if color changed.
-   *
-   * @param {Array<{ id: string, color: string }>} entities
-   */
   const registerEntities = useCallback((entities) => {
     entities.forEach(({ id, color }) => {
       if (!color) return;
       const existing = cacheRef.current.get(id);
-      // Only recompute if the color has actually changed
       if (!existing || existing._hex !== color) {
         const theme = buildEntityTheme(color);
         cacheRef.current.set(id, { ...theme, _hex: color });
@@ -55,18 +42,9 @@ export function ThemeRegistryProvider({ children }) {
     });
   }, []);
 
-  /**
-   * Returns the cached CSS variable set for an entity.
-   * Falls back to an empty object if the entity hasn't been registered yet
-   * (component will use CSS fallback values from .entity-badge defaults).
-   *
-   * @param {string} entityId
-   * @returns {React.CSSProperties}
-   */
   const getTheme = useCallback((entityId) => {
     const entry = cacheRef.current.get(entityId);
     if (!entry) return {};
-    // Strip the internal _hex key before returning as a style prop
     const { _hex, ...style } = entry;
     return style;
   }, []);
@@ -80,14 +58,4 @@ export function ThemeRegistryProvider({ children }) {
   );
 }
 
-/**
- * @hook useThemeRegistry
- * @returns {{ registerEntities: Function, getTheme: Function }}
- */
-export function useThemeRegistry() {
-  const ctx = useContext(ThemeRegistryContext);
-  if (!ctx) {
-    throw new Error('useThemeRegistry must be used inside <ThemeRegistryProvider>');
-  }
-  return ctx;
-}
+export { ThemeRegistryContext };
