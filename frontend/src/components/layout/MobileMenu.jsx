@@ -103,16 +103,24 @@ export function MobileMenu({ isOpen, onClose }) {
         )}
       </nav>
 
-      <div className="mobile-menu-footer">
-        <button
-          className="mobile-menu-item mobile-menu-item--logout"
-          onClick={handleLogout}
-          title="Sign out"
-        >
-          <span className="mobile-menu-icon" aria-hidden="true">↩</span>
-          Sign out
-        </button>
-      </div>
+<div className="mobile-menu-footer">
+      <button
+        className="mobile-menu-item"
+        onClick={() => handleNavigate('/settings')}
+        title="Settings"
+      >
+        <span className="mobile-menu-icon" aria-hidden="true">⚙</span>
+        Settings
+      </button>
+      <button
+        className="mobile-menu-item mobile-menu-item--logout"
+        onClick={handleLogout}
+        title="Sign out"
+      >
+        <span className="mobile-menu-icon" aria-hidden="true">↩</span>
+        Sign out
+      </button>
+    </div>
     </div>
   );
 }

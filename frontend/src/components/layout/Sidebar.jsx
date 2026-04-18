@@ -126,14 +126,14 @@ export function Sidebar({ collapsed, onToggle }) {
           </div>
         )}
         <div className="d-flex gap-1 px-2 pb-1">
-          <button
-            className="sidebar-icon-btn flex-grow-1"
-            title="Settings"
-            aria-label="Open settings"
-            onClick={() => {/* TODO: settings */}}
-          >
-            ⚙
-          </button>
+<button
+        className="sidebar-icon-btn flex-grow-1"
+        title="Settings"
+        aria-label="Open settings"
+        onClick={() => navigate('/settings')}
+      >
+        ⚙
+      </button>
           <button
             className="sidebar-icon-btn flex-grow-1"
             onClick={handleLogout}

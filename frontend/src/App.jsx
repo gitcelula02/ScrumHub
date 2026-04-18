@@ -15,6 +15,7 @@ import SprintPage from '@/pages/SprintPage';
 import CalendarPage from '@/pages/CalendarPage';
 import ChatPage from '@/pages/ChatPage';
 import WorkspacePage from '@/pages/WorkspacePage';
+import SettingsPage from '@/pages/SettingsPage';
 import NotFound from '@/pages/NotFound';
 
 import '@/styles/main.css';
@@ -48,6 +49,7 @@ export default function App() {
           {/* /projects → project list dashboard */}
           <Route path="/projects" element={<ProjectListPage />} />
           <Route path="/projects/new" element={<ProjectCreatePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
 
 {/* Project views */}
               <Route path="/projects/:projectId" element={<ProjectPage />} />
@@ -57,6 +59,7 @@ export default function App() {
               <Route path="/projects/:projectId/calendar" element={<CalendarPage />} />
               <Route path="/projects/:projectId/chat" element={<ChatPage />} />
               <Route path="/projects/:projectId/workspace" element={<WorkspacePage />} />
+              <Route path="/projects/:projectId/settings" element={<SettingsPage />} />
             </Route>
 
             {/* ── 404 ── */}
