@@ -58,15 +58,16 @@ export function AppShell() {
           <Sidebar collapsed={sidebarCollapsed} onToggle={toggleSidebar} />
         </div>
 
-        <div className="app-main">
-          <TopBar
-            onSidebarToggle={toggleMobileMenu}
-            showMobileMenu={mobileMenuOpen}
-          />
-          <main className="app-content" id="main-content" aria-label="Page content">
-            <Outlet />
-          </main>
-        </div>
+<div className="app-main">
+        <TopBar
+          onSidebarToggle={toggleMobileMenu}
+          sidebarCollapsed={sidebarCollapsed}
+          onSidebarCollapse={toggleSidebar}
+        />
+        <main className="app-content" id="main-content" aria-label="Page content">
+          <Outlet />
+        </main>
+      </div>
       </div>
 
       {/* Mobile menu overlay */}

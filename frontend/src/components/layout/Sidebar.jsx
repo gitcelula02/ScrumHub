@@ -45,8 +45,11 @@ export function Sidebar({ collapsed, onToggle }) {
       title="Go to Your Projects"
       aria-label="ScrumHub — go to Your Projects"
     >
-      <div className="sidebar-logo-mark" aria-hidden="true" />
-      {!collapsed && <span className="sidebar-logo-text">ScrumHub</span>}
+      <span className="sidebar-logo-text" aria-hidden="true">
+        <span className="logo-angle">&lt;/</span>
+        <span className="logo-text">ScrumHub</span>
+        <span className="logo-angle">&gt;</span>
+      </span>
     </button>
     <button
       className="sidebar-collapse-btn"
@@ -112,21 +115,26 @@ export function Sidebar({ collapsed, onToggle }) {
     </button>
       </nav>
 
-      {/* Bottom user zone */}
-      <div className="sidebar-footer" aria-label="User menu area">
-        {!collapsed && user && (
-          <div className="sidebar-user" title={`Signed in as ${user?.name ?? user?.email}`}>
-            <div className="sidebar-user-avatar" aria-hidden="true">
-              {(user?.name ?? user?.email ?? 'U')[0].toUpperCase()}
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs fw-medium mb-0 truncate">{user?.name ?? 'User'}</p>
-              <p className="text-xs text-secondary mb-0 truncate">{user?.email}</p>
-            </div>
-          </div>
-        )}
-        <div className="d-flex gap-1 px-2 pb-1">
-<button
+{/* Bottom user zone */}
+  <div className="sidebar-footer" aria-label="User menu area">
+    <button
+      className="sidebar-user-btn"
+      onClick={() => navigate('/settings')}
+      title="Go to settings"
+      aria-label="User settings"
+    >
+      <div className="sidebar-user-avatar" aria-hidden="true">
+        {(user?.name ?? user?.email ?? 'U')[0].toUpperCase()}
+      </div>
+      {!collapsed && (
+        <div className="min-w-0">
+          <p className="sidebar-user-name mb-0 truncate">{user?.name ?? 'User'}</p>
+          <p className="sidebar-user-email mb-0 truncate">{user?.email}</p>
+        </div>
+      )}
+    </button>
+    <div className="d-flex gap-1 px-2 pb-1">
+      <button
         className="sidebar-icon-btn flex-grow-1"
         title="Settings"
         aria-label="Open settings"
@@ -134,16 +142,16 @@ export function Sidebar({ collapsed, onToggle }) {
       >
         ⚙
       </button>
-          <button
-            className="sidebar-icon-btn flex-grow-1"
-            onClick={handleLogout}
-            title="Sign out of ScrumHub"
-            aria-label="Sign out"
-          >
-            ↩
-          </button>
-        </div>
-      </div>
+      <button
+        className="sidebar-icon-btn flex-grow-1"
+        onClick={handleLogout}
+        title="Sign out of ScrumHub"
+        aria-label="Sign out"
+      >
+        ↩
+      </button>
+    </div>
+  </div>
     </aside>
   );
 }

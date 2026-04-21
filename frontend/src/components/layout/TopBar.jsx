@@ -1,20 +1,18 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/store/useAuth';
+import { useState } from 'react';
 
 /**
  * @component TopBar
- * @description Fixed top header showing breadcrumb path and user actions.
- * On mobile, shows hamburger menu button instead of sidebar toggle.
+ * @description Fixed top header with search bar.
+ * Dark background to match sidebar, search bar centered.
  *
- * @param {{ onSidebarToggle?: Function }} props
+ * @param {{ onSidebarToggle?: Function, sidebarCollapsed?: boolean, onSidebarCollapse?: Function }} props
  */
-export function TopBar({ onSidebarToggle }) {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+export function TopBar({ onSidebarToggle, sidebarCollapsed = false, onSidebarCollapse }) {
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
+  const handleSearch = (e) => {
+    e.preventDefault();
+    console.info('[Search] Query:', searchQuery);
   };
 
   return (
@@ -33,23 +31,42 @@ export function TopBar({ onSidebarToggle }) {
         ☰
       </button>
 
-      {/* Right actions */}
-      <div className="topbar-actions" aria-label="User actions">
-        {user && (
-          <button
-            className="topbar-user-btn"
-            onClick={handleLogout}
-            title={`Signed in as ${user?.name ?? user?.email} — click to sign out`}
-            aria-label="User menu — sign out"
-          >
-            <div className="topbar-avatar" aria-hidden="true">
-              {(user?.name ?? user?.email ?? 'U')[0].toUpperCase()}
-            </div>
-            <span className="text-sm fw-medium d-none d-sm-inline">
-              {user?.name ?? user?.email}
-            </span>
-          </button>
-        )}
+      {/* Desktop sidebar toggle - visible on tablet and up */}
+      {onSidebarCollapse && (
+        <button
+          className="topbar-sidebar-toggle d-none d-md-flex"
+          onClick={onSidebarCollapse}
+          title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {sidebarCollapsed ? '☰' : '‹'}
+        </button>
+      )}
+
+      {/* Search bar - centered */}
+      <form className="topbar-search" onSubmit={handleSearch} role="search">
+        <span className="topbar-search-icon" aria-hidden="true">🔍</span>
+        <input
+          type="search"
+          className="topbar-search-input"
+          placeholder="Search tasks, epics, projects..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Search"
+          title="Search"
+        />
+      </form>
+
+      {/* Right actions - placeholder for future use */}
+      <div className="topbar-actions" aria-label="Quick actions">
+        <button
+          className="topbar-icon-btn"
+          title="Notifications"
+          aria-label="Notifications"
+          onClick={() => {/* TODO: notifications */}}
+        >
+          🔔
+        </button>
       </div>
     </header>
   );
