@@ -45,32 +45,34 @@ export function AISettings({
           meetingSummaries: e.target.querySelector('[name="ai.skills.meetingSummaries"]').checked,
         },
       });
-    } else {
-      onSave({
-        enabled: e.target.querySelector('[name="ai.enabled"]').checked,
-        model: formData.get('ai.model'),
-        temperature: parseFloat(formData.get('ai.temperature')) || 0.7,
-        maxTokens: parseInt(formData.get('ai.maxTokens')) || 2000,
-        skills: {
-          codeReview: e.target.querySelector('[name="ai.skills.codeReview"]').checked,
-          sprintPlanning: e.target.querySelector('[name="ai.skills.sprintPlanning"]').checked,
-          backlogRefinement: e.target.querySelector('[name="ai.skills.backlogRefinement"]').checked,
-          riskAnalysis: e.target.querySelector('[name="ai.skills.riskAnalysis"]').checked,
-          reportGeneration: e.target.querySelector('[name="ai.skills.reportGeneration"]').checked,
-        },
-        agents: {
-          assistant: e.target.querySelector('[name="ai.agents.assistant"]').checked,
-          analytics: e.target.querySelector('[name="ai.agents.analytics"]').checked,
-          automation: e.target.querySelector('[name="ai.agents.automation"]').checked,
-        },
-        permissions: {
-          readProjects: e.target.querySelector('[name="ai.permissions.readProjects"]').checked,
-          writeTasks: e.target.querySelector('[name="ai.permissions.writeTasks"]').checked,
-          manageMembers: e.target.querySelector('[name="ai.permissions.manageMembers"]').checked,
-          accessReports: e.target.querySelector('[name="ai.permissions.accessReports"]').checked,
-        },
-      });
-    }
+} else {
+    onSave({
+      enabled: e.target.querySelector('[name="ai.enabled"]').checked,
+      model: formData.get('ai.model'),
+      apiKey: formData.get('ai.apiKey') || null,
+      temperature: parseFloat(formData.get('ai.temperature')) || 0.7,
+      maxTokens: parseInt(formData.get('ai.maxTokens')) || 2000,
+      skills: {
+        codeReview: e.target.querySelector('[name="ai.skills.codeReview"]').checked,
+        sprintPlanning: e.target.querySelector('[name="ai.skills.sprintPlanning"]').checked,
+        backlogRefinement: e.target.querySelector('[name="ai.skills.backlogRefinement"]').checked,
+        riskAnalysis: e.target.querySelector('[name="ai.skills.riskAnalysis"]').checked,
+        reportGeneration: e.target.querySelector('[name="ai.skills.reportGeneration"]').checked,
+        customMarkdown: formData.get('ai.skills.customMarkdown') || '',
+      },
+      agents: {
+        assistant: e.target.querySelector('[name="ai.agents.assistant"]').checked,
+        analytics: e.target.querySelector('[name="ai.agents.analytics"]').checked,
+        automation: e.target.querySelector('[name="ai.agents.automation"]').checked,
+      },
+      permissions: {
+        readProjects: e.target.querySelector('[name="ai.permissions.readProjects"]').checked,
+        writeTasks: e.target.querySelector('[name="ai.permissions.writeTasks"]').checked,
+        manageMembers: e.target.querySelector('[name="ai.permissions.manageMembers"]').checked,
+        accessReports: e.target.querySelector('[name="ai.permissions.accessReports"]').checked,
+      },
+    });
+  }
   };
 
   const tabs = isProject
@@ -137,83 +139,105 @@ export function AISettings({
           ))}
         </div>
 
-        {/* Skills Tab */}
-        {activeTab === 'skills' && (
-          <div className="settings-tab-content" role="tabpanel">
-            <h3 className="settings-subsection-title">
-              {isProject ? 'Project AI Skills' : 'AI Skills'}
-            </h3>
-            <p className="settings-subsection-desc text-secondary mb-3">
-              {isProject
-                ? 'Choose which AI capabilities are available for this project.'
-                : 'Enable specific AI capabilities you want to use.'}
-            </p>
+{/* Skills Tab */}
+{activeTab === 'skills' && (
+<div className="settings-tab-content" role="tabpanel">
+<h3 className="settings-subsection-title">
+{isProject ? 'Project AI Skills' : 'AI Skills'}
+</h3>
+<p className="settings-subsection-desc text-secondary mb-3">
+{isProject
+? 'Choose which AI capabilities are available for this project.'
+: 'Enable specific AI capabilities you want to use.'}
+</p>
 
-            <div className="settings-toggle-list">
-              {isProject ? (
-                <>
-                  <ToggleItem
-                    name="ai.skills.sprintSuggestions"
-                    label="Sprint suggestions"
-                    desc="AI suggests sprint goals and task assignments"
-                    defaultChecked={settings?.skills?.sprintSuggestions ?? true}
-                  />
-                  <ToggleItem
-                    name="ai.skills.taskEstimation"
-                    label="Task estimation"
-                    desc="AI estimates story points and effort"
-                    defaultChecked={settings?.skills?.taskEstimation ?? true}
-                  />
-                  <ToggleItem
-                    name="ai.skills.riskPrediction"
-                    label="Risk prediction"
-                    desc="AI identifies potential blockers and risks"
-                    defaultChecked={settings?.skills?.riskPrediction ?? true}
-                  />
-                  <ToggleItem
-                    name="ai.skills.meetingSummaries"
-                    label="Meeting summaries"
-                    desc="AI summarizes sprint meetings and notes"
-                    defaultChecked={settings?.skills?.meetingSummaries ?? true}
-                  />
-                </>
-              ) : (
-                <>
-                  <ToggleItem
-                    name="ai.skills.codeReview"
-                    label="Code review"
-                    desc="AI reviews code changes and suggests improvements"
-                    defaultChecked={settings?.skills?.codeReview ?? true}
-                  />
-                  <ToggleItem
-                    name="ai.skills.sprintPlanning"
-                    label="Sprint planning"
-                    desc="AI assists with sprint planning and backlog grooming"
-                    defaultChecked={settings?.skills?.sprintPlanning ?? true}
-                  />
-                  <ToggleItem
-                    name="ai.skills.backlogRefinement"
-                    label="Backlog refinement"
-                    desc="AI helps refine user stories and acceptance criteria"
-                    defaultChecked={settings?.skills?.backlogRefinement ?? true}
-                  />
-                  <ToggleItem
-                    name="ai.skills.riskAnalysis"
-                    label="Risk analysis"
-                    desc="AI identifies project risks and suggests mitigations"
-                    defaultChecked={settings?.skills?.riskAnalysis ?? true}
-                  />
-                  <ToggleItem
-                    name="ai.skills.reportGeneration"
-                    label="Report generation"
-                    desc="AI generates sprint reports and analytics"
-                    defaultChecked={settings?.skills?.reportGeneration ?? true}
-                  />
-                </>
-              )}
-            </div>
-          </div>
-        )}
+<div className="settings-toggle-list">
+  {isProject ? (
+    <>
+    <ToggleItem
+      name="ai.skills.sprintSuggestions"
+      label="Sprint suggestions"
+      desc="AI suggests sprint goals and task assignments"
+      defaultChecked={settings?.skills?.sprintSuggestions ?? true}
+    />
+    <ToggleItem
+      name="ai.skills.taskEstimation"
+      label="Task estimation"
+      desc="AI estimates story points and effort"
+      defaultChecked={settings?.skills?.taskEstimation ?? true}
+    />
+    <ToggleItem
+      name="ai.skills.riskPrediction"
+      label="Risk prediction"
+      desc="AI identifies potential blockers and risks"
+      defaultChecked={settings?.skills?.riskPrediction ?? true}
+    />
+    <ToggleItem
+      name="ai.skills.meetingSummaries"
+      label="Meeting summaries"
+      desc="AI summarizes sprint meetings and notes"
+      defaultChecked={settings?.skills?.meetingSummaries ?? true}
+    />
+    </>
+  ) : (
+    <>
+    <ToggleItem
+      name="ai.skills.codeReview"
+      label="Code review"
+      desc="AI reviews code changes and suggests improvements"
+      defaultChecked={settings?.skills?.codeReview ?? true}
+    />
+    <ToggleItem
+      name="ai.skills.sprintPlanning"
+      label="Sprint planning"
+      desc="AI assists with sprint planning and backlog grooming"
+      defaultChecked={settings?.skills?.sprintPlanning ?? true}
+    />
+    <ToggleItem
+      name="ai.skills.backlogRefinement"
+      label="Backlog refinement"
+      desc="AI helps refine user stories and acceptance criteria"
+      defaultChecked={settings?.skills?.backlogRefinement ?? true}
+    />
+    <ToggleItem
+      name="ai.skills.riskAnalysis"
+      label="Risk analysis"
+      desc="AI identifies project risks and suggests mitigations"
+      defaultChecked={settings?.skills?.riskAnalysis ?? true}
+    />
+    <ToggleItem
+      name="ai.skills.reportGeneration"
+      label="Report generation"
+      desc="AI generates sprint reports and analytics"
+      defaultChecked={settings?.skills?.reportGeneration ?? true}
+    />
+    </>
+  )}
+</div>
+
+{!isProject && (
+<>
+  <div className="settings-divider" />
+  <div className="settings-field">
+    <label htmlFor="ai-skills-markdown" className="settings-label">
+      Custom Skills (Markdown)
+    </label>
+    <textarea
+      id="ai-skills-markdown"
+      name="ai.skills.customMarkdown"
+      className="form-control"
+      rows={6}
+      placeholder={`# My Custom Skills\n\nYou are an expert in...`}
+      defaultValue={settings?.skills?.customMarkdown ?? ''}
+    />
+    <p className="form-text">
+      Add your own markdown-based skills for the AI to use. These will be injected as custom instructions.
+    </p>
+  </div>
+</>
+)}
+</div>
+)}
 
         {/* Context Tab (Project only) */}
         {activeTab === 'context' && isProject && (
@@ -320,72 +344,91 @@ export function AISettings({
           </div>
         )}
 
-        {/* Model Tab (General only) */}
-        {activeTab === 'model' && !isProject && (
-          <div className="settings-tab-content" role="tabpanel">
-            <h3 className="settings-subsection-title">Model Configuration</h3>
-            <p className="settings-subsection-desc text-secondary mb-3">
-              Configure the AI model behavior.
-            </p>
+{/* Model Tab (General only) */}
+{activeTab === 'model' && !isProject && (
+<div className="settings-tab-content" role="tabpanel">
+<h3 className="settings-subsection-title">Model Configuration</h3>
+<p className="settings-subsection-desc text-secondary mb-3">
+Configure the AI model behavior.
+</p>
 
-            <div className="settings-row">
-              <div className="settings-field">
-                <label htmlFor="ai-model" className="settings-label">
-                  AI Model
-                </label>
-                <select
-                  id="ai-model"
-                  name="ai.model"
-                  className="form-select"
-                  defaultValue={settings?.model ?? 'gpt-4'}
-                >
-                  <option value="gpt-4">GPT-4 (Most capable)</option>
-                  <option value="gpt-4-turbo">GPT-4 Turbo (Faster)</option>
-                  <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Budget)</option>
-                  <option value="claude-3">Claude 3 (Balanced)</option>
-                </select>
-              </div>
+<div className="settings-field">
+  <label htmlFor="ai-model" className="settings-label">
+    AI Model
+  </label>
+  <select
+    id="ai-model"
+    name="ai.model"
+    className="form-select"
+    defaultValue={settings?.model ?? 'gpt-4'}
+  >
+    <option value="gpt-4">GPT-4 (Most capable)</option>
+    <option value="gpt-4-turbo">GPT-4 Turbo (Faster)</option>
+    <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Budget)</option>
+    <option value="claude-3">Claude 3 (Balanced)</option>
+  </select>
+</div>
 
-              <div className="settings-field">
-                <label htmlFor="ai-temp" className="settings-label">
-                  Temperature ({settings?.temperature ?? 0.7})
-                </label>
-                <input
-                  id="ai-temp"
-                  type="range"
-                  name="ai.temperature"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  defaultValue={settings?.temperature ?? 0.7}
-                  className="form-range"
-                />
-                <p className="form-text">
-                  Lower = more focused. Higher = more creative.
-                </p>
-              </div>
-            </div>
+<div className="settings-field">
+  <label htmlFor="ai-api-key" className="settings-label">
+    Custom API Key <span className="text-secondary text-sm">(optional)</span>
+  </label>
+  <input
+    id="ai-api-key"
+    type="password"
+    name="ai.apiKey"
+    className="form-control"
+    placeholder="sk-..."
+    defaultValue={settings?.apiKey ?? ''}
+    autoComplete="off"
+  />
+  <p className="form-text">
+    Use your own API key for custom model access.
+  </p>
+</div>
 
-            <div className="settings-field">
-              <label htmlFor="ai-tokens" className="settings-label">
-                Max response tokens
-              </label>
-              <input
-                id="ai-tokens"
-                type="number"
-                name="ai.maxTokens"
-                className="form-control"
-                min="100"
-                max="8000"
-                step="100"
-                defaultValue={settings?.maxTokens ?? 2000}
-              />
-              <p className="form-text">
-                Maximum length of AI responses.
-              </p>
-            </div>
-          </div>
-        )}
+<div className="settings-field">
+  <label htmlFor="ai-temp" className="settings-label">
+    Temperature: <span id="temp-value">{settings?.temperature ?? 0.7}</span>
+  </label>
+  <input
+    id="ai-temp"
+    type="range"
+    name="ai.temperature"
+    min="0"
+    max="2"
+    step="0.1"
+    defaultValue={settings?.temperature ?? 0.7}
+    className="form-range"
+    onChange={(e) => {
+      document.getElementById('temp-value').textContent = parseFloat(e.target.value).toFixed(1);
+    }}
+  />
+  <p className="form-text">
+    Lower = more focused. Higher = more creative.
+  </p>
+</div>
+
+<div className="settings-field">
+  <label htmlFor="ai-tokens" className="settings-label">
+    Max response tokens
+  </label>
+  <input
+    id="ai-tokens"
+    type="number"
+    name="ai.maxTokens"
+    className="form-control"
+    min="100"
+    max="8000"
+    step="100"
+    defaultValue={settings?.maxTokens ?? 2000}
+  />
+  <p className="form-text">
+    Maximum length of AI responses.
+  </p>
+</div>
+</div>
+)}
 
         <div className="settings-form-actions">
           <button

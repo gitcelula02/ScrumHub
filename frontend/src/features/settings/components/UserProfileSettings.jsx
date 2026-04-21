@@ -1,3 +1,6 @@
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/store/useAuth';
+
 /**
  * @component UserProfileSettings
  * @description User profile settings form with Scrum role selection.
@@ -9,6 +12,14 @@
  * @param {boolean} props.saving - Loading state
  */
 export function UserProfileSettings({ profile, onSave, saving }) {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
+
   const SCRUM_ROLES = [
     { value: 'scrum_master', label: 'Scrum Master' },
     { value: 'product_owner', label: 'Product Owner' },
@@ -135,6 +146,22 @@ export function UserProfileSettings({ profile, onSave, saving }) {
           </button>
         </div>
       </form>
+
+      <div className="settings-form mt-4">
+        <div className="settings-section-header">
+          <h3 className="settings-subsection-title">Account</h3>
+          <p className="settings-section-desc text-secondary">
+            Manage your account session.
+          </p>
+        </div>
+        <button
+          type="button"
+          className="btn btn-outline-danger"
+          onClick={handleLogout}
+        >
+          Sign out
+        </button>
+      </div>
     </div>
   );
 }
