@@ -22,17 +22,22 @@ export function useWorkspace(projectId) {
   const [workspace, setWorkspace] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [is404, setIs404] = useState(false);
 
   const fetchWorkspace = useCallback(async () => {
     if (!projectId) return;
     setLoading(true);
     setError(null);
+    setIs404(false);
     try {
       const data = await workspaceService.getByProject(projectId);
       setWorkspace(data);
     } catch (err) {
       if (err.status === 401) {
         setError('Session expired. Please log in again.');
+      } else if (err.status === 404) {
+        setIs404(true);
+        setError(null);
       } else {
         setError(err.message ?? 'Failed to load workspace');
       }
@@ -45,5 +50,5 @@ export function useWorkspace(projectId) {
     fetchWorkspace();
   }, [fetchWorkspace]);
 
-  return { workspace, loading, error, refetch: fetchWorkspace };
+  return { workspace, loading, error, is404, refetch: fetchWorkspace };
 }

@@ -11,13 +11,13 @@ import { useBacklog } from '@/features/backlog/hooks/useBacklog';
  */
 export default function SprintPage() {
   const { projectId } = useParams();
-  const { sprints, loading: sprintsLoading, error } = useSprints(projectId);
-  const { epics,   loading: backlogLoading }        = useBacklog(projectId);
+  const { sprints, loading: sprintsLoading, error, is404 } = useSprints(projectId);
+  const { epics, loading: backlogLoading } = useBacklog(projectId);
 
   // Flatten unassigned tasks for the backlog assignment panel
   const unassigned = epics
-    .flatMap(e => e.tasks ?? [])
-    .filter(t => !t.sprintId);
+  .flatMap(e => e.tasks ?? [])
+  .filter(t => !t.sprintId);
 
   return (
     <SprintView
@@ -25,6 +25,7 @@ export default function SprintPage() {
       backlog={unassigned}
       loading={sprintsLoading || backlogLoading}
       error={error}
+      is404={is404}
     />
   );
 }

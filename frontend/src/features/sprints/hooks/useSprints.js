@@ -20,19 +20,26 @@ export function useSprints(projectId) {
   const [sprints, setSprints] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [is404, setIs404] = useState(false);
   const { registerEntities } = useThemeRegistry();
 
   const fetchSprints = useCallback(async () => {
     if (!projectId) return;
     setLoading(true);
     setError(null);
+    setIs404(false);
     try {
       const data = await sprintService.getByProject(projectId);
       const list = Array.isArray(data) ? data : [];
       setSprints(list);
       registerEntities(list.map(s => ({ id: s.id, color: s.color ?? '#22c55e' })));
-    } catch {
-      setError(null);
+    } catch (err) {
+      if (err.status === 404) {
+        setIs404(true);
+        setError(null);
+      } else {
+        setError(err.message ?? 'Failed to load sprints');
+      }
       setSprints([]);
     }
   }, [projectId, registerEntities]);
@@ -42,5 +49,5 @@ export function useSprints(projectId) {
     fetchSprints();
   }, [fetchSprints]);
 
-  return { sprints, loading, error, refetch: fetchSprints };
+  return { sprints, loading, error, is404, refetch: fetchSprints };
 }

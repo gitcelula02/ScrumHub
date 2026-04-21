@@ -16,29 +16,32 @@ import { backlogService } from '../services/backlogService';
  * @param {string | null} projectId - Active project. Pass null to skip fetching.
  *
  * @returns {{
- *   epics:    Object[],   // epic objects with nested .tasks[]
- *   loading:  boolean,
- *   error:    string | null,
- *   refetch:  Function,
+ * epics: Object[], // epic objects with nested .tasks[]
+ * loading: boolean,
+ * error: string | null,
+ * is404: boolean,
+ * refetch: Function,
  * }}
  *
  * @example
  * function BacklogPage() {
- *   const { projectId } = useParams();
- *   const { epics, loading } = useBacklog(projectId);
- *   return <BacklogTable epics={epics} loading={loading} />;
+ * const { projectId } = useParams();
+ * const { epics, loading } = useBacklog(projectId);
+ * return <BacklogTable epics={epics} loading={loading} />;
  * }
  */
 export function useBacklog(projectId) {
-  const [epics, setEpics]     = useState([]);
+  const [epics, setEpics] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState(null);
-  const { registerEntities }  = useThemeRegistry();
+  const [error, setError] = useState(null);
+  const [is404, setIs404] = useState(false);
+  const { registerEntities } = useThemeRegistry();
 
   const fetchBacklog = async () => {
     if (!projectId) return;
     setLoading(true);
     setError(null);
+    setIs404(false);
     try {
       const data = await backlogService.getEpicsWithTasks(projectId);
       setEpics(data);
@@ -50,6 +53,9 @@ export function useBacklog(projectId) {
     } catch (err) {
       if (err.status === 401) {
         setError('Session expired. Please log in again.');
+      } else if (err.status === 404) {
+        setIs404(true);
+        setError(null);
       } else {
         setError(err.message ?? 'Failed to load backlog');
       }
@@ -62,5 +68,5 @@ export function useBacklog(projectId) {
     fetchBacklog();
   }, [projectId]);
 
-  return { epics, loading, error, refetch: fetchBacklog };
+  return { epics, loading, error, is404, refetch: fetchBacklog };
 }

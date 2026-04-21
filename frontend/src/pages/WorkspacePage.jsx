@@ -14,7 +14,7 @@ import { workspaceService } from '@/features/workspace/services';
  */
 export default function WorkspacePage() {
   const { projectId } = useParams();
-  const { workspace, loading, error } = useWorkspace(projectId);
+  const { workspace, loading, error, is404 } = useWorkspace(projectId);
 
   const {
     elements,
@@ -37,6 +37,7 @@ export default function WorkspacePage() {
       selectedId={selectedId}
       loading={loading}
       error={error}
+      is404={is404}
       onAddElement={addElement}
       onUpdateElement={updateElement}
       onDeleteElement={deleteElement}
