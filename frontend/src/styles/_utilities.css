@@ -390,23 +390,6 @@ cursor: pointer;
 color: var(--color-gray-500);
 padding: 0.25rem 0.5rem;
 }
-
-.topbar-sidebar-toggle {
-background: none;
-border: none;
-font-size: 1rem;
-cursor: pointer;
-color: var(--color-dark-text-muted);
-padding: 0.35rem 0.5rem;
-border-radius: var(--radius-xs);
-transition: color var(--transition-fast), background var(--transition-fast);
-margin-right: 0.25rem;
-}
-
-.topbar-sidebar-toggle:hover {
-color: #fff;
-background: var(--color-dark-nav-hover);
-}
 .topbar-breadcrumb {
   display: flex;
   align-items: center;

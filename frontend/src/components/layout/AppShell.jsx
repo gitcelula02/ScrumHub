@@ -61,8 +61,6 @@ export function AppShell() {
 <div className="app-main">
         <TopBar
           onSidebarToggle={toggleMobileMenu}
-          sidebarCollapsed={sidebarCollapsed}
-          onSidebarCollapse={toggleSidebar}
         />
         <main className="app-content" id="main-content" aria-label="Page content">
           <Outlet />

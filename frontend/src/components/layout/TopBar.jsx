@@ -5,9 +5,9 @@ import { useState } from 'react';
  * @description Fixed top header with search bar.
  * Dark background to match sidebar, search bar centered.
  *
- * @param {{ onSidebarToggle?: Function, sidebarCollapsed?: boolean, onSidebarCollapse?: Function }} props
+ * @param {{ onSidebarToggle?: Function }} props
  */
-export function TopBar({ onSidebarToggle, sidebarCollapsed = false, onSidebarCollapse }) {
+export function TopBar({ onSidebarToggle }) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (e) => {
@@ -30,18 +30,6 @@ export function TopBar({ onSidebarToggle, sidebarCollapsed = false, onSidebarCol
       >
         ☰
       </button>
-
-      {/* Desktop sidebar toggle - visible on tablet and up */}
-      {onSidebarCollapse && (
-        <button
-          className="topbar-sidebar-toggle d-none d-md-flex"
-          onClick={onSidebarCollapse}
-          title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          {sidebarCollapsed ? '☰' : '‹'}
-        </button>
-      )}
 
       {/* Search bar - centered */}
       <form className="topbar-search" onSubmit={handleSearch} role="search">
