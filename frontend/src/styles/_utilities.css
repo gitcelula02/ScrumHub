@@ -1969,14 +1969,89 @@ Fixed position button — left on mobile, right on desktop
 }
 
 .ai-assistant-tooltip {
-  position: absolute;
-  left: calc(100% + 0.75rem);
-  background: var(--color-gray-800);
-  color: #fff;
-  font-size: 0.75rem;
-  padding: 0.35rem 0.65rem;
-  border-radius: var(--radius-sm);
-  white-space: nowrap;
-  pointer-events: none;
-  animation: fadeIn 150ms linear;
+position: absolute;
+left: calc(100% + 0.75rem);
+background: var(--color-gray-800);
+color: #fff;
+font-size: 0.75rem;
+padding: 0.35rem 0.65rem;
+border-radius: var(--radius-sm);
+white-space: nowrap;
+pointer-events: none;
+animation: fadeIn 150ms linear;
+}
+
+/* ══════════════════════════════════════════════════════════════
+OVERVIEW PAGE
+Dashboard with charts, stats, and activity widgets
+══════════════════════════════════════════════════════════════ */
+
+/* Avatar circle for team members */
+.avatar-circle {
+width: 32px;
+height: 32px;
+border-radius: 50%;
+background: var(--color-brand-500);
+color: #fff;
+font-size: 0.75rem;
+font-weight: 700;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+}
+
+/* Skeleton loading states */
+.skeleton {
+background: linear-gradient(90deg, var(--color-gray-200) 25%, var(--color-gray-100) 50%, var(--color-gray-200) 75%);
+background-size: 200% 100%;
+animation: skeleton-loading 1.5s infinite;
+border-radius: var(--radius-xs);
+}
+
+.skeleton-title { height: 24px; }
+.skeleton-text { height: 16px; }
+
+@keyframes skeleton-loading {
+0% { background-position: 200% 0; }
+100% { background-position: -200% 0; }
+}
+
+/* Overview page responsive adjustments */
+@media (max-width: 768px) {
+.overview-stat-card {
+margin-bottom: 0.75rem;
+}
+
+.overview-chart-container {
+height: auto !important;
+min-height: 160px;
+}
+}
+
+/* List group fixes for overview widgets */
+.overview-widget .list-group-item {
+padding: 0.75rem 1rem;
+}
+
+/* Progress bar enhancement */
+.progress-fat {
+height: 8px !important;
+}
+
+.progress-bar-gradient {
+background: linear-gradient(90deg, var(--color-brand-400), var(--color-brand-600));
+}
+
+/* Stat card number styling */
+.stat-card-value {
+font-size: 1.75rem;
+font-weight: 600;
+color: var(--color-gray-900);
+line-height: 1.2;
+}
+
+.stat-card-icon {
+font-size: 1.5rem;
+opacity: 0.9;
 }
