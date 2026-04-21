@@ -40,18 +40,6 @@ export function Sidebar({ collapsed, onToggle }) {
 {/* Brand header — clickable to go back to projects list */}
   <div className="sidebar-brand">
     <button
-      className="sidebar-brand-btn"
-      onClick={() => navigate('/projects')}
-      title="Go to Your Projects"
-      aria-label="ScrumHub — go to Your Projects"
-    >
-      <span className="sidebar-logo-text" aria-hidden="true">
-        <span className="logo-angle">&lt;/</span>
-        <span className="logo-text">ScrumHub</span>
-        <span className="logo-angle">&gt;</span>
-      </span>
-    </button>
-    <button
       className="sidebar-collapse-btn"
       onClick={onToggle}
       title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -60,6 +48,20 @@ export function Sidebar({ collapsed, onToggle }) {
     >
       {collapsed ? '›' : '‹'}
     </button>
+    {!collapsed && (
+      <button
+        className="sidebar-brand-btn"
+        onClick={() => navigate('/projects')}
+        title="Go to Your Projects"
+        aria-label="ScrumHub — go to Your Projects"
+      >
+        <span className="sidebar-logo-text" aria-hidden="true">
+          <span className="logo-angle">&lt;/</span>
+          <span className="logo-text">ScrumHub</span>
+          <span className="logo-angle">&gt;</span>
+        </span>
+      </button>
+    )}
   </div>
 
 {/* Nav */}
