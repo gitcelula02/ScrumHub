@@ -6,13 +6,14 @@ import { StatusBadge, PriorityTag } from '@/components/ui';
  * @description Sprint management view. Lists all sprints for a project
  * with task assignments. Handles empty state for missing backend endpoint.
  *
- * @param {Object}   props
- * @param {Object[]} props.sprints    - Array of sprint objects
- * @param {Object[]} props.backlog    - Available backlog tasks for assignment
- * @param {boolean}  [props.loading]
- * @param {string}   [props.error]
+ * @param {Object} props
+ * @param {Object[]} props.sprints - Array of sprint objects
+ * @param {Object[]} props.backlog - Available backlog tasks for assignment
+ * @param {boolean} [props.loading]
+ * @param {string} [props.error]
+ * @param {boolean} [props.is404]
  */
-export function SprintView({ sprints = [], backlog = [], loading = false, error = null }) {
+export function SprintView({ sprints = [], backlog = [], loading = false, error = null, is404 = false }) {
   const [activeSprint, setActiveSprint] = useState(null);
 
   if (loading) return <SprintSkeleton />;
@@ -26,6 +27,22 @@ export function SprintView({ sprints = [], backlog = [], loading = false, error 
       </div>
     </div>
   );
+
+  if (is404) {
+    return (
+      <div className="animate-in" aria-label="Sprint management view">
+        <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+          <h1 className="h5 fw-medium mb-0" title="Sprints">Sprints</h1>
+        </div>
+        <div className="text-center py-5">
+          <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.4 }} aria-hidden="true">🚀</div>
+          <h2 className="h5 fw-medium mb-2">No sprints yet</h2>
+          <p className="text-secondary mb-4">Create your first sprint to start organizing your project tasks.</p>
+          <button className="btn btn-primary">+ New Sprint</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-in" aria-label="Sprint management view">

@@ -47,6 +47,7 @@ export function WorkspaceView({
   selectedId,
   loading,
   error,
+  is404 = false,
   onAddElement,
   onUpdateElement,
   onDeleteElement,
@@ -95,6 +96,34 @@ export function WorkspaceView({
           <div className="workspace-loading-inner">
             <span className="placeholder col-4 rounded" style={{ height: '120px' }} />
             <span className="placeholder col-3 rounded" style={{ height: '80px', marginTop: '40px', marginLeft: '60px' }} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (is404) {
+    return (
+      <div className="workspace-shell">
+        <div className="workspace-toolbar-placeholder">
+          <div className="workspace-toolbar-group">
+            <button
+              className="workspace-tool-btn workspace-tool-btn--primary"
+              onClick={() => onAddElement('sticky')}
+              type="button"
+            >
+              <span className="workspace-tool-icon">+</span>
+              <span className="workspace-tool-label">New Sticky</span>
+            </button>
+          </div>
+        </div>
+        <div className="workspace-canvas">
+          <div className="workspace-empty" style={{ pointerEvents: 'none' }}>
+            <div className="workspace-empty-icon" aria-hidden="true">◇</div>
+            <p className="workspace-empty-text">
+              No workspace yet.<br />
+              Create your first diagram using the toolbar above.
+            </p>
           </div>
         </div>
       </div>
