@@ -1,26 +1,61 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { StatusBadge, PriorityTag } from '@/components/ui';
+import { SprintCreateModal } from './SprintCreateModal';
+import { SprintTreeView } from './SprintTreeView';
+import { SprintRetrospective } from './SprintRetrospective';
 
 /**
  * @component SprintView
- * @description Sprint management view. Lists all sprints for a project
- * with task assignments. Handles empty state for missing backend endpoint.
- *
- * @param {Object} props
- * @param {Object[]} props.sprints - Array of sprint objects
- * @param {Object[]} props.backlog - Available backlog tasks for assignment
- * @param {boolean} [props.loading]
- * @param {string} [props.error]
- * @param {boolean} [props.is404]
+ * @description Redesigned sprint view with selector navigation, task list,
+ * tree view, and retrospective access.
  */
-export function SprintView({ sprints = [], backlog = [], loading = false, error = null, is404 = false }) {
-  const [activeSprint, setActiveSprint] = useState(null);
+export function SprintView({
+  sprints = [],
+  backlog = [],
+  loading = false,
+  error = null,
+  is404 = false,
+  onCreateSprint,
+}) {
+  const [selectedSprintId, setSelectedSprintId] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showRetrospective, setShowRetrospective] = useState(false);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'tree'
+  const [expandedTasks, setExpandedTasks] = useState({});
+
+  const selectedSprint = useMemo(() =>
+    sprints.find(s => s.id?.toString() === selectedSprintId?.toString()) ?? null
+  , [sprints, selectedSprintId]);
+
+  const currentIndex = useMemo(() =>
+    sprints.findIndex(s => s.id?.toString() === selectedSprintId?.toString())
+  , [sprints, selectedSprintId]);
+
+  const canGoPrev = currentIndex > 0;
+  const canGoNext = currentIndex < sprints.length - 1;
+
+  const handlePrevSprint = () => {
+    if (canGoPrev) {
+      setSelectedSprintId(sprints[currentIndex - 1].id);
+    }
+  };
+
+  const handleNextSprint = () => {
+    if (canGoNext) {
+      setSelectedSprintId(sprints[currentIndex + 1].id);
+    }
+  };
+
+  const handleCreateSprint = (sprintData) => {
+    onCreateSprint?.(sprintData);
+    setShowCreateModal(false);
+  };
 
   if (loading) return <SprintSkeleton />;
 
   if (error) return (
-    <div className="alert alert-warning d-flex align-items-start gap-2" role="alert">
-      <span aria-hidden="true">⚠️</span>
+    <div className="alert alert-warning d-flex align-items-start gap-2">
+      <span>⚠️</span>
       <div>
         <strong>Sprint endpoint unavailable</strong>
         <p className="mb-0 text-sm mt-1">{error}</p>
@@ -28,217 +63,296 @@ export function SprintView({ sprints = [], backlog = [], loading = false, error 
     </div>
   );
 
-  if (is404) {
+  if (is404 || sprints.length === 0) {
     return (
-      <div className="animate-in" aria-label="Sprint management view">
-        <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-          <h1 className="h5 fw-medium mb-0" title="Sprints">Sprints</h1>
+      <div className="animate-in">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h1 className="h5 fw-medium mb-0">Sprints</h1>
         </div>
         <div className="text-center py-5">
-          <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.4 }} aria-hidden="true">🚀</div>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.4 }}>🚀</div>
           <h2 className="h5 fw-medium mb-2">No sprints yet</h2>
-          <p className="text-secondary mb-4">Create your first sprint to start organizing your project tasks.</p>
-          <button className="btn btn-primary">+ New Sprint</button>
+          <p className="text-secondary mb-4">Create your first sprint to start organizing your project.</p>
+          <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+            + New Sprint
+          </button>
         </div>
+        {showCreateModal && (
+          <SprintCreateModal
+            epics={backlog}
+            onClose={() => setShowCreateModal(false)}
+            onCreate={handleCreateSprint}
+          />
+        )}
       </div>
     );
   }
 
+  const sprintTasks = selectedSprint?.tasks ?? [];
+  const doneCount = sprintTasks.filter(t => t.status === 'done').length;
+  const completionPct = sprintTasks.length
+    ? Math.round((doneCount / sprintTasks.length) * 100)
+    : 0;
+
   return (
-    <div className="animate-in" aria-label="Sprint management view">
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <h1 className="h5 fw-medium mb-0" title="Sprints">Sprints</h1>
-        <div className="d-flex gap-2">
+    <div className="animate-in sprint-view">
+      {/* Sprint Selector Header */}
+      <div className="sprint-header">
+        <div className="sprint-header-left">
+          <h1 className="h5 fw-medium mb-0">Sprints</h1>
+        </div>
+
+        <div className="sprint-selector">
+          <button
+            className="sprint-nav-btn"
+            onClick={handlePrevSprint}
+            disabled={!canGoPrev}
+            aria-label="Previous sprint"
+          >
+            ‹
+          </button>
+
+          <select
+            className="sprint-select"
+            value={selectedSprintId ?? ''}
+            onChange={e => setSelectedSprintId(e.target.value || null)}
+            aria-label="Select sprint"
+          >
+            <option value="">Select a sprint...</option>
+            {sprints.map(sprint => (
+              <option key={sprint.id} value={sprint.id}>
+                {sprint.name} ({sprint.status})
+              </option>
+            ))}
+          </select>
+
+          <button
+            className="sprint-nav-btn"
+            onClick={handleNextSprint}
+            disabled={!canGoNext}
+            aria-label="Next sprint"
+          >
+            ›
+          </button>
+        </div>
+
+        <div className="sprint-header-actions">
+          <button
+            className="btn btn-outline-secondary btn-sm"
+            onClick={() => setShowRetrospective(true)}
+            title="Open retrospective"
+          >
+            📋 Retrospective
+          </button>
           <button
             className="btn btn-primary btn-sm"
-            title="Create a new sprint"
-            aria-label="Create sprint"
+            onClick={() => setShowCreateModal(true)}
+            title="Create new sprint"
           >
             + New Sprint
           </button>
         </div>
       </div>
 
-      {/* Sprint list */}
-      {sprints.length === 0 ? (
-        <div className="text-center py-5 text-secondary" aria-label="No sprints">
-          <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }} aria-hidden="true">🚀</div>
-          <p className="fw-medium mb-1">No sprints yet</p>
-          <p className="text-sm mb-3">Create a sprint and assign tasks from your backlog to start tracking.</p>
-          <button
-            className="btn btn-primary"
-            title="Create your first sprint"
-            aria-label="Create first sprint"
-          >
-            Create first sprint
-          </button>
-        </div>
-      ) : (
-        <div className="d-flex flex-column gap-3">
-          {sprints.map(sprint => (
-            <SprintCard
-              key={sprint.id}
-              sprint={sprint}
-              isActive={activeSprint === sprint.id}
-              onToggle={() => setActiveSprint(id => id === sprint.id ? null : sprint.id)}
+      {/* Sprint Content */}
+      {selectedSprint ? (
+        <>
+          {/* Sprint Info Bar */}
+          <div className="sprint-info-bar">
+            <div className="sprint-info-item">
+              <span className="sprint-info-label">Purpose</span>
+              <span className="sprint-info-value">
+                {selectedSprint.purpose || 'No purpose set'}
+              </span>
+            </div>
+            <div className="sprint-info-item">
+              <span className="sprint-info-label">Duration</span>
+              <span className="sprint-info-value">
+                {selectedSprint.startDate
+                  ? `${new Date(selectedSprint.startDate).toLocaleDateString()} → ${new Date(selectedSprint.endDate).toLocaleDateString()}`
+                  : 'Dates not set'}
+              </span>
+            </div>
+            <div className="sprint-info-item">
+              <span className="sprint-info-label">Tasks</span>
+              <span className="sprint-info-value">{sprintTasks.length}</span>
+            </div>
+            <div className="sprint-info-item sprint-info-progress">
+              <span className="sprint-info-label">Completion</span>
+              <div className="d-flex align-items-center gap-2">
+                <div className="progress flex-grow-1" style={{ height: '8px', maxWidth: '120px' }}>
+                  <div
+                    className="progress-bar bg-success"
+                    style={{ width: `${completionPct}%` }}
+                  />
+                </div>
+                <span className="sprint-info-value">{completionPct}%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* View Mode Toggle */}
+          <div className="sprint-view-toggle mb-3">
+            <div className="btn-group">
+              <button
+                className={`btn btn-sm ${viewMode === 'list' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                onClick={() => setViewMode('list')}
+              >
+                ≡ List View
+              </button>
+              <button
+                className={`btn btn-sm ${viewMode === 'tree' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                onClick={() => setViewMode('tree')}
+              >
+                🔗 Tree View
+              </button>
+            </div>
+          </div>
+
+          {/* Sprint Tasks Display */}
+          {viewMode === 'list' ? (
+            <SprintTaskList
+              tasks={sprintTasks}
+              expandedTasks={expandedTasks}
+              onToggleExpand={(id) => setExpandedTasks(prev => ({ ...prev, [id]: !prev[id] }))}
             />
-          ))}
-        </div>
-      )}
-
-      {/* Backlog panel — shown alongside when endpoint returns data */}
-      {sprints.length > 0 && backlog.length > 0 && (
-        <div className="card border-0 shadow-sm mt-4">
-          <div className="card-header d-flex align-items-center justify-content-between">
-            <h2 className="h6 fw-medium mb-0" title="Unassigned backlog tasks">Backlog — Unassigned</h2>
-            <span className="badge bg-secondary" aria-label={`${backlog.length} tasks`}>{backlog.length}</span>
-          </div>
-          <div className="card-body p-0">
-            <div className="table-responsive">
-              <table className="table table-hover mb-0 align-middle" title="Unassigned backlog tasks">
-                <thead className="table-light">
-                  <tr>
-                    <th title="Task title">Title</th>
-                    <th title="Task priority">Priority</th>
-                    <th title="Task status">Status</th>
-                    <th title="Assign to sprint"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {backlog.map(task => (
-                    <tr key={task.id} title={task.title}>
-                      <td className="text-sm">{task.title}</td>
-                      <td><PriorityTag priority={task.priority} /></td>
-                      <td><StatusBadge status={task.status} /></td>
-                      <td>
-                        <button
-                          className="btn btn-sm btn-outline-primary"
-                          title="Assign this task to an active sprint"
-                          aria-label={`Assign ${task.title} to sprint`}
-                        >
-                          Assign →
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ── SprintCard ─────────────────────────────────────── */
-function SprintCard({ sprint, isActive, onToggle }) {
-  const tasks   = sprint.tasks ?? [];
-  const done    = tasks.filter(t => t.status === 'done').length;
-  const pct     = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
-
-  const statusColor = {
-    active:   'text-bg-primary',
-    done:     'text-bg-success',
-    planning: 'bg-secondary text-white',
-  }[sprint.status] ?? 'bg-secondary text-white';
-
-  return (
-    <div className="card border-0 shadow-sm" aria-label={`Sprint: ${sprint.name}`} title={sprint.name}>
-      {/* Sprint header */}
-      <div
-        className="card-header d-flex align-items-center gap-3 cursor-pointer"
-        onClick={onToggle}
-        style={{ cursor: 'pointer' }}
-        title={`${sprint.name} — click to expand`}
-        aria-expanded={isActive}
-        role="button"
-      >
-        <span className="fw-medium text-sm flex-grow-1">{sprint.name}</span>
-
-        <span className="text-xs text-secondary" title="Sprint date range">
-          {sprint.startDate
-            ? `${new Date(sprint.startDate).toLocaleDateString()} → ${new Date(sprint.endDate).toLocaleDateString()}`
-            : 'Dates not set'}
-        </span>
-
-        <span className={`badge ${statusColor}`} title={`Status: ${sprint.status}`}>
-          {sprint.status ?? 'planning'}
-        </span>
-
-        {/* Progress bar */}
-        <div
-          className="d-flex align-items-center gap-2"
-          style={{ minWidth: '120px' }}
-          title={`${pct}% complete`}
-          aria-label={`${pct}% complete`}
-        >
-          <div className="progress flex-grow-1" style={{ height: '6px' }}>
-            <div className="progress-bar bg-primary" style={{ width: `${pct}%` }} role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} />
-          </div>
-          <span className="text-xs text-secondary">{pct}%</span>
-        </div>
-
-        <span aria-hidden="true" style={{ transition: 'transform 200ms', transform: isActive ? 'rotate(90deg)' : 'none', color: 'var(--color-gray-400)' }}>›</span>
-      </div>
-
-      {/* Sprint task list */}
-      {isActive && (
-        <div className="card-body p-0">
-          {tasks.length === 0 ? (
-            <div className="text-center py-4 text-secondary text-sm" aria-label="No tasks in sprint">
-              No tasks assigned to this sprint yet.
-            </div>
           ) : (
-            <table className="table table-hover mb-0 align-middle" title={`Tasks in ${sprint.name}`}>
-              <tbody>
-                {tasks.map(task => (
-                  <tr key={task.id} title={task.title}>
-                    <td className="text-sm ps-3">{task.title}</td>
-                    <td><PriorityTag priority={task.priority} /></td>
-                    <td><StatusBadge status={task.status} /></td>
-                    <td className="text-xs text-secondary">
-                      {task.assignee?.name ?? '—'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <SprintTreeView tasks={sprintTasks} />
           )}
-          <div className="px-3 py-2 border-top d-flex gap-2">
-            <button className="btn btn-sm btn-outline-secondary" title="Add tasks from backlog" aria-label="Add tasks to sprint">
-              + Add tasks
-            </button>
-            {sprint.status === 'planning' && (
-              <button className="btn btn-sm btn-primary ms-auto" title="Start this sprint" aria-label="Start sprint">
-                Start Sprint ▷
-              </button>
-            )}
-            {sprint.status === 'active' && (
-              <button className="btn btn-sm btn-success ms-auto" title="Complete this sprint" aria-label="Complete sprint">
-                Complete Sprint ✓
-              </button>
-            )}
-          </div>
+        </>
+      ) : (
+        <div className="text-center py-5 text-secondary">
+          <p>Select a sprint to view its tasks</p>
         </div>
+      )}
+
+      {/* Modals */}
+      {showCreateModal && (
+        <SprintCreateModal
+          epics={backlog}
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreateSprint}
+        />
+      )}
+
+      {showRetrospective && (
+        <SprintRetrospective
+          sprintId={selectedSprintId}
+          onClose={() => setShowRetrospective(false)}
+        />
       )}
     </div>
   );
 }
 
-function SprintSkeleton() {
+/* ── SprintTaskList ─────────────────────────────────── */
+function SprintTaskList({ tasks, expandedTasks, onToggleExpand }) {
+  if (tasks.length === 0) {
+    return (
+      <div className="text-center py-5 text-secondary">
+        <p>No tasks in this sprint yet.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="d-flex flex-column gap-3">
-      {[1,2].map(i => (
-        <div key={i} className="card border-0 shadow-sm p-3 placeholder-glow">
-          <div className="d-flex gap-3">
-            <span className="placeholder col-4 rounded" />
-            <span className="placeholder col-3 rounded" />
-            <span className="placeholder col-2 rounded" />
+    <div className="sprint-task-list">
+      {tasks.map(task => (
+        <div key={task.id} className="sprint-task-card">
+          <div
+            className="sprint-task-header"
+            onClick={() => onToggleExpand(task.id)}
+            role="button"
+            aria-expanded={!!expandedTasks[task.id]}
+          >
+            <StatusDot status={task.status} />
+            <span className="sprint-task-title">{task.title}</span>
+            <PriorityTag priority={task.priority} />
+            {task.assignee && (
+              <span className="sprint-task-assignee">{task.assignee.name?.[0]?.toUpperCase()}</span>
+            )}
+            {task.dependencies?.length > 0 && (
+              <span className="sprint-task-deps" title={`${task.dependencies.length} dependencies`}>
+                🔗 {task.dependencies.length}
+              </span>
+            )}
+            <span className={`sprint-task-chevron ${expandedTasks[task.id] ? 'expanded' : ''}`}>
+              ›
+            </span>
           </div>
+
+          {expandedTasks[task.id] && (
+            <div className="sprint-task-details">
+              {task.description && (
+                <p className="text-sm text-secondary mb-2">{task.description}</p>
+              )}
+              {task.subtasks?.length > 0 && (
+                <div className="sprint-task-subtasks">
+                  <span className="text-xs text-secondary">Subtasks:</span>
+                  {task.subtasks.map(sub => (
+                    <div key={sub.id} className="sprint-task-subtask">
+                      <StatusDot status={sub.status} />
+                      <span className="text-sm">{sub.title}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="d-flex gap-2 mt-2">
+                <button className="btn btn-sm btn-outline-secondary">Edit</button>
+                <button className="btn btn-sm btn-outline-secondary">Move</button>
+              </div>
+            </div>
+          )}
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ── StatusDot ──────────────────────────────────────── */
+function StatusDot({ status }) {
+  const colors = {
+    todo: 'var(--color-gray-400)',
+    in_progress: 'var(--color-brand-500)',
+    in_review: 'var(--color-warning)',
+    done: 'var(--color-success)',
+    blocked: 'var(--color-danger)',
+  };
+  return (
+    <span
+      style={{
+        width: '10px',
+        height: '10px',
+        borderRadius: '50%',
+        background: colors[status] || colors.todo,
+        flexShrink: 0,
+      }}
+    />
+  );
+}
+
+/* ── Skeleton ───────────────────────────────────────── */
+function SprintSkeleton() {
+  return (
+    <div className="animate-in">
+      <div className="sprint-header">
+        <div className="skeleton" style={{ width: '100px', height: '32px' }} />
+        <div className="skeleton" style={{ width: '300px', height: '40px' }} />
+        <div className="skeleton" style={{ width: '150px', height: '32px' }} />
+      </div>
+      <div className="mt-4">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="card border-0 shadow-sm mb-2 p-3">
+            <div className="d-flex gap-3">
+              <div className="skeleton" style={{ width: '10px', height: '10px', marginTop: '4px' }} />
+              <div className="flex-grow-1">
+                <div className="skeleton mb-2" style={{ width: '60%', height: '16px' }} />
+                <div className="skeleton" style={{ width: '40%', height: '12px' }} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
