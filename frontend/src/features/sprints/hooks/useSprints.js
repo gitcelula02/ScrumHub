@@ -2,10 +2,21 @@ import { useState, useEffect, useCallback } from 'react';
 import { useThemeRegistry } from '@/store/useThemeRegistry';
 import { sprintService } from '../services/sprintService';
 
+const FETCH_TIMEOUT = 8000;
+
+function withTimeout(promise, timeoutMs) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), timeoutMs)
+    ),
+  ]);
+}
+
 /**
  * @hook useSprints
- * @description Fetches sprints for a project. Handles API errors gracefully
- * since the sprint endpoint is not yet implemented on the backend.
+ * @description Fetches sprints for a project. Handles API errors and timeouts gracefully.
+ * If the request times out or fails, returns empty sprints array with is404 flag.
  *
  * @param {string | null} projectId
  *
@@ -13,6 +24,7 @@ import { sprintService } from '../services/sprintService';
  * sprints: Object[],
  * loading: boolean,
  * error: string | null,
+ * is404: boolean,
  * refetch: Function,
  * }}
  */
@@ -28,24 +40,30 @@ export function useSprints(projectId) {
     setLoading(true);
     setError(null);
     setIs404(false);
+
     try {
-      const data = await sprintService.getByProject(projectId);
+      const data = await withTimeout(sprintService.getByProject(projectId), FETCH_TIMEOUT);
       const list = Array.isArray(data) ? data : [];
       setSprints(list);
       registerEntities(list.map(s => ({ id: s.id, color: s.color ?? '#22c55e' })));
     } catch (err) {
-      if (err.status === 404) {
+      if (err.message === 'timeout') {
+        setIs404(true);
+        setError(null);
+      } else if (err.status === 404) {
         setIs404(true);
         setError(null);
       } else {
         setError(err.message ?? 'Failed to load sprints');
+        setIs404(false);
       }
       setSprints([]);
+    } finally {
+      setLoading(false);
     }
   }, [projectId, registerEntities]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchSprints();
   }, [fetchSprints]);
 

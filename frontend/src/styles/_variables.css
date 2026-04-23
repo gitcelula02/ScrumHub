@@ -24,13 +24,16 @@
   --color-brand-700: #3d33c4;
   --color-brand-900: #1a1460;
 
-  /* ── Dark sidebar/nav palette (per skill spec: #181e4b / #171E4A) ── */
-  --color-dark-nav:       #181e4b;
-  --color-dark-nav-deep:  #171E4A;
-  --color-dark-nav-hover: rgba(255,255,255,0.07);
-  --color-dark-nav-active:rgba(107,92,255,0.18);
-  --color-dark-text:      rgba(255,255,255,0.85);
-  --color-dark-text-muted:rgba(255,255,255,0.45);
+/* ── Dark sidebar/nav palette (per skill spec: #181e4b / #171E4A) ── */
+--color-dark-nav: #181e4b;
+--color-dark-nav-deep: #171E4A;
+--color-dark-nav-hover: rgba(255,255,255,0.07);
+--color-dark-nav-active:rgba(107,92,255,0.18);
+--color-dark-text: rgba(255,255,255,0.85);
+--color-dark-text-muted:rgba(255,255,255,0.45);
+
+/* ── Overlay ── */
+--color-overlay: rgba(23, 30, 74, 0.85);
 
   /* ── Neutrals ── */
   --color-gray-50:  #f8f9fc;

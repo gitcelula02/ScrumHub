@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { StatusBadge, PriorityTag } from '@/components/ui';
 import { SprintCreateModal } from './SprintCreateModal';
 import { SprintTreeView } from './SprintTreeView';
@@ -22,6 +22,16 @@ export function SprintView({
   const [showRetrospective, setShowRetrospective] = useState(false);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'tree'
   const [expandedTasks, setExpandedTasks] = useState({});
+
+  // Auto-select first sprint when sprints load
+  useEffect(() => {
+    if (sprints.length > 0 && !selectedSprintId) {
+      setSelectedSprintId(sprints[0].id);
+    }
+  }, [sprints, selectedSprintId]);
+
+  // Highlight create button if no sprints
+  const [highlightCreate, setHighlightCreate] = useState(false);
 
   const selectedSprint = useMemo(() =>
     sprints.find(s => s.id?.toString() === selectedSprintId?.toString()) ?? null
@@ -51,17 +61,49 @@ export function SprintView({
     setShowCreateModal(false);
   };
 
-  if (loading) return <SprintSkeleton />;
+  // Never show infinite loading - if loading for too long, show empty state
+  if (loading) {
+    if (sprints.length > 0) {
+      return (
+        <div className="animate-in sprint-view">
+          <div className="sprint-header">
+            <div className="sprint-header-left">
+              <h1 className="h5 fw-medium mb-0">Sprints</h1>
+            </div>
+            <div className="sprint-selector">
+              <div className="sprint-skeleton-select skeleton" style={{ width: '100%', height: '36px' }} />
+            </div>
+            <div className="sprint-header-actions">
+              <div className="skeleton" style={{ width: '100px', height: '32px' }} />
+              <div className="skeleton" style={{ width: '120px', height: '32px' }} />
+            </div>
+          </div>
+          <SprintSkeleton />
+        </div>
+      );
+    }
+    return <SprintSkeleton />;
+  }
 
-  if (error) return (
-    <div className="alert alert-warning d-flex align-items-start gap-2">
-      <span>⚠️</span>
-      <div>
-        <strong>Sprint endpoint unavailable</strong>
-        <p className="mb-0 text-sm mt-1">{error}</p>
+  if (error) {
+    return (
+      <div className="animate-in">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h1 className="h5 fw-medium mb-0">Sprints</h1>
+        </div>
+        <div className="alert alert-warning d-flex align-items-start gap-2">
+          <span>⚠️</span>
+          <div>
+            <strong>Sprint endpoint unavailable</strong>
+            <p className="mb-0 text-sm mt-1">{error}</p>
+            <button className="btn btn-primary btn-sm mt-2" onClick={() => setShowCreateModal(true)}>
+              + New Sprint
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   if (is404 || sprints.length === 0) {
     return (
@@ -73,7 +115,11 @@ export function SprintView({
           <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.4 }}>🚀</div>
           <h2 className="h5 fw-medium mb-2">No sprints yet</h2>
           <p className="text-secondary mb-4">Create your first sprint to start organizing your project.</p>
-          <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+          <button
+            className={`btn ${highlightCreate ? 'btn-primary btn-lg pulse-animation' : 'btn-primary'}`}
+            onClick={() => setShowCreateModal(true)}
+            onMouseEnter={() => setHighlightCreate(false)}
+          >
             + New Sprint
           </button>
         </div>

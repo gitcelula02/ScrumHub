@@ -2613,26 +2613,18 @@ Full-screen modal for creating sprints
 .sprint-create-overlay {
 position: fixed;
 inset: 0;
-background: rgba(0, 0, 0, 0.5);
+background: var(--color-overlay);
 z-index: 200;
 display: flex;
-align-items: stretch;
-justify-content: center;
 }
 
 .sprint-create-modal {
 background: var(--color-surface);
 width: 100%;
 max-width: 1200px;
+height: 100%;
 display: flex;
 flex-direction: column;
-box-shadow: var(--shadow-xl);
-}
-
-@media (max-width: 768px) {
-.sprint-create-modal {
-max-width: 100%;
-}
 }
 
 .sprint-create-header {
