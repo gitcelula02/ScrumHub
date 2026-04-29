@@ -1,0 +1,145 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* VS Code semantic tokens */
+  --color-editor: var(--editor);
+  --color-sidebar-bg: var(--sidebar-bg);
+  --color-sidebar-fg: var(--sidebar-fg);
+  --color-activity-bar: var(--activity-bar);
+  --color-activity-bar-fg: var(--activity-bar-fg);
+  --color-activity-bar-active: var(--activity-bar-active);
+  --color-status-bar: var(--status-bar);
+  --color-status-bar-fg: var(--status-bar-fg);
+  --color-tab-active: var(--tab-active);
+  --color-tab-inactive: var(--tab-inactive);
+  --color-tab-border: var(--tab-border);
+  --color-list-hover: var(--list-hover);
+  --color-list-active: var(--list-active);
+  --color-panel-border: var(--panel-border);
+  --color-titlebar: var(--titlebar);
+
+  --color-priority-high: var(--priority-high);
+  --color-priority-med: var(--priority-med);
+  --color-priority-low: var(--priority-low);
+  --color-status-todo: var(--status-todo);
+  --color-status-progress: var(--status-progress);
+  --color-status-done: var(--status-done);
+
+  --font-sans: "Segoe UI", system-ui, -apple-system, "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Consolas", "Courier New", monospace;
+}
+
+:root {
+  --radius: 0.25rem;
+
+  /* VS Code Dark+ palette mapped via oklch */
+  --editor: oklch(0.22 0 0);              /* #1E1E1E */
+  --sidebar-bg: oklch(0.25 0 0);          /* #252526 */
+  --sidebar-fg: oklch(0.83 0 0);          /* #CCCCCC */
+  --activity-bar: oklch(0.30 0 0);        /* #333333 */
+  --activity-bar-fg: oklch(0.66 0 0);
+  --activity-bar-active: oklch(0.95 0 0);
+  --status-bar: oklch(0.55 0.16 250);     /* #007ACC */
+  --status-bar-fg: oklch(0.98 0 0);
+  --tab-active: oklch(0.22 0 0);
+  --tab-inactive: oklch(0.18 0 0);        /* #2D2D2D-ish */
+  --tab-border: oklch(0.55 0.16 250);
+  --list-hover: oklch(0.30 0.005 270);    /* #2A2D2E */
+  --list-active: oklch(0.36 0.06 250);    /* #094771 darker accent */
+  --panel-border: oklch(0.32 0 0);        /* #3C3C3C */
+  --titlebar: oklch(0.27 0 0);            /* #3C3C3C */
+
+  --priority-high: oklch(0.65 0.22 25);
+  --priority-med: oklch(0.78 0.16 75);
+  --priority-low: oklch(0.70 0.14 160);
+  --status-todo: oklch(0.65 0 0);
+  --status-progress: oklch(0.70 0.15 220);
+  --status-done: oklch(0.68 0.16 150);
+
+  --background: var(--editor);
+  --foreground: oklch(0.86 0 0);          /* #D4D4D4 */
+  --card: oklch(0.25 0 0);
+  --card-foreground: var(--sidebar-fg);
+  --popover: oklch(0.27 0 0);
+  --popover-foreground: var(--sidebar-fg);
+  --primary: oklch(0.55 0.16 250);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.30 0 0);
+  --secondary-foreground: var(--sidebar-fg);
+  --muted: oklch(0.27 0 0);
+  --muted-foreground: oklch(0.62 0 0);
+  --accent: oklch(0.36 0.06 250);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.60 0.22 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: var(--panel-border);
+  --input: oklch(0.24 0 0);               /* #3C3C3C input bg */
+  --ring: oklch(0.55 0.16 250);
+}
+
+.dark {
+  /* same as :root — app is dark by default */
+  --background: var(--editor);
+  --foreground: oklch(0.86 0 0);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html, body, #root {
+    height: 100%;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background-color: oklch(0.45 0.12 250 / 0.6);
+  }
+  /* VS Code-style scrollbars */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(1 0 0 / 0.1);
+    border-radius: 0;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(1 0 0 / 0.2);
+  }
+}

@@ -1,0 +1,99 @@
+import { Layers, ChevronRight } from "lucide-react";
+import type { Ticket } from "./data";
+import { cn } from "@/lib/utils";
+
+interface Props {
+  tickets: Ticket[];
+  onOpen: (t: Ticket) => void;
+}
+
+const STATUS_COLOR = {
+  todo: "bg-status-todo",
+  "in-progress": "bg-status-progress",
+  review: "bg-priority-med",
+  done: "bg-status-done",
+} as const;
+
+const PRIORITY_DOT = {
+  high: "bg-priority-high",
+  medium: "bg-priority-med",
+  low: "bg-priority-low",
+} as const;
+
+export function EpicsView({ tickets, onOpen }: Props) {
+  const map = new Map<string, Ticket[]>();
+  for (const t of tickets) {
+    if (!map.has(t.epic)) map.set(t.epic, []);
+    map.get(t.epic)!.push(t);
+  }
+  const epics = Array.from(map.entries());
+
+  return (
+    <div className="h-full overflow-auto bg-editor p-6">
+      <div className="mb-6 flex items-baseline gap-3">
+        <h1 className="text-xl font-semibold text-foreground">Épicas</h1>
+        <span className="font-mono text-xs text-muted-foreground">
+          {epics.length} épicas · {tickets.length} tickets
+        </span>
+      </div>
+
+      <div className="space-y-3">
+        {epics.map(([epic, list]) => {
+          const total = list.length;
+          const done = list.filter((t) => t.status === "done").length;
+          const pct = total ? Math.round((done / total) * 100) : 0;
+          const points = list.reduce((s, t) => s + t.points, 0);
+          return (
+            <div key={epic} className="bg-sidebar-bg border border-panel-border rounded-sm">
+              <div className="flex items-center justify-between px-4 h-11 border-b border-panel-border">
+                <div className="flex items-center gap-2">
+                  <Layers size={14} className="text-status-bar" />
+                  <h2 className="text-[14px] font-semibold text-foreground">{epic}</h2>
+                  <span className="font-mono text-[11px] text-muted-foreground">
+                    {done}/{total} · {points} pts
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 w-64">
+                  <div className="flex-1 h-1.5 bg-editor rounded-sm overflow-hidden">
+                    <div
+                      className="h-full bg-status-done transition-all"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <span className="font-mono text-[11px] text-muted-foreground w-10 text-right">
+                    {pct}%
+                  </span>
+                </div>
+              </div>
+              <div className="divide-y divide-panel-border">
+                {list.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => onOpen(t)}
+                    className="w-full flex items-center gap-3 px-4 py-2 hover:bg-list-hover text-left text-[13px]"
+                  >
+                    <span
+                      className={cn("w-1.5 h-1.5 rounded-full shrink-0", STATUS_COLOR[t.status])}
+                    />
+                    <span className="font-mono text-[11px] text-muted-foreground w-20 shrink-0">
+                      {t.id}
+                    </span>
+                    <span className="flex-1 truncate">{t.title}</span>
+                    <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <span className={cn("w-2 h-2 rounded-full", PRIORITY_DOT[t.priority])} />
+                      {t.priority}
+                    </span>
+                    <span className="font-mono text-[11px] text-muted-foreground w-24 truncate text-right">
+                      {t.assignee}
+                    </span>
+                    <ChevronRight size={14} className="text-muted-foreground" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
