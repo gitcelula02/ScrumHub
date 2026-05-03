@@ -1,183 +1,175 @@
 # ScrumHub Features
-This document contains all Future and implemented features.  
-Any new implementation may be inserted here.
+
+This document describes all features of ScrumHub. For technical implementation, refer to other documentation files.
+
+---
+
+## Documentation Navigation
+
+ScrumHub documentation is structured as a hierarchy. Start with **TRUTH.md** for any technical decision.
+
+| Document | Purpose | When to Read |
+|---------|---------|--------------|
+| **[TRUTH.md](./TRUTH.md)** | Absolute source of truth. Architecture, entities, UI/UX, patterns | Always first. Any technical decision must follow this. |
+| **[AGENTS.md](./AGENTS.md)** | AI assistant coding guide. Stack, conventions, patterns | Before writing code |
+| **[ERD.md](./ERD.md)** | Entity relationships and data structures | When working on backend/data |
+| **[ENDPOINTS.md](./ENDPOINTS.md)** | API endpoints specification | When working on API integrations |
+| **[FEATURES.md](./FEATURES.md)** | Feature descriptions (this file) | Understanding what the app does |
+| **[UX.md](./UX.md)** | User experience specifications | When designing UI/UX |
+| **[BRAND_CONTEXT.md](./BRAND_CONTEXT.md)** | Visual design language | When designing UI components |
+| **[CONCEPTS.md](./CONCEPTS.md)** | SCRUM methodology concepts | Understanding terminology |
+
+---
+
+## Application Purpose
+
+ScrumHub is a SCRUM project management tool that replaces tools like Jira and GitHub Projects.
+
+**Core Philosophy:** All-in-one workspace where AI assists with planning, execution, and retrospectives.
+
+---
 
 ## Features Overview
 
-### Frontend
-The frontend must be intuitive and easy to use. 
-The Frontend is the portal to all the features of the application.  
-### Backend
-The backend is composed of 2 layers.  
-The database connection layer, with account, project, task, and user management.  
-The AI layer, with the AI features of the application.  
+### Core Management
 
-## Application Purpose
-This application is a management tool created to replace and facilitate SCRUM tools to create backlogs and manage projects.  
-Similar to Jira and GitHub projects, the application must contain a board where the user can create, edit, delete, move and review tasks, for himself and assigned to others, based on their permissions.  
-The application must also contain a feature to create and manage projects, with the ability to add and remove users, and assign them roles and permissions.  
-Different that other applications, ScrumHub must have the capacity to represent the information and task inside the boards and backlog differently, concretely, the workflow must be represented on a tree structure, where each node is a task, and the edges are the dependencies between tasks. There may be bees, that can represent tasks that have not real dependencies, but are related to one or more branches.  
+**Project Management**
+- Create and manage multiple Scrum projects
+- Each project has: name, description (markdown), color, status, members, custom sections
+- Project members have SCRUM roles and admin permissions
 
-Following the All-in-one place philosophy, the application should have a chat feature, where the user can create and manage group chats for projects or teams (Where teams group chat may include the context of all projects the Team is in), and also direct messages between users.  
-The chat groups can be managed like discord, where different channels and roles can be created, along with voice chat channels. All of it must be connected to the AI the following manner:  
+**Task Management (Epic, User Story, Task, Subtask)**
+- Single unified entity with `type` field distinguishing them
+- All have: title, description, priority, status, assignees (multiple), due date, comments, attachments, acceptance criteria, dependencies
+- Subtasks are tasks nested inside other tasks (recursive, no limit)
+- Tasks support multi-assignee with cascade rule (parent assignees cascade to subtasks by default)
 
-- The users can call the AI inside the chat, and the AI will respond to the user, with the context of the chat and more importantly, the project context.  
-This means that the AI must have access to the project's tasks, backlog, and board, and must be able to answer questions about them, and also suggest changes, like creating new tasks, moving tasks between boards, or changing the dependencies between tasks.  
-- The AI can also be used to generate reports, summaries, or any other kind of information related to the project, based on the data in the database.  
-- The AI can interpret and extract information from the voice chat (Only if allowed by the user) and create tasks or generate reports based on the conversation.  
+**Sprints**
+- Group tasks into time-boxed sprints
+- Sprint views: Kanban board, Calendar, Retrospectives
+- Default view is current sprint, filterable to specific sprint or complete backlog
 
-The application will have a workspace, this workspace will not be for creating code but for SCRUM planing.
-It should allow to freely create any kind of diagrams, drawings and stick notes (similar to whimsical, miro, or mural), this can then be used as context for the AI for SCRUM planning, epic creation, editing, etc.
-It should be a space where the user can freely write all the ideas, functionalities and more, in natural language and without worrying over spending the AI tokens early, and the use it later for AI context. Discussing ideas with the AI and analyzing their own project.
-Changes can then be made later to create new features or change existing plans.
+**Backlog**
+- Complete backlog contains all tasks regardless of sprint
+- Tasks can exist outside sprints (backlog-only)
+- Sprint view shows tasks grouped by sprint
 
-## Features
+### Views
+
+**Kanban Boards**
+- Boards represent status columns
+- Drag-and-drop task movement
+- Filters by user, role, due date, sprint, status, priority
+- Status columns have custom names, colors, and SCRUM role associations
+
+**Quest Tree View**
+- Game-like hierarchical tree of tasks
+- Priority = border color, State = background color
+- User's incomplete tasks have visible shadow
+- Red dot notification for urgency
+
+**Calendar View**
+- Shows sprints, tasks, epics, stories, subtasks per sprint
+- Daily standup scheduling with notifications
+- Daily standups occur in dedicated "Daily" channel
+
+**Retrospectives (Per Sprint)**
+- Date, description, title
+- Customizable sections (What went wrong, good, improved, changed)
+- AI-assisted via Retrospective skills
+
+### Collaboration
+
+**Chatroom (Per Project)**
+- Discord-like UI with text and voice channels
+- Message history with markdown support
+- WebRTC voice, AI transcription on-demand
+- "Transcribe & Create Task" feature
+- "Daily" channel (default) for daily standups
+
+### AI Features
+
+**AI Assistant**
+- Backlog Assistant, Chat Assistant
+- Customizable prompts, personality, tone
+- Per-project and general settings
+- AI context stored as RAG with vectorized databases
+
+**AI Data Storage (RAG)**
+- AI context and data stored as Retrieval-Augmented Generation
+- Enables semantic search over chat history, transcriptions, task context
+- Used by AI agent for context-aware responses
+
+### Settings
+
+**Settings Architecture**
+- General and Per Project (customizable by project admin)
+- Roles-based options, theme, colors, notifications, AI settings
+- Settings are polymorphic: general → project → user → user_project_override
+
+**Themes**
+- VS Code-inspired UI
+- Dark and Light modes with CSS variables
+- User-defined entity colors via `--entity-*` CSS variables
+
+### Integrations
+
+- GitHub: issues, pull requests
+- Web Services: Moodle, Canvas LMS
+- Notifications: Email, Push, In-App
+
+---
+
+## Feature Details
 
 ### Boards
-- [ ] Create and manage boards
-    - [ ] Boards encapsulation
-        - [ ] Folder
-        - [ ] Categories
-        - [ ] Tags
-        - [ ] Teams/Team members
-        - [ ] Local/cloud
-    - [ ] Create boards
-    - [ ] Edit boards
-    - [ ] Delete boards
-    - [ ] Manage board's columns
-    - [ ] Manage board's tasks
-    - [ ] Manage board's users
-    - [ ] Manage board's permissions
-    - [ ] Manage board's AI
-- [ ] Create and manage boards with AI
-    - [ ] AI created boards
-    - [ ] AI boards review
-    - [ ] AI boards editing
-    - [ ] AI boards deletion
-    - [ ] AI boards permissions
-    - [ ] AI boards AI
-- [ ] Create Markdown view for boards
-    - [ ] Markdown view for boards
-    - [ ] Markdown view for boards editing
-    - [ ] Markdown view for boards deletion
-    - [ ] Markdown view for boards permissions
-    - [ ] Markdown view for boards AI
-    - [ ] Markdown view download 
+- Custom boards per project representing task states
+- Status columns: custom name, color, SCRUM role association
+- Drag-and-drop task manipulation
+- Board view shows all project boards in single view
 
-### Backlog
-- [ ] Create and manage backlog
-    - [ ] Backlog encapsulation
-        - [ ] Folder
-        - [ ] Categories
-        - [ ] Tags
-        - [ ] Teams/Team members
-        - [ ] Local/cloud
-    - [ ] Create backlog
-    - [ ] Edit backlog
-    - [ ] Delete backlog
-    - [ ] Manage backlog's columns
-    - [ ] Manage backlog's tasks
-    - [ ] Manage backlog's users
-    - [ ] Manage backlog's permissions
-    - [ ] Manage backlog's AI
-    - [ ] backlog tree structure
-    - [ ] backlog tree structure visualization
-    - [ ] backlog tree structure editing
-    - [ ] backlog tree structure deletion
-    - [ ] backlog tree structure permissions
-    - [ ] backlog tree structure AI
-- [ ] Create Markdown view for backlog
-    - [ ] Markdown view for backlog
-    - [ ] Markdown view for backlog editing
-    - [ ] Markdown view for backlog deletion
-    - [ ] Markdown view for backlog permissions
-    - [ ] Markdown view for backlog AI
-    - [ ] Markdown view download 
+### Backlog & Tree View
+- List and tree representation of backlog
+- Tree shows task hierarchy with dependencies
+- Node colors represent task state
+- Export to markdown for AI context
 
-### Chat
-- [ ] Create and manage chats
-    - [ ] Chat encapsulation
-        - [ ] Folder
-        - [ ] Categories
-        - [ ] Tags
-        - [ ] Teams/Team members
-        - [ ] Local/cloud
-        - [ ] Board and backlogs context
-        - [ ] AI context
-    - [ ] Create chat
-    - [ ] Edit chat
-    - [ ] Delete chat
-    - [ ] Manage chat's columns
-    - [ ] Manage chat's tasks
-    - [ ] Manage chat's users
-    - [ ] Manage chat's permissions
-    - [ ] Manage chat's AI
-    - [ ] Manage chat's voice chat
-    - [ ] Manage chat's video chat
-    - [ ] Manage chat's screen sharing
-    - [ ] Manage chat's file sharing
-    - [ ] Manage chat's roles
-### Workspace
-- [ ] Create and manage workspace
-    - [ ] Workspace encapsulation
-        - [ ] Folder
-        - [ ] Categories
-        - [ ] Tags
-        - [ ] Teams/Team members
-        - [ ] Local/cloud
-    - [ ] Create workspace
-    - [ ] Edit workspace
-    - [ ] Delete workspace
-    - [ ] Manage workspace's columns
-- [ ] Workspace drawing tools
-    - [ ] Geometrical forms
-    - [ ] Drawing tools editing
-    - [ ] Drawing tools deletion
-    - [ ] Drawing tools permissions
-    - [ ] Drawing tools AI
-    - [ ] Drawing tools download 
-    - [ ] Mapping elements
-    - [ ] Free draw tool
-    - [ ] Text tool
-    - [ ] Image tool
-    - [ ] Video tool
-    - [ ] Audio tool
-    - [ ] File tool
-    - [ ] Link tool
-    - [ ] Table tool
-    - [ ] List tool
-    - [ ] Checkbox tool
-    - [ ] Radio button tool
-    - [ ] Dropdown tool
-    - [ ] Button tool
-    - [ ] Input tool
-    - [ ] Textarea tool
-    - [ ] Select tool
-    - [ ] Option tool
-    - [ ] Optgroup tool
-    - [ ] Fieldset tool
-    - [ ] Legend tool
-    - [ ] Label tool
-    - [ ] Form tool
-- [ ] AI reading workspace
-    - [ ] AI reading workspace editing
-    - [ ] AI reading workspace deletion
-    - [ ] AI reading workspace permissions
-    - [ ] AI reading workspace AI
-    - [ ] AI reading workspace download 
-    - [ ] AI backlog modification
-- [ ] retrospective
-    - [ ] retrospective creation
-    - [ ] retrospective editing
-    - [ ] retrospective deletion
-    - [ ] retrospective AI permissions
-    - [ ] retrospective AI
-    - [ ] retrospective download 
-    - [ ] retrospective board
-    - [ ] retrospective backlog
-    - [ ] retrospective chat
-    - [ ] retrospective workspace
-    - [ ] retrospective AI
-    - [ ] retrospective download 
+### Sprint Management
+- Create sprints with description, start/end dates
+- Assign tasks, epics, user stories, subtasks to sprints
+- View sprint in Kanban, Calendar, or Retrospective
 
-### 
+### Daily Standups
+- Scheduled in Calendar view
+- Held in dedicated "Daily" voice channel
+- Automatically transcribed for AI context
+- AI generates state summary, detects stoppers, expected latencies
+
+### Workspaces (Future)
+- Blank canvas for diagrams, sticky notes
+- Similar to Miro/Whimsical
+- Used as AI context for SCRUM planning
+
+### Version Control (Backlog)
+- Git-like snapshotting of backlog
+- Revert to previous states
+- View diffs between snapshots
+
+### Statistics & Reports
+- Sprint completion percentage
+- Task counts by status
+- Acceptance criteria completion rates
+- AI-generated reports on delays, blockers
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 18, TypeScript, Vite, Tailwind CSS, TanStack Router & Query |
+| Backend | Express (TypeScript), PostgreSQL, Supabase |
+| AI | DeepSeek API |
+| Real-time | WebSocket for chat and voice |
+
+For detailed technical specifications, see **[TRUTH.md](./TRUTH.md)**.
