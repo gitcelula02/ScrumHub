@@ -1,61 +1,166 @@
 ---
-description : This markdown document is designed as a **System Context & UI Specification** for a front-end generative model. It brand vision into a technical design language that AI can immediately act upon to build the interface.
+description : This markdown document is designed as a **System Context & UI Specification** for a front-end generative model. It bridges brand vision into a technical design language that AI can immediately act upon to build the interface.
 ---
+
 # UI/UX Specification: ScrumHub Workspace
 
 **Project Persona:** High-End Developer Tool / Minimalist IDE
 **Design Philosophy:** "Sober, Structured, and Sophisticated"
+**Reference UI:** Visual Studio Code — sidebar, header, tabs, file explorer patterns
+
+---
 
 ## 1. Brand Identity & Visual Language
 
-* **Core Concept:** A SCRUM platform that feels like a premium code editor (IDE).
-* **Mascot/Logo:** An abstract, geometric "S-Link" Dragon. Sharp angles, minimalist lines, representing fluid power and order.
-* **Catchphrase:** *Architecting Agility.*
-* **Color Palette (No Gradients):**
-  * **Primary:** Clear Purple (Solid, high-contrast for primary actions).
-  * **Secondary:** Clear Blue (Functional, used for progress and links).
-  * **Surface:** Pure White (Light Mode) / Deep Charcoal-Black (Dark Mode - no "AI purples").
-  * **Accents:** Low-opacity Purple/Blue for hover states and subtle nesting indicators.
-* **Typography:** Monospace for data/IDs; Clean, high-readability Sans-Serif (e.g., Inter or JetBrains Sans) for the UI.
+**Core Concept:** A SCRUM platform that feels like a premium code editor (IDE).
 
-## 2. Layout & Navigation Architecture (The "Editor" UI)
+**Mascot/Logo:** An abstract, geometric "S-Link" Dragon. Sharp angles, minimalist lines, representing fluid power and order.
 
-The interface must ditch traditional "dashboard" cards in favor of a **Nested Workspace** layout.
+**Catchphrase:** *Architecting Agility.*
 
-* **The Explorer Sidebar:** A vertical left-hand rail managing projects like a file tree. Clicking a project "expands" its specific Scrum ceremonies as sub-folders (Sprints, Epics, Reports).
-* **The Command Center:** A top-level "Breadcrumb" navigation that tracks the user’s location within the project hierarchy (e.g., `Project_Alpha > Sprint_04 > User_Story_22`).
-* **Multi-Pane Interface:** Support for side-by-side views—for example, viewing a User Story on the left while the AI Chat (Nexus) is pinned to a right-hand panel.
+**Default Color Themes (CSS Variables in Tailwind):**
+- Dark Mode: Deep Charcoal-Black background (VS Code dark theme default), white text, subtle borders
+- Light Mode: Pure White surface, dark text
+- Additional themes available via Settings
+
+**Entity Colors:**
+- User-defined colors for Projects, Epics, Sprints, Status (via CSS variables `--entity-*`)
+- These are dynamic and user-customizable, not fixed brand colors
+
+**Typography:**
+- Monospace for data/IDs, timestamps
+- Clean, high-readability Sans-Serif for UI (JetBrains Mono for code contexts)
+
+**Transitions:**
+- Fast (150ms) linear transitions to maintain high-performance feel
+
+---
+
+## 2. VS Code-Inspired Layout Architecture
+
+The interface follows VS Code's proven layout pattern.
+
+**Global Sidebar (Leftmost — Never Disappears):**
+- Icon-only rail with hover tooltips
+- Icons: Home, Backlog, Epics, Quest Tree, Chat, Reports, Settings (cogwheel)
+- Mimics VS Code's Activity Bar
+
+**Header Bar (Top):**
+- **Left:** Project selector dropdown
+- **Center:** Search bar (acts as command palette — type `>theme` to open theme settings)
+- **Right:** Notifications, Settings button (opens General Settings), User Profile dropdown
+- **Tab Bar:** Pinned/draggable tabs for project views and task details (mimics VS Code tabs)
+
+**Specific View Sidebar (Right of Global Sidebar — Collapsible):**
+- Settings view: Navigation sidebar with sections (General Settings, Profile, Theme, Notifications, AI Assistant)
+- Backlog view: Collapsible sprint/task tree
+
+**Multi-Pane Interface:**
+- Support for side-by-side views (e.g., User Story on left, AI Chat pinned right)
+- Task details open as tabs (not separate windows)
+
+---
 
 ## 3. Feature-to-View Mapping
 
-### **Project & Epic Management (The "Hierarchy View")**
+### **Project & Backlog Management (The "Explorer" View)**
 
-* **UX:** Use a clean list-based indentation style similar to folder structures.
-* **UI:** Minimalist icons (Chevrons) to expand/collapse Epics. No shadows; use 1px solid borders to define sections.
+* **UX:** Clean list-based indentation, file-tree style
+* **UI:** Minimalist icons (Chevrons) to expand/collapse Epics
+* **Sidebar:** Collapsible sprint/task hierarchy
+* **Reference:** VS Code Explorer panel
 
-### **Sprint Planning & Task Board (The "Grid View")**
+### **Kanban Board (The "Grid View")**
 
-* **UX:** A "no-distraction" Kanban board. Task cards are flat with clear color-coded borders (not backgrounds) to indicate priority.
-* **UI:** Drag-and-drop interactions should feel snappy. Status columns (To-Do, In Progress, Done) are separated by subtle vertical lines.
+* **UX:** "No-distraction" Kanban board. Task cards are flat with color-coded borders to indicate priority
+* **Board Item Display:** Title, Priority icon, Assignee avatar(s), Due date, collapsible subtasks
+* **Drag & Drop:** Snappy interactions. Dragging parent moves all subtasks
+* **Phantom Parent:** When subtasks differ from parent, nested under dashed-border "phantom" card
+* **Status Columns:** Separated by subtle vertical lines, each status has custom color
 
-### **Nexus AI Integration (The "Terminal & Split View")**
+### **Quest Tree View**
 
-* **UX:** Nexus should feel like a built-in terminal or a side-aligned assistant. It must have two modes:
-  1. **Global Chat:** A full-screen or large-panel view for deep project analysis.
-  2. **Contextual Overlay:** A slim sidebar accessible via a shortcut or a team chat trigger.
-* **Manner of Speech:** Direct, technical, and proactive. It should present data as "Observations" or "System Logs."
+* **Icon:** Global sidebar with red dot notification (urgency indicator)
+* **Tree Display:** Hierarchical view with progress bars
+* **Visual Coding:**
+  - Priority = Border color
+  - State = Background color
+  - User's incomplete tasks = Visible shadow
+* **On Click:** Opens modal with task description, due date, state, acceptance criteria (comments hidden)
+* **"See more details"** button opens full tab view
+
+### **Sprint Planning**
+
+* **Sprint Creation Overlay:** Description (markdown), Start date, Due date, Task selector (assign tasks/epics/stories/subtasks)
+* **Sprint Views:** Kanban board, Calendar, Retrospectives accessible per sprint
+
+### **Daily Standups**
+
+* **Scheduling:** Via Calendar view with notifications
+* **Dedicated Channel:** "Daily" channel (default, cannot be deleted) with both voice and text
+* **Reference:** Discord channel structure within the project chatroom
+
+### **Nexus AI Integration**
+
+* **Nexus:** The AI assistant name (brand identity)
+* **UX:** Feels like a built-in terminal or side-aligned assistant
+* **Modes:**
+  1. **Global Chat:** Full-panel view for deep project analysis
+  2. **Contextual Overlay:** Slim sidebar accessible via shortcut or trigger
+* **Manner of Speech:** Direct, technical, proactive. Presents data as "Observations" or "System Logs"
+* **Task Integration:** "Transcribe & Create Task" button analyzes messages and proposes task changes
+* **AI Help Button:** In task detail view, opens modal for AI-assisted editing
 
 ### **Ceremonies & Reports (The "Data View")**
 
-* **UX:** Retrospectives and Reviews are handled as collaborative documents/whiteboards within the workspace.
-* **UI:** Use crisp, high-contrast line charts for statistics. Avoid "bubbly" graphics; keep data visualizations surgical and precise.
+* **UX:** Retrospectives as collaborative documents within workspace
+* **UI:** Crisp, high-contrast line charts for statistics
+* **Reports:** Pie charts, percentage completion bars
+
+### **Chatroom**
+
+* **UI:** Discord-like with text and voice channels
+* **Channels:** Text channels with markdown support, voice channels with WebRTC
+* **AI:** Transcription on-demand, "Transcribe & Create Task" feature
+
+---
 
 ## 4. Interaction Principles
 
-* **Hover-State Logic:** Use low-opacity tints to highlight the active "line" or "folder" the user is hovering over, mimicking code editor line highlighting.
-* **The "Clean" Constraint:** No rounded corners exceeding 4px. No heavy drop shadows. No "glow" effects. High contrast is key to the "Sober" aesthetic.
-* **Transitions:** Instant or very fast (150ms) linear transitions to maintain the feeling of a high-performance developer tool.
+**Hover-State Logic:**
+- Low-opacity tints to highlight active "line" or "folder" (code editor line highlighting style)
 
-## 5. View Accompaniment Summary
+**Tab System:**
+- Tabs can be closed, reordered (drag and drop), pinned (pinned stay left)
+- Task/story/epic detail views open as tabs
 
-Every view must be accompanied by an **"Action Header"** containing the project’s specific AI settings and member permissions, ensuring the user always knows their current "Kernel" configuration.
+**Search Bar (Command Palette):**
+- Expands on click to show suggestions and "Ask the AI" option
+- Typing `>command` acts as command palette (e.g., `>theme` opens theme settings)
+- Context-aware: project results inside project view, global results outside
+
+**Empty States:**
+- No projects: "No projects" + Create button + AI input ("Help me create a project...")
+- Empty boards: Boards with no tasks
+- No sprints: "Create an Epic" + AI suggestion
+- Home empty: "Nothing to see, start creating sprints or epics"
+
+**Modals & Overlays:**
+- Task Creation: Same as Task Detail minus comments
+- Sprint Creation: Description, dates, task selector
+- Board Editing: Name, status management, color picker, role association
+
+---
+
+## 5. Settings View (Action Header)
+
+The Settings view serves as the "Action Header" — containing project-specific AI settings and member permissions.
+
+**Settings Sections:**
+- General Settings
+- Profile
+- Theme (switch between dark/light and custom themes)
+- Notifications (Email, Push, In-App toggles)
+- AI Assistant (Nexus settings: tone, model, prompts, skills, tools)
+
+**Reference:** VS Code Settings editor pattern

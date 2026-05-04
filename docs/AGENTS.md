@@ -8,15 +8,15 @@ so that new views and components feel native to the existing codebase.
 
 ## Stack
 
-| Layer       | Technology                          |
-|-------------|-------------------------------------|
-| Bundler     | Vite (JSX, path alias `@/` → `src/`)|
-| UI          | React 18, JavaScript (no TypeScript)|
-| Styles      | Bootstrap 5 + custom CSS variables  |
-| State       | React Context (no external lib)     |
-| Routing     | React Router v6                     |
-| HTTP        | Custom `apiClient` (fetch wrapper)  |
-| Fonts       | DM Sans (body) · JetBrains Mono (code)|
+| Layer       | Technology                                           |
+|-------------|------------------------------------------------------|
+| Bundler     | Vite (TSX, path alias `@/` → `src/`)                |
+| UI          | React 18, TypeScript                                 |
+| Styles      | Tailwind CSS                                         |
+| State       | TanStack Query + React Context                       |
+| Routing     | TanStack Router                                      |
+| HTTP        | Custom `apiClient` (fetch wrapper)                  |
+| Fonts       | DM Sans (body) · JetBrains Mono (code)               |
 
 ---
 
@@ -34,22 +34,29 @@ src/
 │   ├── backlog/
 │   ├── sprints/
 │   ├── tasks/
+│   ├── quest-tree/
+│   ├── chatroom/
 │   └── ai/
 ├── hooks/                Cross-feature hooks — useEntityTheme, etc.
 ├── pages/                Route-level components (thin orchestrators only)
-├── services/             apiClient.js — all fetch calls go through here
+├── routes/               TanStack Router route configuration
+├── services/             apiClient.ts — all fetch calls go through here
 ├── store/                React Context providers — ThemeRegistry, AuthContext
-├── styles/               CSS files — see import order below
-└── utils/                Pure functions — themeUtils.js, etc.
+├── styles/               Global styles, Tailwind config
+├── types/                Global TypeScript types
+└── utils/                Pure functions — themeUtils.ts, etc.
 ```
 
 ### Feature module structure (each feature follows this pattern)
 ```
 features/<name>/
-├── components/   UI pieces specific to this feature
-├── hooks/        use<Name>.js — data fetching + state
-├── services/     <name>Service.js — API calls only
-└── index.js      Public barrel export
+├── components/     UI pieces specific to this feature
+├── hooks/          use<Name>.ts — data fetching + state
+├── services/       <name>Service.ts — API calls only
+├── types/          <name>Types.ts — feature-specific types
+├── utils/          <name>Utils.ts — feature-specific utilities
+├── styles/         <name>.module.css — feature-specific styles (if needed)
+└── index.ts        Public barrel export
 ```
 
 ---
@@ -62,7 +69,7 @@ Every piece of UI belongs to exactly one tier. Never mix tiers.
 - **No data fetching. No business logic. Props in, JSX out.**
 - Reference only `var(--entity-*)` or `var(--color-*)` — never hardcode hex.
 - Every atom is documented with JSDoc `@component` block.
-- Exported via `src/components/ui/index.js` barrel.
+- Exported via `src/components/ui/index.ts` barrel.
 
 ### Tier 2 — Feature Components (`src/features/<name>/components/`)
 - Own their data by calling the feature's hook.
@@ -110,34 +117,42 @@ UI atom reads var(--entity-bg), var(--entity-fg), var(--entity-border)
   feature component level and spread `style={theme}` on the container.
 - **CSS variable scoping is automatic** — each container's `--entity-*` vars
   only apply to its subtree. Sibling badges with different colors never collide.
-- Semantic statuses (todo/done/blocked) use Bootstrap classes — NOT entity colors.
+- Semantic statuses (todo/done/blocked) use Tailwind color classes — NOT entity colors.
   See `StatusBadge` for the correct pattern.
 
 ---
 
-## CSS rules
+## Tailwind CSS rules
 
-### Where colors live
-```
-src/styles/_variables.css      ← Brand tokens, neutrals, Bootstrap --bs-* overrides
-src/styles/_bootstrap-overrides.css  ← Targeted patches after Bootstrap loads
-src/styles/_utilities.css      ← .entity-badge, .entity-accent-border, helpers
-```
+### Configuration
+- Tailwind is configured in `tailwind.config.ts`
+- Custom colors defined as CSS variables in `src/styles/globals.css`
+- Use `var(--color-*)` for brand/neutral colors
 
-### Import order in main.css (DO NOT change)
-```css
-@import './_variables.css';           /* 1. tokens must exist first */
-@import 'bootstrap/dist/css/bootstrap.min.css';  /* 2. reads our --bs-* vars */
-@import './_bootstrap-overrides.css'; /* 3. patches Bootstrap output */
-@import './_utilities.css';           /* 4. always last */
-```
-
-### Rules for writing CSS
-- Use `var(--color-*)` for all brand/neutral colors. Never hardcode hex in component CSS.
-- Use Bootstrap utilities (`mb-3`, `d-flex`, `gap-2`) for spacing and layout.
-- Write custom CSS only when Bootstrap doesn't cover the case.
+### Rules for writing styles
+- Use Tailwind utility classes for all styling
+- Use `var(--color-*)` for brand/neutral colors. Never hardcode hex.
+- Write custom CSS only when Tailwind doesn't cover the case (rare)
 - For entity-colored elements, only use `var(--entity-*)` variables — never compute
-  colors in CSS. The computation happens in `themeUtils.js`.
+  colors in CSS. The computation happens in `themeUtils.ts`.
+
+### Import order in main CSS
+```css
+@import './globals.css';          /* 1. CSS variables and base styles */
+@import 'tailwindcss/base';       /* 2. Tailwind base */
+@import 'tailwindcss/components'; /* 3. Tailwind components */
+@import 'tailwindcss/utilities';   /* 4. Tailwind utilities */
+```
+
+---
+
+## TypeScript rules
+
+- All files use `.ts` or `.tsx` extension
+- Strict typing required — no `any` types
+- Use interfaces for object shapes
+- Use type for unions and primitives
+- JSDoc still required on all exported functions/components
 
 ---
 
@@ -146,7 +161,7 @@ src/styles/_utilities.css      ← .entity-badge, .entity-accent-border, helpers
 Every exported component, hook, service method, and utility function must have a JSDoc block.
 Minimum required tags:
 
-```js
+```ts
 /**
  * @component|@hook|@service|@module MyThing
  * @description What it does and why it exists.
@@ -160,7 +175,7 @@ Minimum required tags:
 ```
 
 For components that participate in the color system, add:
-```js
+```ts
  * COLOR CONTRACT:
  * [Explain whether this component sets, passes, or consumes --entity-* vars]
 ```
@@ -169,25 +184,25 @@ For components that participate in the color system, add:
 
 ## How to add a new view (step-by-step)
 
-1. **Create the page**: `src/pages/MyFeaturePage.jsx`
+1. **Create the page**: `src/pages/MyFeaturePage.tsx`
    - Call `useParams()` for route params
    - Call the feature hook
    - Render the feature component
    - No other logic
 
-2. **Add the route**: in `src/App.jsx`, add a `<Route>` inside the authenticated layout
+2. **Add the route**: in `src/routes/index.ts`, add a route using TanStack Router
 
-3. **Create the feature component**: `src/features/<name>/components/MyFeatureView.jsx`
+3. **Create the feature component**: `src/features/<name>/components/MyFeatureView.tsx`
    - Receives data via props from the page
    - Uses shared atoms from `@/components/ui`
    - JSDoc with full prop documentation
 
-4. **Create the feature hook**: `src/features/<name>/hooks/use<Name>.js`
-   - Calls the service
+4. **Create the feature hook**: `src/features/<name>/hooks/use<Name>.ts`
+   - Uses TanStack Query to call the service
    - Calls `registerEntities()` if the data has colored entities
    - Returns `{ data, loading, error, refetch }`
 
-5. **Create the service**: `src/features/<name>/services/<name>Service.js`
+5. **Create the service**: `src/features/<name>/services/<name>Service.ts`
    - Uses `apiClient` from `@/services/apiClient`
    - One method per API endpoint
    - JSDoc on every method with `@param` and `@returns`
@@ -206,22 +221,24 @@ For components that participate in the color system, add:
 | Project | `color`      | `useProjects`        |
 | Epic    | `color`      | `useBacklog`         |
 | Sprint  | `color`      | `useSprints`         |
-| Label   | `color`      | `useLabels` (future) |
+| Status  | `color`      | `useBoards`          |
 
 ---
 
 ## Naming conventions
 
-| Thing              | Convention        | Example                    |
-|--------------------|-------------------|----------------------------|
-| Component files    | PascalCase        | `BacklogTable.jsx`         |
-| Hook files         | camelCase         | `useBacklog.js`            |
-| Service files      | camelCase         | `backlogService.js`        |
-| CSS files          | _kebab-case       | `_bootstrap-overrides.css` |
-| CSS variables      | --kebab-case      | `--color-brand-500`        |
-| CSS entity vars    | --entity-*        | `--entity-bg`              |
-| Page components    | PascalCase + Page | `BacklogPage.jsx`          |
-| Context providers  | PascalCase        | `ThemeRegistry.jsx`        |
+| Thing              | Convention           | Example                    |
+|--------------------|----------------------|----------------------------|
+| Component files    | PascalCase           | `BacklogTable.tsx`         |
+| Hook files         | camelCase            | `useBacklog.ts`            |
+| Service files      | camelCase            | `backlogService.ts`        |
+| Type files         | camelCase            | `backlogTypes.ts`          |
+| CSS files          | _kebab-case          | `_bootstrap-overrides.css` |
+| CSS variables      | --kebab-case         | `--color-brand-500`        |
+| CSS entity vars    | --entity-*           | `--entity-bg`              |
+| Page components    | PascalCase + Page    | `BacklogPage.tsx`          |
+| Context providers  | PascalCase           | `ThemeRegistry.tsx`        |
+| Route files        | routes.ts            | `routes.ts`                |
 
 ---
 
@@ -231,6 +248,8 @@ For components that participate in the color system, add:
 - ❌ `import { EpicBadge } from '../ui/EpicBadge'` — always import from the barrel `@/components/ui`
 - ❌ Business logic in pages — pages are thin orchestrators only
 - ❌ API calls in components — all fetching goes through a hook → service
-- ❌ Color logic in CSS — color math lives in `themeUtils.js`
+- ❌ Color logic in CSS — color math lives in `themeUtils.ts`
 - ❌ Fetching in UI atoms — atoms receive data via props only
 - ❌ Importing between features — use shared atoms or lift to a shared hook
+- ❌ Using `any` type — always use proper TypeScript types
+- ❌ Using `.js` extension in imports — use `.ts` or `.tsx` as appropriate
