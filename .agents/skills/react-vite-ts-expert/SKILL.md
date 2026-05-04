@@ -64,8 +64,8 @@ Never use the following — always replace with the modern equivalent:
 - **Framework**: React 18+ (or 19 if specified)
 - **Language**: TypeScript (strict mode)
 - **Styling**: Tailwind CSS v3+ (default) or CSS Modules (if specified)
-- **State**: Zustand (local/global UI state), TanStack Query v5 (server state)
-- **Routing**: React Router v6+ (or TanStack Router if specified)
+- **State**: TanStack Query v5 (server state) + React Context (global UI state)
+- **Routing**: TanStack Router (file-based routing)
 - **Forms**: React Hook Form + Zod
 - **Linting**: ESLint + `eslint-plugin-react-hooks` + `@typescript-eslint`
 - **Formatting**: Prettier
@@ -112,30 +112,31 @@ src/
 │   └── ui/            # Generic dumb UI primitives: Button, Input, Modal, Card, Badge
 ├── features/          # Feature modules (see below)
 ├── hooks/             # Global reusable custom hooks
-├── lib/               # Third-party wrappers, clients, singletons (e.g., axios instance, queryClient)
 ├── pages/             # Route-level page components (thin wrappers, delegate to features)
-├── routes/            # Route definitions (React Router or TanStack Router config)
+├── routes/            # Route definitions (TanStack Router config)
 ├── services/          # Global API service functions (not feature-specific)
-├── store/             # Global Zustand stores (not feature-specific)
-├── utils/             # Pure utility functions (formatters, validators, helpers)
-└── types/             # Global shared TypeScript types and interfaces
+├── store/             # Global state (AuthContext, ThemeRegistry)
+├── styles/            # Global styles, Tailwind config
+├── types/             # Global shared TypeScript types and interfaces
+└── utils/             # Pure utility functions (formatters, validators, helpers)
 ```
 
 ### Feature Module Structure
 
-Each feature is a vertical slice — self-contained with its own components, hooks, services, store, and utils.
+Each feature is a vertical slice — self-contained with its own components, hooks, services, types, utils, and styles.
 
 ```
-features/
-└── user-profile/
-    ├── components/    # Dumb components specific to this feature
-    ├── hooks/         # Custom hooks for this feature
-    ├── services/      # API calls for this feature
-    ├── store/         # Zustand slice for this feature
-    ├── utils/         # Utility functions for this feature
-    ├── lib/           # Feature-specific third-party config
-    ├── types.ts       # Feature-specific TypeScript types
-    └── index.ts       # Public API — only export what other features need
+features/<name>/
+├── components/     # Dumb components specific to this feature
+├── hooks/          # Custom hooks for this feature
+├── services/       # API calls for this feature
+├── types/          # Feature-specific TypeScript types
+│   └── *.ts
+├── utils/          # Feature-specific utilities
+│   └── *.ts
+├── styles/         # Feature-specific styles
+│   └── *.css
+└── index.ts        # Public API — only export what other features need
 ```
 
 **Rule**: Features must never import from each other's internals. Only import from `features/other-feature/index.ts`.
@@ -247,7 +248,7 @@ API service functions are plain async functions — no class instances, no singl
 
 ```ts
 // features/user-profile/services/userService.ts
-import { apiClient } from '@/lib/apiClient'
+import { apiClient } from '@/services/apiClient'
 import type { User } from '../types'
 
 export async function fetchUserById(userId: string): Promise<User> {
@@ -256,75 +257,112 @@ export async function fetchUserById(userId: string): Promise<User> {
 }
 ```
 
-The shared Axios/Fetch instance lives in `lib/`:
+The shared Axios/Fetch instance lives in `services/`:
 
 ```ts
-// lib/apiClient.ts
-import axios from 'axios'
-
-export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
-})
+// services/apiClient.ts
+export const apiClient = {
+  baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api',
+  async get<T>(path: string): Promise<T> {
+    const res = await fetch(`${this.baseURL}${path}`, {
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return res.json()
+  },
+  async post<T>(path: string, body: unknown): Promise<T> {
+    const res = await fetch(`${this.baseURL}${path}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return res.json()
+  },
+}
 ```
 
 ---
 
-## Store (Zustand)
+## Store (React Context)
 
-```ts
-// features/user-profile/store/userProfileStore.ts
-import { create } from 'zustand'
+Global UI state uses React Context. Server state uses TanStack Query.
+
+```tsx
+// store/useUserProfile.tsx
+import { createContext, useContext, type ReactNode } from 'react'
 
 interface UserProfileState {
   selectedUserId: string | null
   setSelectedUserId: (id: string | null) => void
 }
 
-export const useUserProfileStore = create<UserProfileState>((set) => ({
-  selectedUserId: null,
-  setSelectedUserId: (id) => set({ selectedUserId: id }),
-}))
+const UserProfileContext = createContext<UserProfileState | null>(null)
+
+export function UserProfileProvider({ children }: { children: ReactNode }) {
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
+  return (
+    <UserProfileContext.Provider value={{ selectedUserId, setSelectedUserId }}>
+      {children}
+    </UserProfileContext.Provider>
+  )
+}
+
+export function useUserProfile() {
+  const ctx = useContext(UserProfileContext)
+  if (!ctx) throw new Error('useUserProfile must be used within UserProfileProvider')
+  return ctx
+}
 ```
 
 Rules:
-- One store per feature (or domain)
-- Store holds **UI state** only — server data lives in TanStack Query cache
-- Use `immer` middleware for complex nested state
-- Never call store inside dumb components
+- One context per domain
+- Context holds **UI state** only — server data lives in TanStack Query cache
+- Never call context inside dumb components
 
 ---
 
 ## Routing
 
-```ts
-// routes/index.tsx
-import { createBrowserRouter } from 'react-router-dom'
+```tsx
+// routes/routes.ts
+import { createRouter, createRoute, rootRoute } from '@tanstack/react-router'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { HomePage } from '@/pages/HomePage'
 import { UserProfilePage } from '@/pages/UserProfilePage'
 
-export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <AppLayout />,
-    children: [
-      { index: true, element: <HomePage /> },
-      { path: 'users/:userId', element: <UserProfilePage /> },
-    ],
-  },
-])
+const root = rootRouteWithContext<RootRouterContext>()({
+  component: AppLayout,
+})
+
+const indexRoute = createRoute({
+  getParentRoute: () => root,
+  path: '/',
+  component: HomePage,
+})
+
+const userRoute = createRoute({
+  getParentRoute: () => root,
+  path: '/users/$userId',
+  component: UserProfilePage,
+})
+
+const routeTree = root.addChildren([indexRoute, userRoute])
+
+export const router = createRouter({ routeTree })
 ```
 
 Pages are thin — they extract route params and pass to feature containers:
 
 ```tsx
 // pages/UserProfilePage.tsx
-import { useParams } from 'react-router-dom'
+import { useParams } from '@tanstack/react-router'
 import { UserProfileCard } from '@/features/user-profile/components/UserProfileCard'
 
 export function UserProfilePage() {
-  const { userId } = useParams<{ userId: string }>()
+  const { userId } = useParams({ from: '/users/$userId' })
   if (!userId) return <Navigate to="/" />
   return <UserProfileCard userId={userId} />
 }
