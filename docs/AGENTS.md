@@ -233,7 +233,7 @@ For components that participate in the color system, add:
 | Hook files         | camelCase            | `useBacklog.ts`            |
 | Service files      | camelCase            | `backlogService.ts`        |
 | Type files         | camelCase            | `backlogTypes.ts`          |
-| CSS files          | _kebab-case          | `_bootstrap-overrides.css` |
+| CSS files          | _kebab-case          | `_variables.css`           |
 | CSS variables      | --kebab-case         | `--color-brand-500`        |
 | CSS entity vars    | --entity-*           | `--entity-bg`              |
 | Page components    | PascalCase + Page    | `BacklogPage.tsx`          |

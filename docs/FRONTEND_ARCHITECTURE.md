@@ -45,21 +45,21 @@ ScrumHub follows a **Feature-First Architecture** with strict boundaries:
 
 ```
 frontend/src/
-├── App.jsx                          # Root component with routing + providers
-├── main.jsx                         # Entry point — mounts App to #root
+├── App.tsx                          # Root component with routing + providers
+├── main.tsx                         # Entry point — mounts App to #root
 ├── components/                      # SHARED UI — used by multiple features
-│   ├── AIAssistantButton.jsx        # Fixed-position AI chat trigger
+│   ├── AIAssistantButton.tsx        # Fixed-position AI chat trigger
 │   ├── layout/                      # Structural components (AppShell, Sidebar, TopBar, MobileMenu)
-│   │   ├── AppShell.jsx             # Authenticated layout wrapper (Sidebar + TopBar + Outlet)
-│   │   ├── Sidebar.jsx              # Project navigation tree in sidebar
-│   │   ├── TopBar.jsx               # Top header with search bar
-│   │   └── MobileMenu.jsx           # Full-screen mobile overlay nav
+│   │   ├── AppShell.tsx             # Authenticated layout wrapper (Sidebar + TopBar + Outlet)
+│   │   ├── Sidebar.tsx              # Project navigation tree in sidebar
+│   │   ├── TopBar.tsx               # Top header with search bar
+│   │   └── MobileMenu.tsx           # Full-screen mobile overlay nav
 │   └── ui/                          # Atomic reusable UI elements
-│       ├── EpicBadge.jsx            # Colored epic pill with dynamic theme
-│       ├── SprintPill.jsx           # Colored sprint pill with dynamic theme
-│       ├── StatusBadge.jsx          # Semantic status + priority tags (todo/in_progress/done/etc)
-│       ├── ColorPickerSwatch.jsx    # Color selection swatch grid
-│       └── index.js                 # Barrel export
+│       ├── EpicBadge.tsx            # Colored epic pill with dynamic theme
+│       ├── SprintPill.tsx           # Colored sprint pill with dynamic theme
+│       ├── StatusBadge.tsx          # Semantic status + priority tags (todo/in_progress/done/etc)
+│       ├── ColorPickerSwatch.tsx    # Color selection swatch grid
+│       └── index.ts                 # Barrel export
 ├── features/                        # FEATURE MODULES — each is self-contained
 │   ├── auth/                        # Authentication
 │   ├── backlog/                     # Backlog management (epics + tasks)
@@ -70,40 +70,43 @@ frontend/src/
 │   ├── projects/                    # Project management
 │   ├── settings/                    # User + project settings
 │   ├── sprints/                     # Sprint management
+│   ├── tasks/                       # Task management
+│   ├── quest-tree/                  # Quest tree view
+│   ├── ai/                          # AI assistant features
 │   └── workspace/                   # Visual workspace canvas
 ├── services/                        # GLOBAL API CLIENT only
-│   └── apiClient.js                 # Central fetch wrapper
+│   └── apiClient.ts                 # Central fetch wrapper
 ├── hooks/                           # GLOBAL HOOKS (useAuthGuard, useAuthRedirect, useEntityTheme)
 ├── store/                           # GLOBAL STATE (AuthContext, ThemeRegistry + their hooks)
-├── styles/                          # GLOBAL STYLES (CSS variables, utilities, Bootstrap overrides)
+├── styles/                          # GLOBAL STYLES (CSS variables, Tailwind config)
 ├── utils/                           # PURE UTILITIES (color math — no React, no side effects)
 └── pages/                           # ROUTE TARGETS — thin wrappers that compose hooks + features
-    ├── LandingPage.jsx              # Public landing page
-    ├── LoginPage.jsx                # Login form
-    ├── RegisterPage.jsx             # Registration form
-    ├── ProjectListPage.jsx          # Projects dashboard
-    ├── ProjectCreatePage.jsx        # New project form
-    ├── ProjectPage.jsx              # Project detail (redirects to overview)
-    ├── BacklogPage.jsx              # Backlog view
-    ├── BoardPage.jsx                # Kanban board page
-    ├── SprintPage.jsx               # Sprint planning
-    ├── CalendarPage.jsx             # Calendar view
-    ├── ChatPage.jsx                 # Chat view
-    ├── WorkspacePage.jsx            # Workspace canvas
-    ├── SettingsPage.jsx             # Settings
-    └── NotFound.jsx                 # 404
+    ├── LandingPage.tsx              # Public landing page
+    ├── LoginPage.tsx                # Login form
+    ├── RegisterPage.tsx             # Registration form
+    ├── ProjectListPage.tsx          # Projects dashboard
+    ├── ProjectCreatePage.tsx        # New project form
+    ├── ProjectPage.tsx              # Project detail (redirects to overview)
+    ├── BacklogPage.tsx              # Backlog view
+    ├── BoardPage.tsx                # Kanban board page
+    ├── SprintPage.tsx               # Sprint planning
+    ├── CalendarPage.tsx             # Calendar view
+    ├── ChatPage.tsx                 # Chat view
+    ├── WorkspacePage.tsx            # Workspace canvas
+    ├── SettingsPage.tsx             # Settings
+    └── NotFound.tsx                 # 404
 ```
 
 ---
 
 ## 3. Entry Points
 
-### `src/main.jsx`
+### `src/main.tsx`
 
 **Purpose:** The single DOM entry point. Creates a React root and mounts `App`.
 
-```jsx
-ReactDOM.createRoot(document.getElementById('root')).render(
+```tsx
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
@@ -114,7 +117,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
 ---
 
-### `src/App.jsx`
+### `src/App.tsx`
 
 **Purpose:** Root React component that declares:
 1. All `Provider` wrappers (AuthProvider, ThemeRegistryProvider)
@@ -123,7 +126,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
 **Provider order (outermost to innermost):**
 ```
-BrowserRouter → AuthProvider → ThemeRegistryProvider → Routes
+QueryClientProvider → AuthProvider → ThemeRegistryProvider → Router
 ```
 
 **Route structure:**
@@ -157,7 +160,7 @@ BrowserRouter → AuthProvider → ThemeRegistryProvider → Routes
 
 ## 4. Global Services Layer
 
-### `src/services/apiClient.js`
+### `src/services/apiClient.ts`
 
 **Purpose:** The **single fetch wrapper** used by ALL feature services. All API calls go through here — no raw `fetch()` anywhere else in the codebase.
 
@@ -170,7 +173,7 @@ BrowserRouter → AuthProvider → ThemeRegistryProvider → Routes
 **Why this matters:** If you need to switch from `fetch` to `axios` (or add interceptors, retries, etc), you change only this file. Every service file is unaffected.
 
 **How to use:**
-```js
+```ts
 import { apiClient } from '@/services/apiClient';
 const user = await apiClient.get('/auth/me');
 const project = await apiClient.post('/projects', { name: 'My Project', color: '#6B5CFF' });
@@ -186,7 +189,7 @@ const project = await apiClient.post('/projects', { name: 'My Project', color: '
 
 ## 5. Global State (Store)
 
-### `src/store/AuthContext.jsx`
+### `src/store/AuthContext.tsx`
 
 **Purpose:** Provides authenticated user state and auth actions app-wide. Restores session on mount by calling `authService.getCurrentUser()`.
 
@@ -205,17 +208,17 @@ const project = await apiClient.post('/projects', { name: 'My Project', color: '
 
 ---
 
-### `src/store/useAuth.js`
+### `src/store/useAuth.ts`
 
 **Purpose:** Hook to access `AuthContext`. Throws if used outside `<AuthProvider>`.
 
-```js
+```ts
 const { user, login, logout, authLoading } = useAuth();
 ```
 
 ---
 
-### `src/store/ThemeRegistry.jsx` + `src/store/useThemeRegistry.js`
+### `src/store/ThemeRegistry.tsx` + `src/store/useThemeRegistry.ts`
 
 **Purpose:** A global memoized cache that maps `entityId → computed CSS variable set`.
 
@@ -228,17 +231,17 @@ const { user, login, logout, authLoading } = useAuth();
 
 **What to change here:**
 - Adding new CSS variable outputs from color math
-- Adjusting the color algorithm (see `src/utils/themeUtils.js`)
+- Adjusting the color algorithm (see `src/utils/themeUtils.ts`)
 
 ---
 
 ## 6. Global Hooks
 
-### `src/hooks/useAuthGuard.js`
+### `src/hooks/useAuthGuard.ts`
 
 **Purpose:** Redirects unauthenticated users to `/login`. Used in `AppShell` and any protected route wrapper.
 
-```js
+```ts
 useAuthGuard(); // defaults to redirecting to /login
 useAuthGuard('/custom-redirect');
 ```
@@ -247,25 +250,25 @@ useAuthGuard('/custom-redirect');
 
 ---
 
-### `src/hooks/useAuthRedirect.js`
+### `src/hooks/useAuthRedirect.ts`
 
 **Purpose:** Redirects **authenticated** users away from public pages (Landing, Login, Register) to `/projects`.
 
-```js
+```ts
 useAuthRedirect(); // defaults to /projects
 useAuthRedirect('/some-other-path');
 ```
 
 ---
 
-### `src/hooks/useEntityTheme.js`
+### `src/hooks/useEntityTheme.ts`
 
 **Purpose:** Converts a runtime hex color (from an epic, sprint, or project) into a scoped inline `style` object with CSS variables.
 
 **Input:** A hex color string (e.g., `"#3B6D11"`) or `null`/`undefined`
 
 **Output:** A `React.CSSProperties` object:
-```js
+```ts
 {
   '--entity-bg': 'rgba(59, 109, 17, 0.12)',
   '--entity-fg': '#ffffff',
@@ -275,8 +278,8 @@ useAuthRedirect('/some-other-path');
 ```
 
 **How components use it:**
-```jsx
-function EpicBadge({ epic }) {
+```tsx
+function EpicBadge({ epic }: { epic: Epic }) {
   const theme = useEntityTheme(epic?.color); // compute once
   return <span className="entity-badge" style={theme}>{epic.name}</span>;
 }
@@ -284,7 +287,7 @@ function EpicBadge({ epic }) {
 
 **Architecture note:** This hook is the **only** place that knows about the hex → CSS variable mapping. UI components are completely color-agnostic — they only reference `var(--entity-*)` in CSS.
 
-**What to change here:** You likely won't need to. The CSS variable names and the color math algorithm are in `src/utils/themeUtils.js`.
+**What to change here:** You likely won't need to. The CSS variable names and the color math algorithm are in `src/utils/themeUtils.ts`.
 
 ---
 
@@ -294,17 +297,21 @@ Each feature follows an identical internal structure:
 ```
 features/[feature-name]/
 ├── components/          # Feature-specific UI (NOT shared outside this feature)
-│   ├── *.jsx
-│   └── index.js         # Optional barrel export
+│   ├── *.tsx
+│   └── index.ts         # Optional barrel export
 ├── hooks/               # Feature-specific state + side effects
-│   ├── *.js
-│   └── index.js         # Optional barrel export
+│   ├── *.ts
+│   └── index.ts         # Optional barrel export
 ├── services/            # Feature-specific API calls
-│   ├── *.js
-│   └── index.js         # Optional barrel export
-├── index.js             # Optional — re-exports for cleaner imports
-└── pages/               # NOTE: Currently pages live at src/pages/ flat
-                         # Per SKILL.md they should be features/[name]/pages/
+│   ├── *.ts
+│   └── index.ts         # Optional barrel export
+├── types/               # Feature-specific TypeScript types
+│   └── *.ts
+├── utils/               # Feature-specific utilities
+│   └── *.ts
+├── styles/              # Feature-specific styles
+│   └── *.css
+└── index.ts             # Optional — re-exports for cleaner imports
 ```
 
 ---
@@ -312,16 +319,16 @@ features/[feature-name]/
 ### `features/auth/`
 
 **Files:**
-- `services/authService.js`
+- `services/authService.ts`
 
 **What it does:** API calls for authentication: `login`, `register`, `logout`, `getCurrentUser`.
 
 **Response shape:**
-```js
+```ts
 User: { id, name, email, avatarUrl?, role? }
 ```
 
-**Missing:** No `components/`, `hooks/`, or `pages/` — auth pages (Login, Register) currently live at `src/pages/`. This is a deviation from the feature-first principle (see SKILL.md deviations).
+**Missing:** No `components/`, `hooks/`, or `pages/` — auth pages (Login, Register) currently live at `src/pages/`. This is a deviation from the feature-first principle.
 
 **To improve:** Move LoginPage/RegisterPage into `features/auth/pages/`.
 
@@ -330,36 +337,37 @@ User: { id, name, email, avatarUrl?, role? }
 ### `features/backlog/`
 
 **Files:**
-- `components/BacklogTable.jsx` — Renders epics as expandable rows with tasks
-- `hooks/useBacklog.js` — Fetches epics with tasks, registers epic colors to ThemeRegistry
-- `services/backlogService.js` — API: `getEpicsWithTasks`, `createEpic`, `updateEpic`, `createTask`, `updateTask`
-- `index.js` — Re-exports
+- `components/BacklogTable.tsx` — Renders epics as expandable rows with tasks
+- `hooks/useBacklog.ts` — Fetches epics with tasks, registers epic colors to ThemeRegistry
+- `services/backlogService.ts` — API: `getEpicsWithTasks`, `createEpic`, `updateEpic`, `createTask`, `updateTask`
+- `types/backlogTypes.ts` — TypeScript types for backlog entities
+- `index.ts` — Re-exports
 
 **Hook contract:**
-```js
+```ts
 const { epics, loading, error, is404, refetch } = useBacklog(projectId);
 ```
 
 **Service contract:**
-```js
+```ts
 Epic: { id, name, color, status, startDate, endDate, tasks[] }
 Task: { id, title, status, priority, assignee, dueDate, epicId, sprintId }
 ```
 
-**Missing:** No `pages/` — the page lives at `src/pages/BacklogPage.jsx`.
+**Missing:** No `pages/` — the page lives at `src/pages/BacklogPage.tsx`.
 
 ---
 
 ### `features/board/`
 
 **Files:**
-- `components/BoardView.jsx` — Kanban board with drag-and-drop columns
-- `components/ManageBoardsModal.jsx` — Modal for managing custom board columns
-- `hooks/useBoard.js` — Fetches tasks, groups by status, handles moveTask optimistic updates
-- `services/boardService.js` — API: `getTasksByProject`, `updateTaskStatus`, `createTask`
+- `components/BoardView.tsx` — Kanban board with drag-and-drop columns
+- `components/ManageBoardsModal.tsx` — Modal for managing custom board columns
+- `hooks/useBoard.ts` — Fetches tasks, groups by status, handles moveTask optimistic updates
+- `services/boardService.ts` — API: `getTasksByProject`, `updateTaskStatus`, `createTask`
 
 **Hook contract:**
-```js
+```ts
 const { columns, loading, error, moveTask, refetch, allTasks } = useBoard(projectId, {
   sprintId,     // filter by sprint
   userIds,      // filter by assignees
@@ -376,12 +384,12 @@ const { columns, loading, error, moveTask, refetch, allTasks } = useBoard(projec
 ### `features/calendar/`
 
 **Files:**
-- `components/CalendarView.jsx` — Monthly calendar grid
-- `hooks/useCalendar.js` — Fetches tasks, indexes by `dueDate` (YYYY-MM-DD)
-- `services/calendarService.js` — API: `getTasksForCalendar`, `createTask`
+- `components/CalendarView.tsx` — Monthly calendar grid
+- `hooks/useCalendar.ts` — Fetches tasks, indexes by `dueDate` (YYYY-MM-DD)
+- `services/calendarService.ts` — API: `getTasksForCalendar`, `createTask`
 
 **Hook contract:**
-```js
+```ts
 const { tasksByDate, year, month, prevMonth, nextMonth, loading, error, refetch } = useCalendar(projectId);
 // tasksByDate: { '2025-04-15': [task, task], ... }
 ```
@@ -393,9 +401,11 @@ const { tasksByDate, year, month, prevMonth, nextMonth, loading, error, refetch 
 ### `features/chat/`
 
 **Files:**
-- `components/ChatLayout.jsx` — Full-width chat with sliding members sidebar
+- `components/ChatLayout.tsx` — Full-width chat with sliding members sidebar
+- `hooks/useChat.ts` — Chat state and messaging logic
+- `services/chatService.ts` — API calls for messages and channels
 
-**Status:** Uses mock data for messages and members. No live API integration.
+**Status:** Uses mock data for messages and members. Basic API integration in progress.
 
 **What it does:**
 - Dark-themed chat UI (matches sidebar aesthetic)
@@ -403,21 +413,19 @@ const { tasksByDate, year, month, prevMonth, nextMonth, loading, error, refetch 
 - Mock AI message (ScrumHub AI)
 - Message input (non-functional — no WebSocket or API)
 
-**Missing:** No `hooks/`, no `services/`. This is the least developed feature.
-
-**To improve:** Add `hooks/useChat.js` and `services/chatService.js`, implement WebSocket for real-time messaging.
+**To improve:** Complete `useChat.ts` and `chatService.ts`, implement WebSocket for real-time messaging.
 
 ---
 
 ### `features/overview/`
 
 **Files:**
-- `components/OverviewView.jsx` — Project dashboard with stats, velocity chart, workload
-- `hooks/useOverview.js` — Fetches 9 data points in parallel via `Promise.all`
-- `services/overviewService.js` — API + extensive mock data fallback
+- `components/OverviewView.tsx` — Project dashboard with stats, velocity chart, workload
+- `hooks/useOverview.ts` — Fetches 9 data points in parallel via `Promise.all`
+- `services/overviewService.ts` — API + extensive mock data fallback
 
 **Hook contract:**
-```js
+```ts
 const {
   loading, error, stats, velocityData, teamWorkload, overdueTasks,
   upcomingDeadlines, recentActivity, chatNotifications, nextDaily,
@@ -432,17 +440,17 @@ const {
 ### `features/projects/`
 
 **Files:**
-- `components/EpicRow.jsx` — Single epic row in project stats
-- `components/ProjectCreateModal.jsx` — Create project form
-- `components/ProjectStatsView.jsx` — Stats display (tasks, completion, members)
-- `components/StatCard.jsx` — Single stat metric card
-- `components/StatsSkeleton.jsx` — Loading skeleton for stats
-- `hooks/useProjects.js` — Fetches all projects, registers colors to ThemeRegistry
-- `hooks/useCreateProject.js` — Handles project creation form submission
-- `services/projectService.js` — API: `getAll`, `getById`, `create`, `update`, `remove`, `addMember`
+- `components/EpicRow.tsx` — Single epic row in project stats
+- `components/ProjectCreateModal.tsx` — Create project form
+- `components/ProjectStatsView.tsx` — Stats display (tasks, completion, members)
+- `components/StatCard.tsx` — Single stat metric card
+- `components/StatsSkeleton.tsx` — Loading skeleton for stats
+- `hooks/useProjects.ts` — Fetches all projects, registers colors to ThemeRegistry
+- `hooks/useCreateProject.ts` — Handles project creation form submission
+- `services/projectService.ts` — API: `getAll`, `getById`, `create`, `update`, `remove`, `addMember`
 
 **Hook contract:**
-```js
+```ts
 const { projects, loading, error, refetch } = useProjects();
 ```
 
@@ -453,13 +461,13 @@ const { projects, loading, error, refetch } = useProjects();
 ### `features/settings/`
 
 **Files:**
-- `components/AISettings.jsx` — AI model, skills, agent, permission toggles
-- `components/GeneralSettings.jsx` — User profile form (name, email, timezone, avatar)
-- `components/SettingsLayout.jsx` — Two-column settings shell (nav + content)
-- `components/UserProfileSettings.jsx` — User profile settings tab
-- `hooks/useSettings.js` — Wrapper hook for settings data
-- `services/settingsService.js` — API: user profile, preferences, AI settings (all with mock fallback)
-- `hooks/index.js`, `services/index.js` — Barrel exports
+- `components/AISettings.tsx` — AI model, skills, agent, permission toggles
+- `components/GeneralSettings.tsx` — User profile form (name, email, timezone, avatar)
+- `components/SettingsLayout.tsx` — Two-column settings shell (nav + content)
+- `components/UserProfileSettings.tsx` — User profile settings tab
+- `hooks/useSettings.ts` — Wrapper hook for settings data
+- `services/settingsService.ts` — API: user profile, preferences, AI settings (all with mock fallback)
+- `hooks/index.ts`, `services/index.ts` — Barrel exports
 
 **Status:** All methods use mock data. The service layer has try/catch that silently falls back to mock values.
 
@@ -468,15 +476,15 @@ const { projects, loading, error, refetch } = useProjects();
 ### `features/sprints/`
 
 **Files:**
-- `components/SprintCreateModal.jsx` — Create sprint form
-- `components/SprintRetrospective.jsx` — Sprint retrospective view
-- `components/SprintTreeView.jsx` — Hierarchical sprint overview
-- `components/SprintView.jsx` — Sprint detail view
-- `hooks/useSprints.js` — Fetches sprints with 8s timeout handling
-- `services/sprintService.js` — API: `getByProject`, `create`, `update`, `assignTasks`
+- `components/SprintCreateModal.tsx` — Create sprint form
+- `components/SprintRetrospective.tsx` — Sprint retrospective view
+- `components/SprintTreeView.tsx` — Hierarchical sprint overview
+- `components/SprintView.tsx` — Sprint detail view
+- `hooks/useSprints.ts` — Fetches sprints with 8s timeout handling
+- `services/sprintService.ts` — API: `getByProject`, `create`, `update`, `assignTasks`
 
 **Hook contract:**
-```js
+```ts
 const { sprints, loading, error, is404, refetch } = useSprints(projectId);
 ```
 
@@ -487,13 +495,13 @@ const { sprints, loading, error, is404, refetch } = useSprints(projectId);
 ### `features/workspace/`
 
 **Files:**
-- `components/CanvasElement.jsx` — Individual draggable/resizable canvas element (sticky, text, shape)
-- `components/WorkspaceToolbar.jsx` — Canvas toolbar (add sticky, add text, zoom, save)
-- `components/WorkspaceView.jsx` — Main canvas with pan/zoom, grid background
-- `hooks/useWorkspace.js` — Fetches workspace data
-- `hooks/useCanvasElements.js` — Manages element CRUD, drag/resize state, undo
-- `services/workspaceService.js` — API: `getByProject`, `saveElements` (both use mock fallback)
-- `hooks/index.js`, `services/index.js`, `components/index.js` — Barrel exports
+- `components/CanvasElement.tsx` — Individual draggable/resizable canvas element (sticky, text, shape)
+- `components/WorkspaceToolbar.tsx` — Canvas toolbar (add sticky, add text, zoom, save)
+- `components/WorkspaceView.tsx` — Main canvas with pan/zoom, grid background
+- `hooks/useWorkspace.ts` — Fetches workspace data
+- `hooks/useCanvasElements.ts` — Manages element CRUD, drag/resize state, undo
+- `services/workspaceService.ts` — API: `getByProject`, `saveElements` (both use mock fallback)
+- `hooks/index.ts`, `services/index.ts`, `components/index.ts` — Barrel exports
 
 **Design aesthetic:** "Sober, Structured, Sophisticated" — 1px borders, max 4px radius, 150ms transitions.
 
@@ -507,7 +515,7 @@ Located at `src/components/`, these are **reuseable across features** — unlike
 
 ### Layout Components (`src/components/layout/`)
 
-#### `AppShell.jsx`
+#### `AppShell.tsx`
 
 **Purpose:** The authenticated layout wrapper. Renders `Sidebar + TopBar` around a `<Outlet />` (child route).
 
@@ -518,11 +526,11 @@ Located at `src/components/`, these are **reuseable across features** — unlike
 - Loading spinner while auth is resolving
 - Renders `<AIAssistantButton />`
 
-**Usage:** All authenticated routes are wrapped in `<Route element={<AppShell />}>` in `App.jsx`.
+**Usage:** All authenticated routes are wrapped in `<Route element={<AppShell />}` in the router config.
 
 ---
 
-#### `Sidebar.jsx`
+#### `Sidebar.tsx`
 
 **Purpose:** Primary project navigation. Shows a list of projects (from `useProjects`) that expand to show views.
 
@@ -537,7 +545,7 @@ Located at `src/components/`, these are **reuseable across features** — unlike
 
 ---
 
-#### `TopBar.jsx`
+#### `TopBar.tsx`
 
 **Purpose:** Fixed top header with a search bar (centered) and notification bell placeholder.
 
@@ -545,7 +553,7 @@ Located at `src/components/`, these are **reuseable across features** — unlike
 
 ---
 
-#### `MobileMenu.jsx`
+#### `MobileMenu.tsx`
 
 **Purpose:** Full-screen overlay navigation for mobile (<768px). Mirrors the sidebar's project list.
 
@@ -555,7 +563,7 @@ Located at `src/components/`, these are **reuseable across features** — unlike
 
 ### UI Components (`src/components/ui/`)
 
-#### `EpicBadge.jsx`
+#### `EpicBadge.tsx`
 
 **Purpose:** Displays an epic's name as a colored pill. Color comes entirely from `useEntityTheme(epic.color)`.
 
@@ -565,7 +573,7 @@ Located at `src/components/`, these are **reuseable across features** — unlike
 
 ---
 
-#### `SprintPill.jsx`
+#### `SprintPill.tsx`
 
 **Purpose:** Displays a sprint name as a colored pill. Same color contract as `EpicBadge`.
 
@@ -575,9 +583,9 @@ Located at `src/components/`, these are **reuseable across features** — unlike
 
 ---
 
-#### `StatusBadge.jsx` + `PriorityTag.jsx`
+#### `StatusBadge.tsx` + `PriorityTag.tsx`
 
-**Purpose:** Semantic (not user-defined) status and priority labels. Uses hardcoded Bootstrap color classes — correct because these are fixed enums, not user-customizable colors.
+**Purpose:** Semantic (not user-defined) status and priority labels. Uses hardcoded Tailwind color classes — correct because these are fixed enums, not user-customizable colors.
 
 **Status values:** `todo`, `in_progress`, `in_review`, `done`, `blocked`
 
@@ -585,7 +593,7 @@ Located at `src/components/`, these are **reuseable across features** — unlike
 
 ---
 
-#### `ColorPickerSwatch.jsx`
+#### `ColorPickerSwatch.tsx`
 
 **Purpose:** A grid of selectable color swatches. Used in `ProjectCreateModal`, `ManageBoardsModal`, and sprint/epic create forms.
 
@@ -595,7 +603,7 @@ Located at `src/components/`, these are **reuseable across features** — unlike
 
 ### Standalone Component
 
-#### `AIAssistantButton.jsx`
+#### `AIAssistantButton.tsx`
 
 **Purpose:** Fixed-position floating action button (bottom-left) that opens the AI assistant. Visible on all views.
 
@@ -605,76 +613,31 @@ Located at `src/components/`, these are **reuseable across features** — unlike
 
 ## 9. Styles & Theming
 
-### `src/styles/_variables.css`
+### `src/styles/globals.css`
 
-**Purpose:** All CSS custom properties (design tokens). This is the **single source of truth** for colors, spacing, typography, shadows, and radius.
+**Purpose:** All CSS custom properties (design tokens). This is the **single source of truth** for colors, spacing, typography, shadows, and radius. Uses oklch for perceptual uniformity.
 
 **Sections:**
 - Typography: `--font-sans`, `--font-mono`
-- Brand palette: `--color-brand-50` through `--color-brand-900` (violet)
-- Dark nav: `--color-dark-nav`, `--color-dark-nav-deep`, hover/active states
-- Neutrals: `--color-gray-50` through `--color-gray-900`
-- Semantic: `--color-success`, `--color-warning`, `--color-danger`, `--color-info` (each with a `*-bg` variant)
-- Surface: `--color-surface`, `--color-surface-alt`, `--color-border`
-- Radius: `--radius-xs` (3px) through `--radius-xl` (18px)
-- Shadows: `--shadow-xs` through `--shadow-lg`
-- Layout: `--sidebar-width` (240px), `--sidebar-width-sm` (60px), `--topbar-height` (56px)
-- Bootstrap overrides: Maps Bootstrap's `--bs-*` vars to the design tokens
+- VS Code dark palette: `--editor`, `--sidebar-bg`, `--sidebar-fg`, `--activity-bar`, etc.
+- Brand palette: `--color-brand-*` (violet)
+- Semantic: `--color-success`, `--color-warning`, `--color-danger`, `--color-info`
+- Entity color system: `--entity-bg`, `--entity-fg`, `--entity-border`, `--entity-solid`
+- Layout: `--sidebar-width`, `--sidebar-width-sm`, `--topbar-height`
 
 **Rule:** Never hardcode hex values in components. Use these tokens. Entity colors (user-defined project/epic/sprint colors) come from `useEntityTheme` at runtime and are NOT in this file.
 
----
-
-### `src/styles/_utilities.css`
-
-**Purpose:** All custom CSS beyond Bootstrap. Organized by component/feature section:
-
-**Sections:**
-1. Scrollbars (custom thin scrollbar styling)
-2. Text helpers (`.text-brand`, `.text-xs`, `.text-sm`, `.fw-medium`)
-3. Layout helpers (`.min-w-0`, `.truncate`)
-4. Entity color system (`.entity-badge`, `.entity-badge--pill`, `.entity-accent-border`) — these consume CSS variables set by `useEntityTheme`
-5. App Shell layout (`.app-shell`, `.app-main`, `.app-content`)
-6. Sidebar (`.app-sidebar`, `.sidebar-brand`, `.sidebar-nav`, `.sidebar-project-btn`, `.sidebar-subnav-*`, `.sidebar-footer`)
-7. TopBar (`.app-topbar`, `.topbar-search`, `.topbar-icon-btn`)
-8. Auth pages (`.auth-page`, `.auth-card`, `.auth-logo-*`)
-9. Landing page (`.landing-page`, `.landing-nav`, `.landing-hero`, `.landing-features`, `.landing-cta`)
-10. Kanban board (`.board-view-wrapper`, `.board-column`, `.board-col-*-*`, `.board-task-card`, `.manage-boards-modal`)
-11. Calendar (`.calendar-grid`, `.calendar-cell`, `.calendar-day-num`, `.calendar-task-chip`)
-12. Chat (`.chat-shell`, `.chat-full-shell`, `.chat-full-members`, all chat message/input styles)
-13. Workspace canvas (`.workspace-shell`, `.workspace-toolbar`, `.workspace-canvas`, `.canvas-element`)
-14. Mobile menu (`.mobile-menu-overlay`, `.mobile-menu-*-*`)
-15. Settings (`.settings-shell`, `.settings-nav`, `.settings-content`, `.settings-form`)
-16. Bootstrap overrides, sprint views, overview stats, etc.
-
-**Animation:** `.animate-in` = `fadeInUp` (opacity 0→1, translateY 6px→0, 200ms ease). Used on page load for cards and modals.
-
----
-
-### `src/styles/_bootstrap-overrides.css`
-
-**Purpose:** Overrides of Bootstrap defaults that can't be handled via CSS variable mapping.
-
----
-
-### `src/styles/main.css`
-
-**Purpose:** Imports all other CSS files. Entry point for all styles.
-
-**Order:**
-1. `_variables.css` (design tokens)
-2. `bootstrap.min.css` (third-party)
-3. `_bootstrap-overrides.css`
-4. `_utilities.css` (all component CSS)
-5. Some feature-specific overrides
+**Import order (via Vite):**
+1. CSS variables and base styles in `globals.css`
+2. Tailwind CSS loaded via `@tailwindcss/vite` plugin
 
 ---
 
 ## 10. Utils
 
-### `src/utils/themeUtils.js`
+### `src/utils/themeUtils.ts`
 
-**Purpose:** Pure color math utilities — no React, no side effects. These are plain JS functions safe to use in hooks, services, and even tests.
+**Purpose:** Pure color math utilities — no React, no side effects. These are plain TS functions safe to use in hooks, services, and even tests.
 
 **Functions:**
 
@@ -690,7 +653,7 @@ Located at `src/components/`, these are **reuseable across features** — unlike
 | `buildEntityTheme(hex)` | **Main function** — computes full CSS variable set for an entity |
 
 **`buildEntityTheme(hex)` output:**
-```js
+```ts
 {
   '--entity-bg': 'rgba(59, 109, 17, 0.12)',      // soft fill
   '--entity-fg': '#ffffff',                       // readable text
@@ -705,9 +668,7 @@ Located at `src/components/`, these are **reuseable across features** — unlike
 
 ## 11. Pages (Route Targets)
 
-Pages live in `src/pages/` (flat structure). Per the Senior React Architect SKILL.md, they should ideally be within `features/[feature]/pages/`, but currently they are centralized here.
-
-**Role of pages:** Thin wrappers that:
+Pages live in `src/pages/` (flat structure). Per TRUTH.md, they are thin wrappers that:
 1. Extract URL params via `useParams()`
 2. Call feature hooks
 3. Render feature components
@@ -719,20 +680,20 @@ Pages **should not** contain business logic — that belongs in hooks.
 
 | Page | Route | Uses Hook | Key Component |
 |------|-------|-----------|---------------|
-| `LandingPage.jsx` | `/` | — | Public marketing page |
-| `LoginPage.jsx` | `/login` | `useAuthRedirect()` | Auth form |
-| `RegisterPage.jsx` | `/register` | `useAuthRedirect()` | Registration form |
-| `ProjectListPage.jsx` | `/projects` | `useProjects()` | Project cards grid |
-| `ProjectCreatePage.jsx` | `/projects/new` | `useCreateProject()` | Project creation form |
-| `ProjectPage.jsx` | `/projects/:projectId` | — | Redirects to `/projects/:projectId/overview` |
-| `BacklogPage.jsx` | `/projects/:projectId/backlog` | `useBacklog(projectId)` | `BacklogTable` |
-| `BoardPage.jsx` | `/projects/:projectId/board` | `useBoard(projectId)` | `BoardView` + `ManageBoardsModal` |
-| `SprintPage.jsx` | `/projects/:projectId/sprints` | `useSprints(projectId)` | `SprintView` + `SprintCreateModal` |
-| `CalendarPage.jsx` | `/projects/:projectId/calendar` | `useCalendar(projectId)` | `CalendarView` |
-| `ChatPage.jsx` | `/projects/:projectId/chat` | — | `ChatLayout` (mock data) |
-| `WorkspacePage.jsx` | `/projects/:projectId/workspace` | `useWorkspace(projectId)` | `WorkspaceView` + `WorkspaceToolbar` |
-| `SettingsPage.jsx` | `/projects/:projectId/settings` or `/settings` | `useSettings()` | `SettingsLayout` + settings panels |
-| `NotFound.jsx` | `*` | — | 404 page |
+| `LandingPage.tsx` | `/` | — | Public marketing page |
+| `LoginPage.tsx` | `/login` | `useAuthRedirect()` | Auth form |
+| `RegisterPage.tsx` | `/register` | `useAuthRedirect()` | Registration form |
+| `ProjectListPage.tsx` | `/projects` | `useProjects()` | Project cards grid |
+| `ProjectCreatePage.tsx` | `/projects/new` | `useCreateProject()` | Project creation form |
+| `ProjectPage.tsx` | `/projects/:projectId` | — | Redirects to `/projects/:projectId/overview` |
+| `BacklogPage.tsx` | `/projects/:projectId/backlog` | `useBacklog(projectId)` | `BacklogTable` |
+| `BoardPage.tsx` | `/projects/:projectId/board` | `useBoard(projectId)` | `BoardView` + `ManageBoardsModal` |
+| `SprintPage.tsx` | `/projects/:projectId/sprints` | `useSprints(projectId)` | `SprintView` + `SprintCreateModal` |
+| `CalendarPage.tsx` | `/projects/:projectId/calendar` | `useCalendar(projectId)` | `CalendarView` |
+| `ChatPage.tsx` | `/projects/:projectId/chat` | `useChat(projectId)` | `ChatLayout` |
+| `WorkspacePage.tsx` | `/projects/:projectId/workspace` | `useWorkspace(projectId)` | `WorkspaceView` + `WorkspaceToolbar` |
+| `SettingsPage.tsx` | `/projects/:projectId/settings` or `/settings` | `useSettings()` | `SettingsLayout` + settings panels |
+| `NotFound.tsx` | `*` | — | 404 page |
 
 ---
 
@@ -794,36 +755,50 @@ src/features/[new-feature]/
 ├── components/
 ├── hooks/
 ├── services/
-└── pages/       (when refactored; currently pages live at src/pages/)
+├── types/
+├── utils/
+├── styles/
+└── index.ts
 ```
 
-### Step 2: Define the service
+### Step 2: Define the types
 
-```js
-// features/newFeature/services/newFeatureService.js
+```ts
+// features/newFeature/types/newFeatureTypes.ts
+export interface NewFeatureItem {
+  id: string;
+  name: string;
+  color: string;
+}
+```
+
+### Step 3: Define the service
+
+```ts
+// features/newFeature/services/newFeatureService.ts
 import { apiClient } from '@/services/apiClient';
 
 export const newFeatureService = {
   async getAll() {
     return apiClient.get('/new-feature');
   },
-  async create(data) {
+  async create(data: Partial<NewFeatureItem>) {
     return apiClient.post('/new-feature', data);
   },
 };
 ```
 
-### Step 3: Define the hook
+### Step 4: Define the hook
 
-```js
-// features/newFeature/hooks/useNewFeature.js
+```ts
+// features/newFeature/hooks/useNewFeature.ts
 import { useState, useEffect, useCallback } from 'react';
 import { newFeatureService } from '../services/newFeatureService';
 
-export function useNewFeature(projectId) {
-  const [items, setItems] = useState([]);
+export function useNewFeature(projectId: string) {
+  const [items, setItems] = useState<NewFeatureItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetch = useCallback(async () => {
     if (!projectId) return;
@@ -833,7 +808,7 @@ export function useNewFeature(projectId) {
       const data = await newFeatureService.getAll(projectId);
       setItems(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message ?? 'Failed to load');
+      setError(err instanceof Error ? err.message : 'Failed to load');
     } finally {
       setLoading(false);
     }
@@ -845,11 +820,16 @@ export function useNewFeature(projectId) {
 }
 ```
 
-### Step 4: Create the component
+### Step 5: Create the component
 
-```jsx
-// features/newFeature/components/NewFeatureView.jsx
-export function NewFeatureView({ items, loading }) {
+```tsx
+// features/newFeature/components/NewFeatureView.tsx
+interface NewFeatureViewProps {
+  items: NewFeatureItem[];
+  loading: boolean;
+}
+
+export function NewFeatureView({ items, loading }: NewFeatureViewProps) {
   if (loading) return <div className="placeholder-glow">...</div>;
   return (
     <div className="new-feature-wrapper">
@@ -859,27 +839,24 @@ export function NewFeatureView({ items, loading }) {
 }
 ```
 
-### Step 5: Wire up the page
+### Step 6: Wire up the page
 
-```jsx
-// src/pages/NewFeaturePage.jsx
+```tsx
+// src/pages/NewFeaturePage.tsx
 import { useParams } from 'react-router-dom';
 import { useNewFeature } from '@/features/newFeature/hooks/useNewFeature';
 import { NewFeatureView } from '@/features/newFeature/components/NewFeatureView';
 
 export default function NewFeaturePage() {
-  const { projectId } = useParams();
-  const { items, loading, error } = useNewFeature(projectId);
+  const { projectId } = useParams<{ projectId: string }>();
+  const { items, loading, error } = useNewFeature(projectId!);
   return <NewFeatureView items={items} loading={loading} />;
 }
 ```
 
-### Step 6: Add the route
+### Step 7: Add the route
 
-```jsx
-// src/App.jsx
-<Route path="/projects/:projectId/new-feature" element={<NewFeaturePage />} />
-```
+Add the route to the TanStack Router configuration file.
 
 ---
 
@@ -887,7 +864,7 @@ export default function NewFeaturePage() {
 
 ### Imports
 
-- Use `@/` path alias for all imports (configured in `vite.config.js`)
+- Use `@/` path alias for all imports (configured in `vite.config.ts`)
 - Services: `import { apiClient } from '@/services/apiClient'`
 - Features: `import { useBacklog } from '@/features/backlog/hooks/useBacklog'`
 - Components: `import { EpicBadge } from '@/components/ui/EpicBadge'`
@@ -895,11 +872,13 @@ export default function NewFeaturePage() {
 
 ### File Naming
 
-- Components: `PascalCase.jsx` (e.g., `EpicBadge.jsx`)
-- Hooks: `camelCase.js` (e.g., `useBacklog.js`)
-- Services: `camelCase.js` (e.g., `backlogService.js`)
-- Utils: `camelCase.js` (e.g., `themeUtils.js`)
-- Pages: `PascalCase.jsx` (e.g., `BacklogPage.jsx`)
+- Components: `PascalCase.tsx` (e.g., `EpicBadge.tsx`)
+- Hooks: `camelCase.ts` (e.g., `useBacklog.ts`)
+- Services: `camelCase.ts` (e.g., `backlogService.ts`)
+- Utils: `camelCase.ts` (e.g., `themeUtils.ts`)
+- Types: `camelCase.ts` (e.g., `backlogTypes.ts`)
+- Pages: `PascalCase + Page.tsx` (e.g., `BacklogPage.tsx`)
+- Context providers: `PascalCase.tsx` (e.g., `ThemeRegistry.tsx`)
 
 ### JSDoc Comments
 
@@ -911,7 +890,7 @@ All files have JSDoc comments with:
 
 ### Error Handling Pattern
 
-```js
+```ts
 try {
   const data = await someService.getData();
   setData(Array.isArray(data) ? data : []);
@@ -922,7 +901,7 @@ try {
     setIs404(true);
     setError(null);
   } else {
-    setError(err.message ?? 'Failed to load');
+    setError(err instanceof Error ? err.message : 'Failed to load');
   }
 }
 ```
@@ -930,14 +909,14 @@ try {
 ### Color System
 
 - Entity colors (project/epic/sprint) → `useEntityTheme(color)` → CSS variables
-- Semantic colors (status/priority) → Hardcoded in component (fixed enums, not user-defined)
-- Design tokens → CSS custom properties from `_variables.css`
+- Semantic colors (status/priority) → Hardcoded Tailwind classes (fixed enums, not user-defined)
+- Design tokens → CSS custom properties from `globals.css`
 
 ### Mock Data Pattern
 
 Services that don't have backend implementation use mock data as fallback:
 
-```js
+```ts
 async getData() {
   try {
     return await apiClient.get('/endpoint');
@@ -955,8 +934,8 @@ async getData() {
 
 Used in `useBoard` for drag-and-drop:
 
-```js
-const moveTask = useCallback(async (taskId, newStatus) => {
+```ts
+const moveTask = useCallback(async (taskId: string, newStatus: string) => {
   // 1. Optimistically update UI immediately
   setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
   try {
@@ -973,7 +952,7 @@ const moveTask = useCallback(async (taskId, newStatus) => {
 
 Used in `useOverview` to fetch multiple data points concurrently:
 
-```js
+```ts
 const [stats, velocity, workload, ...] = await Promise.all([
   overviewService.getProjectStats(projectId),
   overviewService.getVelocityData(projectId),
@@ -986,7 +965,7 @@ const [stats, velocity, workload, ...] = await Promise.all([
 
 After fetching entity data, immediately register colors:
 
-```js
+```ts
 const { registerEntities } = useThemeRegistry();
 
 const data = await backlogService.getEpicsWithTasks(projectId);
@@ -1001,20 +980,26 @@ Components like `EpicBadge`, `SprintPill`, and `Sidebar` receive entity data and
 
 ---
 
-## Deviation Notes (Per SKILL.md)
+## Deviation Notes
+
+These deviations from TRUTH.md's target structure exist in the current codebase and should be addressed during the migration to feature-first architecture:
 
 ### 1. Pages live in `src/pages/` (flat) instead of `features/[feature]/pages/`
 
-Per the Senior React Architect SKILL.md, pages should be `features/[feature]/pages/`. Currently all 14 pages are in a flat `src/pages/` directory. This is the most significant architectural deviation.
+Per TRUTH.md, pages should be `features/[feature]/pages/`. Currently all 14 pages are in a flat `src/pages/` directory.
 
 ### 2. Auth feature is incomplete
 
-`features/auth/` only has `services/authService.js`. Missing `components/`, `hooks/`, `pages/`. The Login and Register pages should ideally live here.
+`features/auth/` only has `services/authService.ts`. Missing `components/`, `hooks/`, `pages/`. The Login and Register pages should ideally live here.
 
 ### 3. Chat feature is incomplete
 
-`features/chat/` only has `components/ChatLayout.jsx`. Missing `hooks/` and `services/`. The chat feature is the least developed.
+`features/chat/` only has `components/ChatLayout.tsx`. Missing `hooks/` and `services/`. The chat feature is the least developed.
+
+### 4. Some features lack `types/` and `utils/` directories
+
+Per TRUTH.md, each feature should have `types/` and `utils/` directories for feature-specific types and utilities.
 
 ---
 
-*Last updated: 2026-04-29*
+*Last updated: 2026-05-04*
