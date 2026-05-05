@@ -3,7 +3,6 @@ import { ActivityBar, type ActivityView } from "./ActivityBar";
 import { StatusBar } from "./StatusBar";
 import { TitleBar } from "./TitleBar";
 import { Explorer, Tabs, CommandPalette } from "@/features/workspace";
-import { Board } from "@/features/board";
 import { TaskView, PropertiesPanel } from "@/features/tasks";
 import { EpicsView } from "@/features/projects";
 import { PermissionsView } from "@/features/settings";
@@ -11,6 +10,7 @@ import { AINotifications } from "@/features/ai";
 import { useTasks } from "@/features/backlog";
 import { exportSprintReport } from "@/features/workspace/utils/exportPdf";
 import type { Tab, Task } from "@/types";
+import { Outlet } from "@tanstack/react-router";
 
 const DASHBOARD_TAB: Tab = { id: "dashboard", label: "Tablero — Sprint 24", kind: "dashboard" };
 const EPICS_TAB: Tab = { id: "epics", label: "Épicas", kind: "epics" };
@@ -18,7 +18,9 @@ const PERMS_TAB: Tab = { id: "permissions", label: "Permisos del equipo", kind: 
 
 /**
  * @component AppShell
- * Main application container that orchestrates layout, navigation, and feature views.
+ * Main application layout container. Renders the shell (TitleBar, ActivityBar,
+ * Explorer, Tabs, StatusBar) and uses TanStack Router's <Outlet /> to render
+ * child route content.
  */
 export function AppShell() {
   const { data: tasks = [] } = useTasks();
@@ -96,7 +98,7 @@ export function AppShell() {
           <div className="flex-1 flex min-h-0">
             <div className="flex-1 min-w-0">
               {current.kind === "dashboard" && (
-                <Board onOpenTask={openTask} />
+                <Outlet />
               )}
               {current.kind === "epics" && (
                 <EpicsView onOpenTask={openTask} />
