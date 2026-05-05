@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 export type ActivityView = "projects" | "backlog" | "sprints" | "search" | "branches" | "epics" | "permissions";
 
-interface Props {
+interface ActivityBarProps {
   active: ActivityView;
   onChange: (v: ActivityView) => void;
   onNotifications: () => void;
@@ -21,7 +21,11 @@ const items: { id: ActivityView; icon: React.ElementType; label: string }[] = [
   { id: "branches", icon: GitBranch, label: "Ramas" },
 ];
 
-export function ActivityBar({ active, onChange, onNotifications, onExport, alertCount }: Props) {
+/**
+ * @component ActivityBar
+ * VS Code-style vertical activity bar for main view switching.
+ */
+export function ActivityBar({ active, onChange, onNotifications, onExport, alertCount }: ActivityBarProps) {
   return (
     <aside className="w-12 bg-activity-bar flex flex-col items-center justify-between border-r border-panel-border select-none">
       <div className="flex flex-col">
