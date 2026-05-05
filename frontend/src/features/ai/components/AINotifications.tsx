@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { Sparkles, AlertTriangle, Clock, TrendingUp, Mail, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTickets } from "@/features/backlog";
-import type { Ticket } from "@/types";
+import { useTasks } from "@/features/backlog";
+import type { Task } from "@/types";
 
 interface AINotificationsProps {
   open: boolean;
@@ -17,7 +17,7 @@ interface Alert {
   icon: React.ElementType;
   title: string;
   detail: string;
-  ticketId?: string;
+  taskId?: string;
   action: string;
 }
 
@@ -27,11 +27,11 @@ const SEV_COLOR: Record<Severity, string> = {
   info: "border-l-status-bar text-status-bar",
 };
 
-function buildAlerts(tickets: Ticket[]): Alert[] {
+function buildAlerts(tasks: Task[]): Alert[] {
   const now = new Date("2026-04-29");
   const alerts: Alert[] = [];
 
-  for (const t of tickets) {
+  for (const t of tasks) {
     if (t.status === "done") continue;
     const due = new Date(t.due);
     const daysLeft = Math.ceil((due.getTime() - now.getTime()) / 86400000);
@@ -43,7 +43,7 @@ function buildAlerts(tickets: Ticket[]): Alert[] {
         icon: AlertTriangle,
         title: `${t.id} vencido hace ${Math.abs(daysLeft)}d`,
         detail: `«${t.title}» asignado a ${t.assignee}. Sugiero reasignar o reprogramar.`,
-        ticketId: t.id,
+        taskId: t.id,
         action: "Notificar al equipo",
       });
     } else if (daysLeft <= 2 && t.priority === "high") {
@@ -53,20 +53,20 @@ function buildAlerts(tickets: Ticket[]): Alert[] {
         icon: Clock,
         title: `${t.id} vence en ${daysLeft}d`,
         detail: `Prioridad alta. ${t.assignee} aún en estado "${t.status}".`,
-        ticketId: t.id,
+        taskId: t.id,
         action: "Enviar recordatorio",
       });
     }
   }
 
-  const wip = tickets.filter((t) => t.status === "in-progress").length;
+  const wip = tasks.filter((t) => t.status === "in-progress").length;
   if (wip >= 3) {
     alerts.push({
       id: "wip-limit",
       severity: "warning",
       icon: TrendingUp,
-      title: `WIP elevado: ${wip} tickets en progreso`,
-      detail: "El equipo está sobrecargado. Considera mover tickets a revisión antes de tomar nuevos.",
+      title: `WIP elevado: ${wip} tareas en progreso`,
+      detail: "El equipo está sobrecargado. Considera mover tareas a revisión antes de tomar nuevas.",
       action: "Ver sugerencias",
     });
   }
@@ -76,7 +76,7 @@ function buildAlerts(tickets: Ticket[]): Alert[] {
     severity: "info",
     icon: Sparkles,
     title: "Resumen IA del Sprint 24",
-    detail: `${tickets.filter((t) => t.status === "done").length}/${tickets.length} tickets completados. Riesgo: alertas de auth y notificaciones.`,
+    detail: `${tasks.filter((t) => t.status === "done").length}/${tasks.length} tareas completadas. Riesgo: alertas de auth y notificaciones.`,
     action: "Ver reporte",
   });
 
@@ -86,11 +86,11 @@ function buildAlerts(tickets: Ticket[]): Alert[] {
 /**
  * @component AINotifications
  * Feature component for AI notifications and risk analysis.
- * Automatically fetches current tickets to generate insights.
+ * Automatically fetches current tasks to generate insights.
  */
 export function AINotifications({ open, onClose }: AINotificationsProps) {
-  const { data: tickets = [] } = useTickets();
-  const alerts = useMemo(() => buildAlerts(tickets), [tickets]);
+  const { data: tasks = [] } = useTasks();
+  const alerts = useMemo(() => buildAlerts(tasks), [tasks]);
 
   if (!open) return null;
 
@@ -143,9 +143,9 @@ export function AINotifications({ open, onClose }: AINotificationsProps) {
                   <button className="flex items-center gap-1.5 h-6 px-2 text-[11px] bg-status-bar text-status-bar-fg rounded-sm hover:opacity-90">
                     <Mail size={11} /> {a.action}
                   </button>
-                  {a.ticketId && (
+                  {a.taskId && (
                     <span className="font-mono text-[11px] text-muted-foreground">
-                      {a.ticketId}
+                      {a.taskId}
                     </span>
                   )}
                 </div>

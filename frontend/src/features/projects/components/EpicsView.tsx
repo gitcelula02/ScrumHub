@@ -1,10 +1,10 @@
 import { Layers, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTickets } from "@/features/backlog";
-import type { Ticket } from "@/types";
+import { useTasks } from "@/features/backlog";
+import type { Task } from "@/types";
 
 interface EpicsViewProps {
-  onOpenTicket: (t: Ticket) => void;
+  onOpenTask: (t: Task) => void;
 }
 
 const STATUS_COLOR = {
@@ -24,17 +24,17 @@ const PRIORITY_DOT = {
 /**
  * @component EpicsView
  * Smart feature component for viewing high-level epic progress.
- * Automatically fetches all tickets to aggregate epic-level status.
+ * Automatically fetches all tasks to aggregate epic-level status.
  */
-export function EpicsView({ onOpenTicket }: EpicsViewProps) {
-  const { data: tickets = [], isLoading } = useTickets();
+export function EpicsView({ onOpenTask }: EpicsViewProps) {
+  const { data: tasks = [], isLoading } = useTasks();
 
   if (isLoading) {
     return <div className="h-full flex items-center justify-center text-muted-foreground font-mono">Cargando épicas...</div>;
   }
 
-  const map = new Map<string, Ticket[]>();
-  for (const t of tickets) {
+  const map = new Map<string, Task[]>();
+  for (const t of tasks) {
     if (!map.has(t.epic)) map.set(t.epic, []);
     map.get(t.epic)!.push(t);
   }
@@ -45,7 +45,7 @@ export function EpicsView({ onOpenTicket }: EpicsViewProps) {
       <div className="mb-6 flex items-baseline gap-3">
         <h1 className="text-xl font-semibold text-foreground">Épicas</h1>
         <span className="font-mono text-xs text-muted-foreground">
-          {epics.length} épicas · {tickets.length} tickets
+          {epics.length} épicas · {tasks.length} tareas
         </span>
       </div>
 
@@ -81,7 +81,7 @@ export function EpicsView({ onOpenTicket }: EpicsViewProps) {
                 {list.map((t) => (
                   <button
                     key={t.id}
-                    onClick={() => onOpenTicket(t)}
+                    onClick={() => onOpenTask(t)}
                     className="w-full flex items-center gap-3 px-4 py-2 hover:bg-list-hover text-left text-[13px]"
                   >
                     <span

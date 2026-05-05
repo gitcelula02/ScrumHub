@@ -44,14 +44,16 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "ScrumHub — Gestión ágil al estilo VS Code" },
+      { name: "description", content: "Plataforma de gestión de proyectos ágiles con interfaz inspirada en VS Code y asistente de IA integrado." },
+      { name: "author", content: "ScrumHub Team" },
+      { property: "og:title", content: "ScrumHub — Gestión ágil al estilo VS Code" },
+      { property: "og:description", content: "Optimiza tu flujo de trabajo Scrum con una interfaz familiar, rápida y potente." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { property: "og:site_name", content: "ScrumHub" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: "@ScrumHub" },
+      { name: "twitter:title", content: "ScrumHub — Gestión ágil al estilo VS Code" },
     ],
     links: [
       {

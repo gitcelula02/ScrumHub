@@ -11,7 +11,7 @@ interface Props {
 
 const KIND_ICON = {
   dashboard: LayoutDashboard,
-  ticket: FileText,
+  task: FileText,
   epics: Layers,
   permissions: Shield,
 } as const;
@@ -34,7 +34,7 @@ export function Tabs({ tabs, activeId, onSelect, onClose }: Props) {
             )}
           >
             <Icon size={14} className={isActive ? "text-status-bar" : ""} />
-            <span className={tab.kind === "ticket" ? "font-mono text-[12px]" : ""}>
+            <span className={tab.kind === "task" ? "font-mono text-[12px]" : ""}>
               {tab.label}
             </span>
             <button

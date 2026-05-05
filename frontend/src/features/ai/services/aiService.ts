@@ -12,7 +12,7 @@ interface AIInsight {
  */
 export const aiService = {
   /**
-   * Parses natural language input into ticket data.
+   * Parses natural language input into task data.
    */
   parsePrompt: async (prompt: string): Promise<any> => {
     return apiClient.post<any>('/ai/parse', { prompt });

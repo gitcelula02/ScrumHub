@@ -8,10 +8,10 @@ interface Props {
 }
 
 const SUGGESTIONS = [
-  { icon: Sparkles, label: "Crea un ticket: 'Refactor auth flow', alta prioridad, asígnalo a Ana" },
+  { icon: Sparkles, label: "Crea una tarea: 'Refactor auth flow', alta prioridad, asígnalo a Ana" },
   { icon: Sparkles, label: "Mueve SCR-104 a En revisión y notifica a Carlos" },
-  { icon: Sparkles, label: "Programa alerta diaria de tickets vencidos del Sprint 24" },
-  { icon: Search, label: "Buscar ticket por ID o título…" },
+  { icon: Sparkles, label: "Programa alerta diaria de tareas vencidas del Sprint 24" },
+  { icon: Search, label: "Buscar tarea por ID o título…" },
   { icon: ArrowRight, label: "Ir a: Backlog" },
 ];
 

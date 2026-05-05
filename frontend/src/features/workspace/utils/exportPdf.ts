@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import type { Ticket } from "@/types";
+import type { Task } from "@/types";
 
 const STATUS_LABEL: Record<string, string> = {
   todo: "Por hacer",
@@ -8,7 +8,7 @@ const STATUS_LABEL: Record<string, string> = {
   done: "Hecho",
 };
 
-export function exportSprintReport(tickets: Ticket[], sprint = "Sprint 24") {
+export function exportSprintReport(tasks: Task[], sprint = "Sprint 24") {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
@@ -36,12 +36,12 @@ export function exportSprintReport(tickets: Ticket[], sprint = "Sprint 24") {
 
   // Stats
   y += 28;
-  const total = tickets.length;
-  const done = tickets.filter((t) => t.status === "done").length;
-  const wip = tickets.filter((t) => t.status === "in-progress").length;
-  const review = tickets.filter((t) => t.status === "review").length;
-  const todo = tickets.filter((t) => t.status === "todo").length;
-  const points = tickets.reduce((s, t) => s + t.points, 0);
+  const total = tasks.length;
+  const done = tasks.filter((t) => t.status === "done").length;
+  const wip = tasks.filter((t) => t.status === "in-progress").length;
+  const review = tasks.filter((t) => t.status === "review").length;
+  const todo = tasks.filter((t) => t.status === "todo").length;
+  const points = tasks.reduce((s, t) => s + t.points, 0);
 
   const stats = [
     { label: "Total", value: total },
@@ -91,7 +91,7 @@ export function exportSprintReport(tickets: Ticket[], sprint = "Sprint 24") {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
   doc.setTextColor(30);
-  doc.text("Tickets", M, y);
+  doc.text("Tareas", M, y);
   y += 10;
 
   const cols = [
@@ -122,7 +122,7 @@ export function exportSprintReport(tickets: Ticket[], sprint = "Sprint 24") {
   doc.setFontSize(9);
   doc.setTextColor(40);
 
-  for (const t of tickets) {
+  for (const t of tasks) {
     if (y > H - 60) {
       doc.addPage();
       y = M;

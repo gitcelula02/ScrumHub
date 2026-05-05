@@ -1,1 +1,1 @@
-export * from './components/TicketView';
+export * from './components/TaskView';

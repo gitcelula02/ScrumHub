@@ -31,7 +31,7 @@ export function TitleBar({ onPalette }: TitleBarProps) {
           className="flex items-center gap-2 h-6 w-[420px] max-w-[60%] px-2 bg-input border border-panel-border rounded-sm text-[12px] text-muted-foreground hover:border-status-bar/60"
         >
           <Search size={12} />
-          <span className="truncate">ScrumHub — buscar tickets, ejecutar comandos IA…</span>
+          <span className="truncate">ScrumHub — buscar tareas, ejecutar comandos IA…</span>
           <span className="ml-auto font-mono text-[10px] px-1 border border-panel-border rounded-sm">
             Ctrl+Shift+P
           </span>

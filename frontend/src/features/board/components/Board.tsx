@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { MoreHorizontal, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTickets } from "@/features/backlog";
-import { useMoveTicket } from "@/features/board";
-import type { Ticket, TicketStatus } from "@/types";
+import { useTasks } from "@/features/backlog";
+import { useMoveTask } from "@/features/board";
+import type { Task, TaskStatus } from "@/types";
 
 interface BoardProps {
-  onOpenTicket: (t: Ticket) => void;
+  onOpenTask: (t: Task) => void;
 }
 
-const COLUMNS: { id: TicketStatus; label: string }[] = [
+const COLUMNS: { id: TaskStatus; label: string }[] = [
   { id: "todo", label: "Por hacer" },
   { id: "in-progress", label: "En progreso" },
   { id: "review", label: "En revisión" },
@@ -26,14 +26,14 @@ const PRIORITY_DOT = {
 /**
  * @component Board
  * Feature component for the Kanban board.
- * Connects to useTickets and useMoveTicket for data and state transitions.
+ * Connects to useTasks and useMoveTask for data and state transitions.
  */
-export function Board({ onOpenTicket }: BoardProps) {
-  const { data: tickets = [], isLoading } = useTickets();
-  const { mutate: moveTicket } = useMoveTicket();
+export function Board({ onOpenTask }: BoardProps) {
+  const { data: tasks = [], isLoading } = useTasks();
+  const { mutate: moveTask } = useMoveTask();
   
   const [dragId, setDragId] = useState<string | null>(null);
-  const [overCol, setOverCol] = useState<TicketStatus | null>(null);
+  const [overCol, setOverCol] = useState<TaskStatus | null>(null);
 
   if (isLoading) {
     return <div className="h-full flex items-center justify-center text-muted-foreground font-mono">Cargando tablero...</div>;
@@ -44,12 +44,12 @@ export function Board({ onOpenTicket }: BoardProps) {
       <div className="mb-6 flex items-baseline gap-3">
         <h1 className="text-xl font-semibold text-foreground">Tablero · Sprint 24</h1>
         <span className="font-mono text-xs text-muted-foreground">
-          {tickets.length} tickets · branch <span className="text-status-bar">main</span>
+          {tasks.length} tareas · branch <span className="text-status-bar">main</span>
         </span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {COLUMNS.map((col) => {
-          const items = tickets.filter((t) => t.status === col.id);
+          const items = tasks.filter((t) => t.status === col.id);
           const isOver = overCol === col.id;
           return (
             <div
@@ -61,7 +61,7 @@ export function Board({ onOpenTicket }: BoardProps) {
               onDragLeave={() => setOverCol((c) => (c === col.id ? null : c))}
               onDrop={(e) => {
                 e.preventDefault();
-                if (dragId) moveTicket({ id: dragId, status: col.id });
+                if (dragId) moveTask({ id: dragId, status: col.id });
                 setDragId(null);
                 setOverCol(null);
               }}
@@ -93,7 +93,7 @@ export function Board({ onOpenTicket }: BoardProps) {
                       setDragId(null);
                       setOverCol(null);
                     }}
-                    onClick={() => onOpenTicket(t)}
+                    onClick={() => onOpenTask(t)}
                     className={cn(
                       "cursor-grab active:cursor-grabbing text-left bg-editor hover:bg-list-hover border border-panel-border hover:border-status-bar/60 transition-colors rounded-sm p-3",
                       dragId === t.id && "opacity-40"

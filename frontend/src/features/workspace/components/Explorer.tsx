@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { ChevronRight, ChevronDown, Circle, CircleDot, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Ticket } from "@/types";
+import type { Task } from "@/types";
 import type { ActivityView } from "@/components/layout/ActivityBar";
 
 interface ExplorerProps {
   view: ActivityView;
-  tickets: Ticket[];
+  tasks: Task[];
   activeId: string | null;
-  onOpen: (t: Ticket) => void;
+  onOpen: (t: Task) => void;
 }
 
 const VIEW_TITLE: Record<ActivityView, string> = {
@@ -38,12 +38,12 @@ const STATUS_COLOR = {
 interface TreeNode {
   id: string;
   label: string;
-  children: { id: string; label: string; tickets: Ticket[] }[];
+  children: { id: string; label: string; tasks: Task[] }[];
 }
 
-function buildTree(tickets: Ticket[]): TreeNode[] {
-  const map = new Map<string, Map<string, Ticket[]>>();
-  for (const t of tickets) {
+function buildTree(tasks: Task[]): TreeNode[] {
+  const map = new Map<string, Map<string, Task[]>>();
+  for (const t of tasks) {
     if (!map.has(t.project)) map.set(t.project, new Map());
     const epics = map.get(t.project)!;
     if (!epics.has(t.epic)) epics.set(t.epic, []);
@@ -55,7 +55,7 @@ function buildTree(tickets: Ticket[]): TreeNode[] {
     children: Array.from(epics.entries()).map(([epic, list]) => ({
       id: `${project}/${epic}`,
       label: epic,
-      tickets: list,
+      tasks: list,
     })),
   }));
 }
@@ -64,8 +64,8 @@ function buildTree(tickets: Ticket[]): TreeNode[] {
  * @component Explorer
  * Contextual sidebar that displays the file explorer, backlog, or other views based on activity.
  */
-export function Explorer({ view, tickets, activeId, onOpen }: ExplorerProps) {
-  const tree = buildTree(tickets);
+export function Explorer({ view, tasks, activeId, onOpen }: ExplorerProps) {
+  const tree = buildTree(tasks);
   const [openProjects, setOpenProjects] = useState<Set<string>>(
     () => new Set(tree.map((n) => n.id))
   );
@@ -111,7 +111,7 @@ export function Explorer({ view, tickets, activeId, onOpen }: ExplorerProps) {
                         <span className="text-sidebar-fg/90">{epic.label}</span>
                       </button>
                       {epicOpen &&
-                        epic.tickets.map((t) => {
+                        epic.tasks.map((t) => {
                           const Icon = STATUS_ICON[t.status];
                           const isActive = t.id === activeId;
                           return (

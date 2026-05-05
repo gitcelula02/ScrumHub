@@ -10,7 +10,7 @@ export interface Entity {
   updatedAt?: string;
 }
 
-export type TicketStatus = 'todo' | 'in-progress' | 'review' | 'done';
+export type TaskStatus = 'todo' | 'in-progress' | 'review' | 'done';
 
 export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 
@@ -20,10 +20,10 @@ export interface Comment {
   body: string;
 }
 
-export interface Ticket extends Entity {
+export interface Task extends Entity {
   title: string;
   description: string;
-  status: TicketStatus;
+  status: TaskStatus;
   priority: Priority;
   assignee: string;
   reporter: string;
@@ -45,6 +45,6 @@ export interface Project extends Entity {
 export interface Tab {
   id: string;
   label: string;
-  kind: 'dashboard' | 'ticket' | 'epics' | 'permissions';
-  ticketId?: string;
+  kind: 'dashboard' | 'task' | 'epics' | 'permissions';
+  taskId?: string;
 }

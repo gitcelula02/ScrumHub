@@ -1,11 +1,11 @@
-export type TicketStatus = "todo" | "in-progress" | "review" | "done";
+export type TaskStatus = "todo" | "in-progress" | "review" | "done";
 export type Priority = "high" | "medium" | "low";
 
-export interface Ticket {
+export interface Task {
   id: string;
   title: string;
   description: string;
-  status: TicketStatus;
+  status: TaskStatus;
   priority: Priority;
   assignee: string;
   reporter: string;
@@ -21,11 +21,11 @@ export interface Ticket {
 export interface Tab {
   id: string;
   label: string;
-  kind: "dashboard" | "ticket" | "epics" | "permissions";
-  ticketId?: string;
+  kind: "dashboard" | "task" | "epics" | "permissions";
+  taskId?: string;
 }
 
-export const TICKETS: Ticket[] = [
+export const TASKS: Task[] = [
   {
     id: "SCR-101",
     title: "Implementar login con OAuth (Google + GitHub)",
@@ -64,7 +64,7 @@ export const TICKETS: Ticket[] = [
   },
   {
     id: "SCR-103",
-    title: "Asistente IA: parsear lenguaje natural a tickets",
+    title: "Asistente IA: parsear lenguaje natural a tareas",
     description: "El asistente debe interpretar 'crea un bug crítico para el login y asígnalo a Ana'.",
     status: "in-progress",
     priority: "high",
@@ -83,7 +83,7 @@ export const TICKETS: Ticket[] = [
   {
     id: "SCR-104",
     title: "Alertas por correo según prioridad y vencimiento",
-    description: "Cron diario que notifica responsables de tickets vencidos o de alta prioridad.",
+    description: "Cron diario que notifica responsables de tareas vencidas o de alta prioridad.",
     status: "review",
     priority: "medium",
     assignee: "Diego Salas",

@@ -13,7 +13,7 @@ interface Member {
 
 const PERMS = [
   { key: "read", label: "Leer" },
-  { key: "write", label: "Escribir tickets" },
+  { key: "write", label: "Escribir tareas" },
   { key: "deploy", label: "Desplegar" },
   { key: "admin", label: "Administrar" },
 ] as const;

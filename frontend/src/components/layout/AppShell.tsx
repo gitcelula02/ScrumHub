@@ -4,13 +4,13 @@ import { StatusBar } from "./StatusBar";
 import { TitleBar } from "./TitleBar";
 import { Explorer, Tabs, CommandPalette } from "@/features/workspace";
 import { Board } from "@/features/board";
-import { TicketView, PropertiesPanel } from "@/features/tasks";
+import { TaskView, PropertiesPanel } from "@/features/tasks";
 import { EpicsView } from "@/features/projects";
 import { PermissionsView } from "@/features/settings";
 import { AINotifications } from "@/features/ai";
-import { useTickets } from "@/features/backlog";
+import { useTasks } from "@/features/backlog";
 import { exportSprintReport } from "@/features/workspace/utils/exportPdf";
-import type { Tab, Ticket } from "@/types";
+import type { Tab, Task } from "@/types";
 
 const DASHBOARD_TAB: Tab = { id: "dashboard", label: "Tablero — Sprint 24", kind: "dashboard" };
 const EPICS_TAB: Tab = { id: "epics", label: "Épicas", kind: "epics" };
@@ -21,7 +21,7 @@ const PERMS_TAB: Tab = { id: "permissions", label: "Permisos del equipo", kind: 
  * Main application container that orchestrates layout, navigation, and feature views.
  */
 export function AppShell() {
-  const { data: tickets = [] } = useTickets();
+  const { data: tasks = [] } = useTasks();
   const [view, setView] = useState<ActivityView>("projects");
   const [tabs, setTabs] = useState<Tab[]>([DASHBOARD_TAB]);
   const [activeTab, setActiveTab] = useState<string>("dashboard");
@@ -44,8 +44,8 @@ export function AppShell() {
     setActiveTab(tab.id);
   };
 
-  const openTicket = (t: Ticket) => {
-    openTab({ id: t.id, label: t.id, kind: "ticket", ticketId: t.id });
+  const openTask = (t: Task) => {
+    openTab({ id: t.id, label: t.id, kind: "task", taskId: t.id });
   };
 
   const handleViewChange = (v: ActivityView) => {
@@ -67,17 +67,17 @@ export function AppShell() {
   };
 
   const current = tabs.find((t) => t.id === activeTab) ?? DASHBOARD_TAB;
-  const currentTicketId = current.kind === "ticket" ? current.ticketId : null;
+  const currentTaskId = current.kind === "task" ? current.taskId : null;
 
   const alertCount = useMemo(() => {
     const now = new Date("2026-04-29");
-    return tickets.filter((t) => {
+    return tasks.filter((t) => {
       if (t.status === "done") return false;
       const d = new Date(t.due);
       const days = Math.ceil((d.getTime() - now.getTime()) / 86400000);
       return days < 0 || (days <= 2 && t.priority === "high");
     }).length + 1;
-  }, [tickets]);
+  }, [tasks]);
 
   return (
     <div className="h-screen w-screen flex flex-col bg-editor text-foreground overflow-hidden">
@@ -87,26 +87,26 @@ export function AppShell() {
           active={view}
           onChange={handleViewChange}
           onNotifications={() => setNotificationsOpen(true)}
-          onExport={() => exportSprintReport(tickets)}
+          onExport={() => exportSprintReport(tasks)}
           alertCount={alertCount}
         />
-        <Explorer view={view} tickets={tickets} activeId={currentTicketId ?? null} onOpen={openTicket} />
+        <Explorer view={view} tasks={tasks} activeId={currentTaskId ?? null} onOpen={openTask} />
         <main className="flex-1 flex flex-col min-w-0">
           <Tabs tabs={tabs} activeId={activeTab} onSelect={setActiveTab} onClose={closeTab} />
           <div className="flex-1 flex min-h-0">
             <div className="flex-1 min-w-0">
               {current.kind === "dashboard" && (
-                <Board onOpenTicket={openTicket} />
+                <Board onOpenTask={openTask} />
               )}
               {current.kind === "epics" && (
-                <EpicsView onOpenTicket={openTicket} />
+                <EpicsView onOpenTask={openTask} />
               )}
               {current.kind === "permissions" && <PermissionsView />}
-              {current.kind === "ticket" && currentTicketId && (
-                <TicketView ticketId={currentTicketId} />
+              {current.kind === "task" && currentTaskId && (
+                <TaskView taskId={currentTaskId} />
               )}
             </div>
-            {currentTicketId && <PropertiesPanel ticketId={currentTicketId} />}
+            {currentTaskId && <PropertiesPanel taskId={currentTaskId} />}
           </div>
         </main>
       </div>

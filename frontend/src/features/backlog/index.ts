@@ -1,2 +1,2 @@
 export * from './services/backlogService';
-export * from './hooks/useTickets';
+export * from './hooks/useTasks';

@@ -1,36 +1,36 @@
 import { apiClient } from '@/services/apiClient';
-import type { Ticket } from '@/types';
+import type { Task } from '@/types';
 
 /**
  * @service BacklogService
- * Handles API interactions for the project backlog and tickets.
+ * Handles API interactions for the project backlog and tasks.
  */
 export const backlogService = {
   /**
-   * Fetches all tickets for the backlog.
+   * Fetches all tasks for the backlog.
    */
-  getTickets: async (): Promise<Ticket[]> => {
-    return apiClient.get<Ticket[]>('/tickets');
+  getTasks: async (): Promise<Task[]> => {
+    return apiClient.get<Task[]>('/tasks');
   },
 
   /**
-   * Fetches a single ticket by ID.
+   * Fetches a single task by ID.
    */
-  getTicketById: async (id: string): Promise<Ticket> => {
-    return apiClient.get<Ticket>(`/tickets/${id}`);
+  getTaskById: async (id: string): Promise<Task> => {
+    return apiClient.get<Task>(`/tasks/${id}`);
   },
 
   /**
-   * Updates an existing ticket.
+   * Updates an existing task.
    */
-  updateTicket: async (id: string, data: Partial<Ticket>): Promise<Ticket> => {
-    return apiClient.patch<Ticket>(`/tickets/${id}`, data);
+  updateTask: async (id: string, data: Partial<Task>): Promise<Task> => {
+    return apiClient.patch<Task>(`/tasks/${id}`, data);
   },
 
   /**
-   * Creates a new ticket.
+   * Creates a new task.
    */
-  createTicket: async (data: Partial<Ticket>): Promise<Ticket> => {
-    return apiClient.post<Ticket>('/tickets', data);
+  createTask: async (data: Partial<Task>): Promise<Task> => {
+    return apiClient.post<Task>('/tasks', data);
   }
 };
