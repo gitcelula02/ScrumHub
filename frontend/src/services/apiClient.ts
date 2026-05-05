@@ -9,7 +9,16 @@ export interface RequestOptions extends RequestInit {
   params?: Record<string, string>;
 }
 
-export const apiClient = async <T>(endpoint: string, options: RequestOptions = {}): Promise<T> => {
+export interface ApiClient {
+  <T>(endpoint: string, options?: RequestOptions): Promise<T>;
+  get: <T>(endpoint: string, options?: RequestOptions) => Promise<T>;
+  post: <T>(endpoint: string, body?: any, options?: RequestOptions) => Promise<T>;
+  put: <T>(endpoint: string, body?: any, options?: RequestOptions) => Promise<T>;
+  patch: <T>(endpoint: string, body?: any, options?: RequestOptions) => Promise<T>;
+  delete: <T>(endpoint: string, options?: RequestOptions) => Promise<T>;
+}
+
+export const apiClient = (async <T>(endpoint: string, options: RequestOptions = {}): Promise<T> => {
   const { params, ...init } = options;
   
   const url = new URL(`${API_BASE_URL}${endpoint}`);
@@ -39,17 +48,20 @@ export const apiClient = async <T>(endpoint: string, options: RequestOptions = {
   }
 
   return response.json() as Promise<T>;
-};
+}) as ApiClient;
 
-export const api = {
-  get: <T>(endpoint: string, options?: RequestOptions) => 
-    apiClient<T>(endpoint, { ...options, method: 'GET' }),
-  post: <T>(endpoint: string, body?: any, options?: RequestOptions) => 
-    apiClient<T>(endpoint, { ...options, method: 'POST', body: JSON.stringify(body) }),
-  put: <T>(endpoint: string, body?: any, options?: RequestOptions) => 
-    apiClient<T>(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) }),
-  patch: <T>(endpoint: string, body?: any, options?: RequestOptions) => 
-    apiClient<T>(endpoint, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
-  delete: <T>(endpoint: string, options?: RequestOptions) => 
-    apiClient<T>(endpoint, { ...options, method: 'DELETE' }),
-};
+// Attach HTTP shorthand methods to apiClient
+apiClient.get = <T>(endpoint: string, options?: RequestOptions) => 
+  apiClient<T>(endpoint, { ...options, method: 'GET' });
+
+apiClient.post = <T>(endpoint: string, body?: any, options?: RequestOptions) => 
+  apiClient<T>(endpoint, { ...options, method: 'POST', body: JSON.stringify(body) });
+
+apiClient.put = <T>(endpoint: string, body?: any, options?: RequestOptions) => 
+  apiClient<T>(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) });
+
+apiClient.patch = <T>(endpoint: string, body?: any, options?: RequestOptions) => 
+  apiClient<T>(endpoint, { ...options, method: 'PATCH', body: JSON.stringify(body) });
+
+apiClient.delete = <T>(endpoint: string, options?: RequestOptions) => 
+  apiClient<T>(endpoint, { ...options, method: 'DELETE' });

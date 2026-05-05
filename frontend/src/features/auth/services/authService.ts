@@ -1,0 +1,33 @@
+import { apiClient } from '@/services/apiClient';
+
+interface LoginResponse {
+  user: any;
+  token: string;
+}
+
+/**
+ * @service AuthService
+ * Handles authentication flows and session persistence.
+ */
+export const authService = {
+  /**
+   * Performs login with credentials.
+   */
+  login: async (credentials: any): Promise<LoginResponse> => {
+    return apiClient.post<LoginResponse>('/auth/login', credentials);
+  },
+
+  /**
+   * Logs out the current user and clears session.
+   */
+  logout: async (): Promise<void> => {
+    return apiClient.post<void>('/auth/logout', {});
+  },
+
+  /**
+   * Retrieves current session information.
+   */
+  getCurrentUser: async (): Promise<any> => {
+    return apiClient.get<any>('/auth/me');
+  }
+};
