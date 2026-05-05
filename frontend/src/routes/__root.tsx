@@ -1,3 +1,5 @@
+import "../shim";
+import React from "react";
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -52,6 +54,12 @@ export const Route = createRootRoute({
   }),
   shellComponent: RootShell,
   component: RootComponent,
+  errorComponent: ({ error }) => (
+    <div className="p-4 bg-red-900 text-white font-mono">
+      <h1 className="text-xl font-bold">Root Error:</h1>
+      <pre className="mt-2 text-xs">{error.message}</pre>
+    </div>
+  ),
   notFoundComponent: NotFoundComponent,
 });
 
