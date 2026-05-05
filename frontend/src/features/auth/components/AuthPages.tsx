@@ -31,8 +31,9 @@ export function LoginPage() {
       auth.login(response.token, response.user);
       toast.success("Bienvenido de nuevo");
       navigate({ to: "/app/dashboard" });
-    } catch (error: any) {
-      toast.error(error.message || "Error al iniciar sesión");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error al iniciar sesión";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

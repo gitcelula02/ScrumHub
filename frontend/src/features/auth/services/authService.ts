@@ -1,7 +1,8 @@
 import { apiClient } from '@/services/apiClient';
+import type { User } from '@/types';
 
 interface LoginResponse {
-  user: any;
+  user: User;
   token: string;
 }
 
@@ -32,7 +33,7 @@ export const authService = {
   /**
    * Retrieves current session information.
    */
-  getCurrentUser: async (): Promise<any> => {
-    return apiClient.get<any>('/auth/me');
+  getCurrentUser: async (): Promise<User> => {
+    return apiClient.get<User>('/auth/me');
   }
 };

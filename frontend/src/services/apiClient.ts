@@ -12,15 +12,15 @@ export interface RequestOptions extends RequestInit {
 export interface ApiClient {
   <T>(endpoint: string, options?: RequestOptions): Promise<T>;
   get: <T>(endpoint: string, options?: RequestOptions) => Promise<T>;
-  post: <T>(endpoint: string, body?: any, options?: RequestOptions) => Promise<T>;
-  put: <T>(endpoint: string, body?: any, options?: RequestOptions) => Promise<T>;
-  patch: <T>(endpoint: string, body?: any, options?: RequestOptions) => Promise<T>;
+  post: <T>(endpoint: string, body?: unknown, options?: RequestOptions) => Promise<T>;
+  put: <T>(endpoint: string, body?: unknown, options?: RequestOptions) => Promise<T>;
+  patch: <T>(endpoint: string, body?: unknown, options?: RequestOptions) => Promise<T>;
   delete: <T>(endpoint: string, options?: RequestOptions) => Promise<T>;
 }
 
 export const apiClient = (async <T>(endpoint: string, options: RequestOptions = {}): Promise<T> => {
   const { params, ...init } = options;
-  
+
   const url = new URL(`${API_BASE_URL}${endpoint}`);
   if (params) {
     Object.entries(params).forEach(([key, value]) => url.searchParams.append(key, value));
@@ -51,17 +51,17 @@ export const apiClient = (async <T>(endpoint: string, options: RequestOptions = 
 }) as ApiClient;
 
 // Attach HTTP shorthand methods to apiClient
-apiClient.get = <T>(endpoint: string, options?: RequestOptions) => 
+apiClient.get = <T>(endpoint: string, options?: RequestOptions) =>
   apiClient<T>(endpoint, { ...options, method: 'GET' });
 
-apiClient.post = <T>(endpoint: string, body?: any, options?: RequestOptions) => 
+apiClient.post = <T>(endpoint: string, body?: any, options?: RequestOptions) =>
   apiClient<T>(endpoint, { ...options, method: 'POST', body: JSON.stringify(body) });
 
-apiClient.put = <T>(endpoint: string, body?: any, options?: RequestOptions) => 
+apiClient.put = <T>(endpoint: string, body?: any, options?: RequestOptions) =>
   apiClient<T>(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) });
 
-apiClient.patch = <T>(endpoint: string, body?: any, options?: RequestOptions) => 
+apiClient.patch = <T>(endpoint: string, body?: any, options?: RequestOptions) =>
   apiClient<T>(endpoint, { ...options, method: 'PATCH', body: JSON.stringify(body) });
 
-apiClient.delete = <T>(endpoint: string, options?: RequestOptions) => 
+apiClient.delete = <T>(endpoint: string, options?: RequestOptions) =>
   apiClient<T>(endpoint, { ...options, method: 'DELETE' });

@@ -1,4 +1,5 @@
 import { apiClient } from '@/services/apiClient';
+import type { Task } from '@/types';
 
 interface AIInsight {
   id: string;
@@ -14,8 +15,8 @@ export const aiService = {
   /**
    * Parses natural language input into task data.
    */
-  parsePrompt: async (prompt: string): Promise<any> => {
-    return apiClient.post<any>('/ai/parse', { prompt });
+  parsePrompt: async (prompt: string): Promise<Partial<Task>> => {
+    return apiClient.post<Partial<Task>>('/ai/parse', { prompt });
   },
 
   /**

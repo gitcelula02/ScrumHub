@@ -42,6 +42,12 @@ export interface Project extends Entity {
   color?: string;
 }
 
+export interface User extends Entity {
+  name: string;
+  email: string;
+  role: string;
+}
+
 export interface Tab {
   id: string;
   label: string;
