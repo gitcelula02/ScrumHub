@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { ChevronRight, ChevronDown, Circle, CircleDot, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { ActivityView } from "./ActivityBar";
-import type { Ticket } from "./data";
+import type { Ticket } from "@/types";
+import type { ActivityView } from "@/components/layout/ActivityBar";
 
-interface SidebarProps {
+interface ExplorerProps {
   view: ActivityView;
   tickets: Ticket[];
   activeId: string | null;
@@ -61,10 +61,10 @@ function buildTree(tickets: Ticket[]): TreeNode[] {
 }
 
 /**
- * @component Sidebar
+ * @component Explorer
  * Contextual sidebar that displays the file explorer, backlog, or other views based on activity.
  */
-export function Sidebar({ view, tickets, activeId, onOpen }: SidebarProps) {
+export function Explorer({ view, tickets, activeId, onOpen }: ExplorerProps) {
   const tree = buildTree(tickets);
   const [openProjects, setOpenProjects] = useState<Set<string>>(
     () => new Set(tree.map((n) => n.id))

@@ -1,2 +1,1 @@
-// Feature: tasks - Barrel Export
-export {};
+export * from './components/TicketView';

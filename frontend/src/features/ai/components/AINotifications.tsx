@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import { Sparkles, AlertTriangle, Clock, TrendingUp, Mail, X } from "lucide-react";
-import type { Ticket } from "./data";
 import { cn } from "@/lib/utils";
+import { useTickets } from "@/features/backlog";
+import type { Ticket } from "@/types";
 
 interface AINotificationsProps {
   open: boolean;
   onClose: () => void;
-  tickets: Ticket[];
 }
 
 type Severity = "critical" | "warning" | "info";
@@ -85,10 +85,13 @@ function buildAlerts(tickets: Ticket[]): Alert[] {
 
 /**
  * @component AINotifications
- * Side panel displaying AI-driven insights, risk assessments, and smart notifications.
+ * Feature component for AI notifications and risk analysis.
+ * Automatically fetches current tickets to generate insights.
  */
-export function AINotifications({ open, onClose, tickets }: AINotificationsProps) {
+export function AINotifications({ open, onClose }: AINotificationsProps) {
+  const { data: tickets = [] } = useTickets();
   const alerts = useMemo(() => buildAlerts(tickets), [tickets]);
+
   if (!open) return null;
 
   return (
@@ -124,7 +127,7 @@ export function AINotifications({ open, onClose, tickets }: AINotificationsProps
                 key={a.id}
                 className={cn(
                   "bg-editor border border-panel-border border-l-2 rounded-sm p-3",
-                  SEV_COLOR[a.severity]
+                  SEV_COLOR[a.severity as keyof typeof SEV_COLOR]
                 )}
               >
                 <div className="flex items-start gap-2 mb-1">

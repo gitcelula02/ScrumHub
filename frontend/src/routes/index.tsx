@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Layout } from "@/components/scrumhub/Layout";
+import { AppShell } from "@/components/layout/AppShell";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -16,5 +16,5 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  return <Layout />;
+  return <AppShell />;
 }

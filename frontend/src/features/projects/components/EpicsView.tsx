@@ -1,10 +1,10 @@
 import { Layers, ChevronRight } from "lucide-react";
-import type { Ticket } from "./data";
 import { cn } from "@/lib/utils";
+import { useTickets } from "@/features/backlog";
+import type { Ticket } from "@/types";
 
 interface EpicsViewProps {
-  tickets: Ticket[];
-  onOpen: (t: Ticket) => void;
+  onOpenTicket: (t: Ticket) => void;
 }
 
 const STATUS_COLOR = {
@@ -18,13 +18,21 @@ const PRIORITY_DOT = {
   high: "bg-priority-high",
   medium: "bg-priority-med",
   low: "bg-priority-low",
+  urgent: "bg-destructive",
 } as const;
 
 /**
  * @component EpicsView
- * High-level overview of epics, showing progress bars and linked tickets.
+ * Smart feature component for viewing high-level epic progress.
+ * Automatically fetches all tickets to aggregate epic-level status.
  */
-export function EpicsView({ tickets, onOpen }: EpicsViewProps) {
+export function EpicsView({ onOpenTicket }: EpicsViewProps) {
+  const { data: tickets = [], isLoading } = useTickets();
+
+  if (isLoading) {
+    return <div className="h-full flex items-center justify-center text-muted-foreground font-mono">Cargando épicas...</div>;
+  }
+
   const map = new Map<string, Ticket[]>();
   for (const t of tickets) {
     if (!map.has(t.epic)) map.set(t.epic, []);
@@ -73,18 +81,18 @@ export function EpicsView({ tickets, onOpen }: EpicsViewProps) {
                 {list.map((t) => (
                   <button
                     key={t.id}
-                    onClick={() => onOpen(t)}
+                    onClick={() => onOpenTicket(t)}
                     className="w-full flex items-center gap-3 px-4 py-2 hover:bg-list-hover text-left text-[13px]"
                   >
                     <span
-                      className={cn("w-1.5 h-1.5 rounded-full shrink-0", STATUS_COLOR[t.status])}
+                      className={cn("w-1.5 h-1.5 rounded-full shrink-0", STATUS_COLOR[t.status as keyof typeof STATUS_COLOR] || "bg-muted")}
                     />
                     <span className="font-mono text-[11px] text-muted-foreground w-20 shrink-0">
                       {t.id}
                     </span>
                     <span className="flex-1 truncate">{t.title}</span>
                     <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                      <span className={cn("w-2 h-2 rounded-full", PRIORITY_DOT[t.priority])} />
+                      <span className={cn("w-2 h-2 rounded-full", PRIORITY_DOT[t.priority as keyof typeof PRIORITY_DOT] || "bg-muted")} />
                       {t.priority}
                     </span>
                     <span className="font-mono text-[11px] text-muted-foreground w-24 truncate text-right">

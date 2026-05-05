@@ -1,22 +1,35 @@
 import { CalendarClock, Tag, GitBranch, MessageSquare } from "lucide-react";
-import type { Ticket } from "./data";
 import { cn } from "@/lib/utils";
+import { useTicket } from "@/features/backlog";
+import type { Ticket } from "@/types";
 
 interface TicketViewProps {
-  ticket: Ticket;
+  ticketId: string;
 }
 
 const PRIORITY_BADGE = {
   high: "bg-priority-high/20 text-priority-high border-priority-high/40",
   medium: "bg-priority-med/20 text-priority-med border-priority-med/40",
   low: "bg-priority-low/20 text-priority-low border-priority-low/40",
+  urgent: "bg-destructive/20 text-destructive border-destructive/40",
 } as const;
 
 /**
  * @component TicketView
- * Detailed view for an individual ticket, showing its description, priority, status, and comments.
+ * Smart feature component for viewing and managing a single ticket.
+ * Automatically fetches ticket data based on the provided ticketId.
  */
-export function TicketView({ ticket }: TicketViewProps) {
+export function TicketView({ ticketId }: TicketViewProps) {
+  const { data: ticket, isLoading, error } = useTicket(ticketId);
+
+  if (isLoading) {
+    return <div className="h-full flex items-center justify-center text-muted-foreground font-mono">Cargando ticket...</div>;
+  }
+
+  if (error || !ticket) {
+    return <div className="h-full flex items-center justify-center text-destructive font-mono">Error al cargar el ticket.</div>;
+  }
+
   return (
     <div className="h-full overflow-auto bg-editor">
       <div className="max-w-4xl mx-auto p-8">
@@ -30,7 +43,7 @@ export function TicketView({ ticket }: TicketViewProps) {
         <h1 className="text-2xl font-semibold text-foreground mb-6">{ticket.title}</h1>
 
         <div className="flex flex-wrap items-center gap-2 mb-8">
-          <span className={cn("px-2 py-0.5 rounded-sm text-[11px] font-mono uppercase border", PRIORITY_BADGE[ticket.priority])}>
+          <span className={cn("px-2 py-0.5 rounded-sm text-[11px] font-mono uppercase border", PRIORITY_BADGE[ticket.priority as keyof typeof PRIORITY_BADGE] || "border-panel-border")}>
             {ticket.priority}
           </span>
           <span className="px-2 py-0.5 rounded-sm text-[11px] font-mono uppercase border border-panel-border text-muted-foreground">
@@ -72,15 +85,15 @@ export function TicketView({ ticket }: TicketViewProps) {
   );
 }
 
-interface PropertiesPanelProps {
-  ticket: Ticket;
-}
-
 /**
  * @component PropertiesPanel
- * Side panel displaying structured metadata and properties for a ticket.
+ * Feature component for the ticket properties sidebar.
  */
-export function PropertiesPanel({ ticket }: PropertiesPanelProps) {
+export function PropertiesPanel({ ticketId }: { ticketId: string }) {
+  const { data: ticket } = useTicket(ticketId);
+
+  if (!ticket) return null;
+
   return (
     <aside className="w-72 bg-sidebar-bg border-l border-panel-border overflow-auto">
       <div className="h-9 px-4 flex items-center text-[11px] font-semibold tracking-wider text-muted-foreground uppercase border-b border-panel-border">

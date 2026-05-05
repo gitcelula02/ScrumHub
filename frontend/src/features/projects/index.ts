@@ -1,2 +1,1 @@
-// Feature: projects - Barrel Export
-export {};
+export * from './components/EpicsView';

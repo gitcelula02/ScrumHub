@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { MoreHorizontal, Plus } from "lucide-react";
-import type { Ticket, TicketStatus } from "./data";
 import { cn } from "@/lib/utils";
+import { useTickets } from "@/features/backlog";
+import { useMoveTicket } from "@/features/board";
+import type { Ticket, TicketStatus } from "@/types";
 
 interface BoardProps {
-  tickets: Ticket[];
-  onOpen: (t: Ticket) => void;
-  onMove: (id: string, status: TicketStatus) => void;
+  onOpenTicket: (t: Ticket) => void;
 }
 
 const COLUMNS: { id: TicketStatus; label: string }[] = [
@@ -20,15 +20,24 @@ const PRIORITY_DOT = {
   high: "bg-priority-high",
   medium: "bg-priority-med",
   low: "bg-priority-low",
+  urgent: "bg-destructive",
 } as const;
 
 /**
  * @component Board
- * Kanban-style board view for managing ticket states and workflow.
+ * Feature component for the Kanban board.
+ * Connects to useTickets and useMoveTicket for data and state transitions.
  */
-export function Board({ tickets, onOpen, onMove }: BoardProps) {
+export function Board({ onOpenTicket }: BoardProps) {
+  const { data: tickets = [], isLoading } = useTickets();
+  const { mutate: moveTicket } = useMoveTicket();
+  
   const [dragId, setDragId] = useState<string | null>(null);
   const [overCol, setOverCol] = useState<TicketStatus | null>(null);
+
+  if (isLoading) {
+    return <div className="h-full flex items-center justify-center text-muted-foreground font-mono">Cargando tablero...</div>;
+  }
 
   return (
     <div className="h-full overflow-auto bg-editor p-6">
@@ -52,7 +61,7 @@ export function Board({ tickets, onOpen, onMove }: BoardProps) {
               onDragLeave={() => setOverCol((c) => (c === col.id ? null : c))}
               onDrop={(e) => {
                 e.preventDefault();
-                if (dragId) onMove(dragId, col.id);
+                if (dragId) moveTicket({ id: dragId, status: col.id });
                 setDragId(null);
                 setOverCol(null);
               }}
@@ -84,7 +93,7 @@ export function Board({ tickets, onOpen, onMove }: BoardProps) {
                       setDragId(null);
                       setOverCol(null);
                     }}
-                    onClick={() => onOpen(t)}
+                    onClick={() => onOpenTicket(t)}
                     className={cn(
                       "cursor-grab active:cursor-grabbing text-left bg-editor hover:bg-list-hover border border-panel-border hover:border-status-bar/60 transition-colors rounded-sm p-3",
                       dragId === t.id && "opacity-40"
@@ -97,7 +106,7 @@ export function Board({ tickets, onOpen, onMove }: BoardProps) {
                     <p className="text-[13px] text-foreground leading-snug mb-3">{t.title}</p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
-                        <span className={cn("w-2 h-2 rounded-full", PRIORITY_DOT[t.priority])} />
+                        <span className={cn("w-2 h-2 rounded-full", PRIORITY_DOT[t.priority as keyof typeof PRIORITY_DOT] || "bg-muted")} />
                         <span className="text-[11px] text-muted-foreground capitalize">
                           {t.priority}
                         </span>

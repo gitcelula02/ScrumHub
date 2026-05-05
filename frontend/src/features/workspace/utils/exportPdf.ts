@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import type { Ticket } from "./data";
+import type { Ticket } from "@/types";
 
 const STATUS_LABEL: Record<string, string> = {
   todo: "Por hacer",

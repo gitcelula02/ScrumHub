@@ -1,2 +1,1 @@
-// Feature: settings - Barrel Export
-export {};
+export * from './components/PermissionsView';

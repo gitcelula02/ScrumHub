@@ -36,6 +36,7 @@ const INITIAL: Member[] = [
 /**
  * @component PermissionsView
  * Administrative panel for managing team roles and granular permissions.
+ * Currently uses local state, to be integrated with settingsService in future steps.
  */
 export function PermissionsView() {
   const [members, setMembers] = useState<Member[]>(INITIAL);
@@ -94,8 +95,8 @@ export function PermissionsView() {
               value={m.role}
               onChange={(e) => setRole(idx, e.target.value as Role)}
               className={cn(
-                "h-7 px-2 text-[11px] font-mono uppercase rounded-sm border bg-transparent outline-none",
-                ROLE_BADGE[m.role]
+                "h-7 px-2 text-[11px] font-mono uppercase rounded-sm border bg-transparent outline-none cursor-pointer",
+                ROLE_BADGE[m.role as keyof typeof ROLE_BADGE] || ""
               )}
             >
               <option value="admin">admin</option>
