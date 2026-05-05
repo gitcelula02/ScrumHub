@@ -5,6 +5,11 @@ interface LoginResponse {
   token: string;
 }
 
+interface LoginCredentials {
+  email: string;
+  password?: string;
+}
+
 /**
  * @service AuthService
  * Handles authentication flows and session persistence.
@@ -13,7 +18,7 @@ export const authService = {
   /**
    * Performs login with credentials.
    */
-  login: async (credentials: any): Promise<LoginResponse> => {
+  login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
     return apiClient.post<LoginResponse>('/auth/login', credentials);
   },
 

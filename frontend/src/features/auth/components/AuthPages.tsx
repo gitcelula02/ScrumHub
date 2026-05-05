@@ -5,6 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import { authService } from "../services/authService";
+import { useAuthSession } from "../hooks/useAuthSession";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
+
 /**
  * @component LoginPage
  * Premium login page with VS Code styling.
@@ -12,10 +17,25 @@ import { Label } from "@/components/ui/label";
 export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const auth = useAuthSession();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login with:", { email, password });
+    setIsSubmitting(true);
+    
+    try {
+      const response = await authService.login({ email, password });
+      auth.login(response.token, response.user);
+      toast.success("Bienvenido de nuevo");
+      navigate({ to: "/app/dashboard" });
+    } catch (error: any) {
+      toast.error(error.message || "Error al iniciar sesión");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -59,8 +79,12 @@ export function LoginPage() {
               />
             </div>
           </div>
-          <Button type="submit" className="w-full bg-status-bar hover:bg-status-bar/90 text-status-bar-fg font-semibold">
-            Iniciar Sesión
+          <Button 
+            type="submit" 
+            className="w-full bg-status-bar hover:bg-status-bar/90 text-status-bar-fg font-semibold"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Iniciando sesión..." : "Iniciar Sesión"}
           </Button>
         </form>
 
