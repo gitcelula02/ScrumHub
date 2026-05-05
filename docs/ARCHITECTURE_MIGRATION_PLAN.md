@@ -49,7 +49,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** None
 **Estimated Effort:** 30-45 minutes (extracting black-box config is non-trivial)
-**Status:** NOT_STARTED
+**Status:** COMPLETED
 
 ---
 
@@ -71,7 +71,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** S1
 **Estimated Effort:** 20-25 minutes
-**Status:** NOT_STARTED
+**Status:** COMPLETED
 
 ---
 
@@ -91,7 +91,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** S2
 **Estimated Effort:** 20-25 minutes
-**Status:** NOT_STARTED
+**Status:** COMPLETED
 
 ---
 
@@ -109,7 +109,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** S2
 **Estimated Effort:** 15-20 minutes
-**Status:** NOT_STARTED
+**Status:** COMPLETED
 
 ---
 
@@ -127,7 +127,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** S4
 **Estimated Effort:** 20-25 minutes
-**Status:** NOT_STARTED
+**Status:** COMPLETED
 
 ---
 
@@ -146,7 +146,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** S5
 **Estimated Effort:** 20-25 minutes
-**Status:** NOT_STARTED
+**Status:** COMPLETED
 
 ---
 
@@ -165,7 +165,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** S6
 **Estimated Effort:** 25-30 minutes
-**Status:** NOT_STARTED
+**Status:** COMPLETED
 
 ---
 
@@ -184,7 +184,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** S7
 **Estimated Effort:** 20-25 minutes
-**Status:** NOT_STARTED
+**Status:** COMPLETED
 
 ---
 
@@ -201,7 +201,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** S8
 **Estimated Effort:** 10-15 minutes
-**Status:** NOT_STARTED
+**Status:** COMPLETED
 
 ---
 
@@ -231,7 +231,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** S1
 **Estimated Effort:** 20-25 minutes
-**Status:** NOT_STARTED
+**Status:** COMPLETED
 
 ---
 
@@ -249,7 +249,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** S10
 **Estimated Effort:** 15-20 minutes
-**Status:** NOT_STARTED
+**Status:** COMPLETED
 
 ---
 
@@ -271,7 +271,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** S11
 **Estimated Effort:** 15-20 minutes
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS
 
 ---
 
@@ -321,7 +321,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** S13
 **Estimated Effort:** 10-15 minutes
-**Status:** NOT_STARTED
+**Status:** COMPLETED
 
 ---
 
