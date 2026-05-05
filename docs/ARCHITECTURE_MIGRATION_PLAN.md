@@ -6,39 +6,49 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Current State:**
 - Vite configured via `@lovable.dev/vite-tanstack-config` (black-box)
-- Some components in `components/scrumhub/` (not feature-organized)
-- Uses Bootstrap CSS with custom overrides
-- TanStack Router with file-based routing
+- Components in `components/scrumhub/` (not feature-organized)
+- Tailwind CSS v4 already configured (oklch CSS variables in `src/styles.css`)
+- TanStack Start with file-based routing in `src/routes/`
+- No `features/` directory — code is not feature-organized
+- No centralized `apiClient`, `store/`, or global hooks
 
 **Target State:**
 - Native Vite config with explicit plugins (per TRUTH.md:459-507)
 - Feature-first architecture with strict boundaries (TRUTH.md:486-502)
-- Tailwind CSS v4 with oklch CSS variables (FRONTEND_STYLING.md:1-567)
+- Tailwind CSS v4 with oklch CSS variables — verified compliant with FRONTEND_STYLING.md
 - TanStack Router + TanStack Query (TRUTH.md:340)
-- React Context for global state (AGENTS.md:16)
+- React Context for global state (AuthContext, ThemeRegistry)
 - TypeScript only (`.ts`/`.tsx`) (AGENTS.md:151-155)
+- Frontend styling enforced via linting rules (FRONTEND_STYLING.md compliance)
 
 ---
 
 ## S1: Replace Lovable Vite Config with Native Configuration
 
-**Description:** Remove `@lovable.dev/vite-tanstack-config` and configure Vite natively with explicit plugins. This is critical — incorrect configuration will break Tailwind CSS and routing.
+**Description:** Remove `@lovable.dev/vite-tanstack-config` and configure Vite natively with explicit plugins. The Lovable config is a black-box that wraps multiple plugins (React, Tailwind, tsconfig paths, TanStack router) — extracting explicit config is required for maintainability.
 
-**Reference:** TRUTH.md:506-507 (`vite.config.ts`), FRONTEND_STYLING.md:528-543 (Tailwind Vite plugin)
+**Critical Warning:** The current `vite.config.ts` explicitly states: "do NOT add them manually or the app will break with duplicate plugins." Before removing Lovable, you MUST identify all plugins it injects so they can be explicitly re-added.
+
+**How to extract Lovable config:** Run `npm info @lovable.dev/vite-tanstack-config` or inspect its source to enumerate included plugins. The vite.config.ts comment already hints at them: `tanstackStart, viteReact, tailwindcss, tsConfigPaths, cloudflare, componentTagger, VITE_* env injection, @ path alias, React/TanStack dedupe`.
+
+**Reference:** TRUTH.md:506-507 (`vite.config.ts`), FRONTEND_STYLING.md:528-543 (Tailwind Vite plugin), react-vite-ts-expert/SKILL.md
 
 **Acceptance Criteria:**
-- AC1.1: `package.json` no longer contains `@lovable.dev/vite-tanstack-config`
-- AC1.2: `vite.config.ts` uses native `defineConfig` with explicit plugins:
-  - `@vitejs/plugin-react`
-  - `vite-tsconfig-paths`
+- AC1.1: `package.json` `devDependencies` no longer contains `@lovable.dev/vite-tanstack-config`
+- AC1.2: `vite.config.ts` uses native `defineConfig` with these explicit plugins:
+  - `@vitejs/plugin-react` (React support)
+  - `vite-tsconfig-paths` (path aliases)
   - `tailwindcss()` (from `@tailwindcss/vite`)
-  - `@tanstack/router-plugin/vite`
-- AC1.3: `npm run dev` builds and serves without Lovable plugins
-- AC1.4: `npm run build` completes successfully
-- AC1.5: All Tailwind classes render correctly (verify with a component using `bg-sidebar-bg`)
+  - `@tanstack/router-plugin/vite` (TanStack Router code generation)
+  - Any remaining plugins previously provided by Lovable (cloudflare, componentTagger, etc.)
+- AC1.3: Environment variables (`VITE_*`) continue to work (Lovable auto-injected these)
+- AC1.4: `@/` path alias continues to resolve (configured via tsconfig paths)
+- AC1.5: `npm run dev` builds and serves without Lovable plugins
+- AC1.6: `npm run build` completes successfully
+- AC1.7: All Tailwind classes render correctly (verify with `bg-sidebar-bg`)
 
 **Dependencies:** None
-**Estimated Effort:** 15-20 minutes
+**Estimated Effort:** 30-45 minutes (extracting black-box config is non-trivial)
 **Status:** NOT_STARTED
 
 ---
@@ -195,21 +205,32 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 ---
 
-## S10: Migrate Global Styles to oklch/Tailwind
+## S10: Verify Styles Compliance with FRONTEND_STYLING.md
 
-**Description:** Replace Bootstrap-based CSS with Tailwind CSS v4 and oklch CSS variables.
+**Description:** The codebase already uses Tailwind CSS v4 with oklch CSS variables (in `src/styles.css`). This step verifies the existing CSS matches FRONTEND_STYLING.md requirements and identifies any deviations.
 
-**Reference:** FRONTEND_STYLING.md:1-567, TRUTH.md:482-483
+**Note on Bootstrap:** The current `src/styles.css` does NOT contain Bootstrap — it uses Tailwind v4 with oklch variables. The migration plan previously assumed Bootstrap was present. This step focuses on compliance verification, not replacement.
+
+**Reference:** FRONTEND_STYLING.md:1-567 (entire document — color system, typography, spacing, component specs, anti-patterns)
 
 **Acceptance Criteria:**
-- AC10.1: `src/styles/globals.css` uses oklch CSS variables (no Bootstrap)
-- AC10.2: All color tokens use oklch format (e.g., `oklch(0.22 0 0)`)
-- AC10.3: Components use `bg-editor`, `text-sidebar-fg`, etc. (Tailwind + CSS vars)
-- AC10.4: No `bg-[#hex]` inline styles
-- AC10.5: Entity colors use `--entity-bg`, `--entity-fg`, `--entity-border`, `--entity-solid` only
+- AC10.1: `src/styles.css` defines all required CSS variables from FRONTEND_STYLING.md:14-56 (VS Code semantic tokens, UI semantic tokens, status/priority tokens)
+- AC10.2: Typography uses `font-sans: "Segoe UI"...` and `font-mono: "JetBrains Mono"...` (FRONTEND_STYLING.md:72-75)
+- AC10.3: Base font size is 13px (FRONTEND_STYLING.md:79)
+- AC10.4: No hardcoded hex values in `styles.css` — all colors use oklch format
+- AC10.5: No Bootstrap classes (`container-fluid`, `row`, `col-`, etc.) anywhere in `src/`
+- AC10.6: No `bg-[#hex]` inline styles in any component (verify with grep for `bg-\[#`)
+- AC10.7: Anti-patterns from FRONTEND_STYLING.md:376-462 are not present:
+  - No gradients (`bg-gradient-*`)
+  - No heavy shadows (`shadow-2xl`, `shadow-[0_10px...]`)
+  - No fully rounded pills (`rounded-full`)
+  - No vivid saturated backgrounds on large areas
+  - No neon/glowing effects
+  - No inline hex styles
+  - No light mode colors in dark-only context
 
 **Dependencies:** S1
-**Estimated Effort:** 25-30 minutes
+**Estimated Effort:** 20-25 minutes
 **Status:** NOT_STARTED
 
 ---
@@ -239,10 +260,14 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 **Acceptance Criteria:**
 - AC12.1: `npm run dev` starts without errors
 - AC12.2: `npm run build` completes successfully
-- AC12.3: All routes navigate correctly
-- AC12.4: Entity colors render correctly (verify with a colored epic/project)
+- AC12.3: All routes navigate correctly (verify at least one authenticated route and one public route)
+- AC12.4: Entity colors render correctly (verify with a colored epic/project if test data exists)
 - AC12.5: No `.js` or `.jsx` files in `src/` — all TypeScript
-- AC12.6: No Bootstrap CSS classes remaining
+- AC12.6: No Bootstrap CSS classes present (grep for `container-fluid`, `row`, `col-`, `btn-`)
+- AC12.7: All 13 feature modules exist under `src/features/`
+- AC12.8: Global directories exist: `services/`, `store/`, `hooks/`, `types/`, `utils/`, `styles/`
+- AC12.9: `src/components/ui/index.ts` provides barrel export for all Tier 1 atoms
+- AC12.10: `src/components/layout/` contains AppShell, Sidebar, TopBar, MobileMenu
 
 **Dependencies:** S11
 **Estimated Effort:** 15-20 minutes
@@ -250,18 +275,70 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 ---
 
+## S13: Frontend Maintenance Enablement
+
+**Description:** Establish tooling and documentation to ensure the migrated architecture is maintained over time. This addresses the requirement to keep the frontend maintainable after migration.
+
+**Reference:** FRONTEND_STYLING.md:376-462 (anti-patterns), AGENTS.md:160-180 (what NOT to do)
+
+**Acceptance Criteria:**
+- AC13.1: ESLint rules detect anti-patterns from FRONTEND_STYLING.md:
+  - No `bg-gradient-*` classes
+  - No `shadow-2xl` or larger shadow utilities
+  - No `rounded-full` classes
+  - No inline hex styles (`style={{ backgroundColor: '#...' }}`)
+  - No light mode color classes (`bg-white`, `text-gray-900`, etc.)
+- AC13.2: ESLint rules detect architectural violations:
+  - No business logic in `pages/` (thin orchestrator rule)
+  - No direct API calls in components (must use hooks)
+  - No `any` types
+  - No imports between features' internals (cross-feature imports must use shared atoms only)
+- AC13.3: `docs/FRONTEND_STYLING.md` anti-patterns are referenced in ESLint config via a custom rule or comment explaining enforcement
+- AC13.4: `docs/MAINTENANCE.md` exists with:
+  - Design philosophy ("Sober, Structured, Sophisticated" — VS Code aesthetic)
+  - Dark-only mode enforcement
+  - Checklist for adding new components (color contract, JSDoc, tier assignment)
+  - Checklist for adding new features (directory structure, barrel exports)
+  - Link to FRONTEND_STYLING.md for complete visual guidelines
+- AC13.5: `src/styles.css` or a companion file documents the CSS variable naming convention for Tailwind integration
+
+**Dependencies:** S12
+**Estimated Effort:** 30-40 minutes (ESLint config + documentation)
+**Status:** NOT_STARTED
+
+---
+
+## S14: Update TRUTH.md to Reflect Completed Migration
+
+**Description:** After all migration steps, update `docs/TRUTH.md` to mark the architecture as implemented and remove any "target state" language that implies the architecture is not yet in place.
+
+**Reference:** TRUTH.md:1-7 (this file is the source of truth — must stay current)
+
+**Acceptance Criteria:**
+- AC14.1: TRUTH.md no longer describes the target architecture as "future state" — language reflects that `src/features/`, `src/services/`, `src/store/`, etc. are implemented
+- AC14.2: Any section in TRUTH.md that described "what should exist" vs "what exists" is updated to reflect actual state
+- AC14.3: A new section in TRUTH.md (or a companion `docs/ARCHITECTURE_STATUS.md`) documents when the migration completed (date) and any known remaining imperfections
+
+**Dependencies:** S13
+**Estimated Effort:** 10-15 minutes
+**Status:** NOT_STARTED
+
+---
+
 ## Implementation Order
 
 ```
-S1 (Replace Lovable) → S2 (Global Structure)
-                          ↓
-S3 (UI Components) ← S4 (Feature Structure)
-                          ↓
+S1 (Replace Lovable) ──────────────────────────────── → S2 (Global Structure)
+                                                              ↓
+S3 (UI Components) ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← S4 (Feature Structure)
+                                                              ↓
 S5 (Feature Services) → S6 (Feature Hooks) → S7 (Feature Components)
-                                                      ↓
-S8 (TanStack Router) ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ←
+                                                              ↓
+S8 (TanStack Router) ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ←
       ↓
-S9 (TanStack Query) → S10 (Styles) → S11 (TypeScript) → S12 (Final)
+S9 (TanStack Query) → S10 (Styles Compliance) → S11 (TypeScript) → S12 (Final)
+                                                                          ↓
+                                                              S13 (Maintenance) → S14 (Update TRUTH.md)
 ```
 
 ---
@@ -276,6 +353,41 @@ npm run lint     # No lint errors
 npx tsc --noEmit # No TypeScript errors
 ```
 
+After S12 (Final Verification), also run:
+```bash
+# Verify no Bootstrap classes
+rg "container-fluid|row|col-|btn-" frontend/src/
+# Verify no inline hex styles
+rg 'style={{.*#[0-9A-Fa-f]' frontend/src/
+# Verify no gradients
+rg "bg-gradient" frontend/src/
+```
+
+After S13 (Maintenance), verify:
+```bash
+npm run lint     # Should now flag style anti-patterns
+```
+
 ---
+
+## Current Codebase vs Target
+
+| What Exists Now | Target State | Migration Step |
+|-----------------|--------------|----------------|
+| `vite.config.ts` using Lovable black-box | Native Vite with explicit plugins | S1 |
+| `src/styles.css` (Tailwind v4, oklch) ✓ | Verified compliant with FRONTEND_STYLING.md | S10 |
+| `components/scrumhub/` (mixed layout + feature) | Feature-first in `src/features/` | S4, S7 |
+| `src/routes/` (file-based routing) | Routes + thin page orchestrators | S8 |
+| No `features/` directory | 13 feature modules | S4 |
+| No `services/apiClient.ts` | Centralized fetch wrapper | S2 |
+| No `store/` (AuthContext, ThemeRegistry) | Context providers | S2 |
+| No global hooks (`useEntityTheme`, etc.) | Global hooks | S2 |
+| No `src/components/ui/` barrel | Shared UI atoms | S3 |
+| No `src/components/layout/` | Layout components | S3 |
+| TanStack Query not configured | QueryClient in app root | S9 |
+| No `src/types/` | Global TypeScript types | S2 |
+| No `src/utils/themeUtils.ts` | Color math utilities | S2 |
+| ESLint without style enforcement | Style + architecture lint rules | S13 |
+| TRUTH.md describes target state | TRUTH.md reflects actual state | S14 |
 
 *Last updated: 2026-05-04*
