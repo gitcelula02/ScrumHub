@@ -1,13 +1,17 @@
 import { GitBranch, Check, Bell, Wifi, Sparkles } from "lucide-react";
 
-interface Props {
+interface StatusBarProps {
   branch: string;
   onPalette: () => void;
   alertCount: number;
   onNotifications: () => void;
 }
 
-export function StatusBar({ branch, onPalette, alertCount, onNotifications }: Props) {
+/**
+ * @component StatusBar
+ * VS Code-style horizontal status bar for global app state and quick actions.
+ */
+export function StatusBar({ branch, onPalette, alertCount, onNotifications }: StatusBarProps) {
   return (
     <footer className="h-6 bg-status-bar text-status-bar-fg flex items-center text-[11px] font-mono select-none">
       <button className="h-full px-2 flex items-center gap-1 hover:bg-white/10">

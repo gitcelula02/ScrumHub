@@ -19,6 +19,10 @@ const alertVariants = cva(
   },
 );
 
+/**
+ * @component Alert
+ * Inline notification component for status and feedback.
+ */
 const Alert = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>
@@ -27,6 +31,10 @@ const Alert = React.forwardRef<
 ));
 Alert.displayName = "Alert";
 
+/**
+ * @component AlertTitle
+ * Title for an Alert component.
+ */
 const AlertTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
   ({ className, ...props }, ref) => (
     <h5
@@ -38,6 +46,10 @@ const AlertTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<H
 );
 AlertTitle.displayName = "AlertTitle";
 
+/**
+ * @component AlertDescription
+ * Main description text for an Alert component.
+ */
 const AlertDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>

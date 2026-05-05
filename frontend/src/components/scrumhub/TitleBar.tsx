@@ -1,6 +1,14 @@
 import { Search } from "lucide-react";
 
-export function TitleBar({ onPalette }: { onPalette: () => void }) {
+interface TitleBarProps {
+  onPalette: () => void;
+}
+
+/**
+ * @component TitleBar
+ * VS Code-style global title bar with command palette access.
+ */
+export function TitleBar({ onPalette }: TitleBarProps) {
   return (
     <header className="h-8 bg-titlebar border-b border-panel-border flex items-center px-3 select-none">
       <div className="flex items-center gap-2 w-48">
