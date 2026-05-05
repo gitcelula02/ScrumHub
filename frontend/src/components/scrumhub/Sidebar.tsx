@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import type { ActivityView } from "./ActivityBar";
 import type { Ticket } from "./data";
 
-interface Props {
+interface SidebarProps {
   view: ActivityView;
   tickets: Ticket[];
   activeId: string | null;
@@ -60,7 +60,11 @@ function buildTree(tickets: Ticket[]): TreeNode[] {
   }));
 }
 
-export function Sidebar({ view, tickets, activeId, onOpen }: Props) {
+/**
+ * @component Sidebar
+ * Contextual sidebar that displays the file explorer, backlog, or other views based on activity.
+ */
+export function Sidebar({ view, tickets, activeId, onOpen }: SidebarProps) {
   const tree = buildTree(tickets);
   const [openProjects, setOpenProjects] = useState<Set<string>>(
     () => new Set(tree.map((n) => n.id))

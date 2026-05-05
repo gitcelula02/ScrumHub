@@ -3,7 +3,7 @@ import { MoreHorizontal, Plus } from "lucide-react";
 import type { Ticket, TicketStatus } from "./data";
 import { cn } from "@/lib/utils";
 
-interface Props {
+interface BoardProps {
   tickets: Ticket[];
   onOpen: (t: Ticket) => void;
   onMove: (id: string, status: TicketStatus) => void;
@@ -22,7 +22,11 @@ const PRIORITY_DOT = {
   low: "bg-priority-low",
 } as const;
 
-export function Board({ tickets, onOpen, onMove }: Props) {
+/**
+ * @component Board
+ * Kanban-style board view for managing ticket states and workflow.
+ */
+export function Board({ tickets, onOpen, onMove }: BoardProps) {
   const [dragId, setDragId] = useState<string | null>(null);
   const [overCol, setOverCol] = useState<TicketStatus | null>(null);
 

@@ -3,7 +3,7 @@ import { Sparkles, AlertTriangle, Clock, TrendingUp, Mail, X } from "lucide-reac
 import type { Ticket } from "./data";
 import { cn } from "@/lib/utils";
 
-interface Props {
+interface AINotificationsProps {
   open: boolean;
   onClose: () => void;
   tickets: Ticket[];
@@ -83,7 +83,11 @@ function buildAlerts(tickets: Ticket[]): Alert[] {
   return alerts;
 }
 
-export function AINotifications({ open, onClose, tickets }: Props) {
+/**
+ * @component AINotifications
+ * Side panel displaying AI-driven insights, risk assessments, and smart notifications.
+ */
+export function AINotifications({ open, onClose, tickets }: AINotificationsProps) {
   const alerts = useMemo(() => buildAlerts(tickets), [tickets]);
   if (!open) return null;
 
