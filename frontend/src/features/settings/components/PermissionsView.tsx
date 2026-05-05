@@ -25,13 +25,7 @@ const ROLE_BADGE: Record<Role, string> = {
   viewer: "bg-muted text-muted-foreground border-panel-border",
 };
 
-const INITIAL: Member[] = [
-  { name: "María Ruiz", email: "maria@scrumhub.io", role: "admin", permissions: { read: true, write: true, deploy: true, admin: true } },
-  { name: "Ana Torres", email: "ana@scrumhub.io", role: "maintainer", permissions: { read: true, write: true, deploy: true, admin: false } },
-  { name: "Carlos Pinto", email: "carlos@scrumhub.io", role: "developer", permissions: { read: true, write: true, deploy: false, admin: false } },
-  { name: "Lucía Méndez", email: "lucia@scrumhub.io", role: "developer", permissions: { read: true, write: true, deploy: false, admin: false } },
-  { name: "Diego Salas", email: "diego@scrumhub.io", role: "viewer", permissions: { read: true, write: false, deploy: false, admin: false } },
-];
+const INITIAL: Member[] = [];
 
 /**
  * @component PermissionsView
