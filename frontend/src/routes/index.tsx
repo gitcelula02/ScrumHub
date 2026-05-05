@@ -32,10 +32,10 @@ function LandingPage() {
       {/* Hero */}
       <main className="max-w-6xl mx-auto px-8 pt-24 pb-12">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-status-bar/10 border border-status-bar/20 text-status-bar text-xs font-mono mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-sm bg-status-bar/10 border border-status-bar/20 text-status-bar text-xs font-mono mb-6">
             <Sparkles size={14} /> Nueva era de gestión ágil
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-6 bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-transparent">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-6 text-foreground">
             Gestión de proyectos <br /> al estilo VS Code.
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -43,7 +43,7 @@ function LandingPage() {
             Menos clics, más código, mejor Scrum.
           </p>
           <div className="flex items-center justify-center gap-4">
-            <Link to="/register" className="h-12 px-8 flex items-center bg-status-bar text-status-bar-fg rounded-sm text-lg font-bold hover:shadow-lg hover:shadow-status-bar/20 transition-all">
+            <Link to="/register" className="h-12 px-8 flex items-center bg-status-bar text-status-bar-fg rounded-sm text-lg font-bold hover:bg-status-bar/90 transition-all">
               Comenzar ahora
             </Link>
             <Button variant="outline" className="h-12 px-8 border-panel-border hover:bg-list-hover text-lg">
@@ -88,7 +88,7 @@ function FeatureCard({ icon, title, description }: { icon: React.ReactNode, titl
 }
 
 // Minimal Button internal to landing if UI atoms are not ready for landing
-function Button({ variant, className, children, ...props }: any) {
+function Button({ variant, className, children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "outline" | "solid" }) {
   return (
     <button 
       className={cn(

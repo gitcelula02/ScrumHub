@@ -7,7 +7,15 @@ import "../styles/globals.css";
 
 import appCss from "../styles/globals.css?url";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function NotFoundComponent() {
   return (

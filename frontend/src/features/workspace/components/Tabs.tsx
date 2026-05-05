@@ -1,6 +1,6 @@
 import { X, LayoutDashboard, FileText, Layers, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Tab } from "./data";
+import type { Tab } from "@/types";
 
 interface Props {
   tabs: Tab[];
@@ -21,7 +21,7 @@ export function Tabs({ tabs, activeId, onSelect, onClose }: Props) {
     <div className="flex bg-tab-inactive border-b border-panel-border h-9 overflow-x-auto">
       {tabs.map((tab) => {
         const isActive = tab.id === activeId;
-        const Icon = KIND_ICON[tab.kind];
+        const Icon = KIND_ICON[tab.kind as keyof typeof KIND_ICON];
         return (
           <div
             key={tab.id}
