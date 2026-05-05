@@ -60,8 +60,9 @@ export const getRouter = () => {
   const router = createRouter({
     routeTree,
     context: {
-      auth: undefined!,
-      queryClient: undefined!,
+      // Context values are provided via React context in __root.tsx
+      // This empty context is for router-level context (loaders, beforeLoad)
+      // TanStack Start handles SSR context injection separately
     },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
