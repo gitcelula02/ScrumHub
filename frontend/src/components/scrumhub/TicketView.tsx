@@ -2,7 +2,7 @@ import { CalendarClock, Tag, GitBranch, MessageSquare } from "lucide-react";
 import type { Ticket } from "./data";
 import { cn } from "@/lib/utils";
 
-interface Props {
+interface TicketViewProps {
   ticket: Ticket;
 }
 
@@ -12,7 +12,11 @@ const PRIORITY_BADGE = {
   low: "bg-priority-low/20 text-priority-low border-priority-low/40",
 } as const;
 
-export function TicketView({ ticket }: Props) {
+/**
+ * @component TicketView
+ * Detailed view for an individual ticket, showing its description, priority, status, and comments.
+ */
+export function TicketView({ ticket }: TicketViewProps) {
   return (
     <div className="h-full overflow-auto bg-editor">
       <div className="max-w-4xl mx-auto p-8">
@@ -68,7 +72,15 @@ export function TicketView({ ticket }: Props) {
   );
 }
 
-export function PropertiesPanel({ ticket }: { ticket: Ticket }) {
+interface PropertiesPanelProps {
+  ticket: Ticket;
+}
+
+/**
+ * @component PropertiesPanel
+ * Side panel displaying structured metadata and properties for a ticket.
+ */
+export function PropertiesPanel({ ticket }: PropertiesPanelProps) {
   return (
     <aside className="w-72 bg-sidebar-bg border-l border-panel-border overflow-auto">
       <div className="h-9 px-4 flex items-center text-[11px] font-semibold tracking-wider text-muted-foreground uppercase border-b border-panel-border">

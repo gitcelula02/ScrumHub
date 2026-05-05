@@ -2,7 +2,7 @@ import { Layers, ChevronRight } from "lucide-react";
 import type { Ticket } from "./data";
 import { cn } from "@/lib/utils";
 
-interface Props {
+interface EpicsViewProps {
   tickets: Ticket[];
   onOpen: (t: Ticket) => void;
 }
@@ -20,7 +20,11 @@ const PRIORITY_DOT = {
   low: "bg-priority-low",
 } as const;
 
-export function EpicsView({ tickets, onOpen }: Props) {
+/**
+ * @component EpicsView
+ * High-level overview of epics, showing progress bars and linked tickets.
+ */
+export function EpicsView({ tickets, onOpen }: EpicsViewProps) {
   const map = new Map<string, Ticket[]>();
   for (const t of tickets) {
     if (!map.has(t.epic)) map.set(t.epic, []);

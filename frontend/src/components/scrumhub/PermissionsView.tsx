@@ -33,6 +33,10 @@ const INITIAL: Member[] = [
   { name: "Diego Salas", email: "diego@scrumhub.io", role: "viewer", permissions: { read: true, write: false, deploy: false, admin: false } },
 ];
 
+/**
+ * @component PermissionsView
+ * Administrative panel for managing team roles and granular permissions.
+ */
 export function PermissionsView() {
   const [members, setMembers] = useState<Member[]>(INITIAL);
 
