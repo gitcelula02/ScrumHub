@@ -169,22 +169,42 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 ---
 
-## S8: Configure TanStack Router
+## S8: Configure TanStack Router (File-Based)
 
-**Description:** Set up TanStack Router with proper file-based routing configuration.
+**Description:** Configure TanStack Router with file-based routing. Route files in `src/routes/` map directly to URL paths. The `__root.tsx` serves as the root route (HTML shell + providers), and `app.tsx` serves as the authenticated layout.
 
-**Reference:** TRUTH.md:480-481, AGENTS.md:11-18, react-vite-ts-expert/SKILL.md:298-331
+**Reference:** TRUTH.md Structure section (TanStack Router File-Based Routing), FRONTEND_ARCHITECTURE.md section 3, react-vite-ts-expert/SKILL.md:298-331
+
+**Current Structure:**
+```
+src/routes/
+├── __root.tsx        # Root route — QueryClientProvider, AuthProvider, HTML shell
+├── index.tsx         # Landing page (/)
+├── login.tsx         # Login (/login)
+├── register.tsx      # Register (/register)
+├── app.tsx           # Auth layout (/app) — AuthGuard + AppShell wrapper
+│   └── dashboard.tsx # Dashboard (/app/dashboard) — placeholder
+├── router.tsx        # Router instance factory
+└── routeTree.gen.ts  # Auto-generated (do not edit manually)
+```
 
 **Acceptance Criteria:**
-- AC8.1: `src/routes/routes.ts` exists with proper route tree
-- AC8.2: Public routes: `/`, `/login`, `/register`
-- AC8.3: Authenticated routes under AppShell with all project views
-- AC8.4: `src/pages/` components are thin orchestrators (useParams → call hook → render feature component)
-- AC8.5: No business logic in pages — only routing and composition
+- AC8.1: `src/routes/__root.tsx` sets up providers and HTML shell
+- AC8.2: `src/routes/app.tsx` wraps authenticated routes with AuthGuard and AppShell
+- AC8.3: Public routes (`/`, `/login`, `/register`) are at root level
+- AC8.4: Authenticated routes live under `/app/*` prefix
+- AC8.5: Route files delegate to `src/pages/*.tsx` when appropriate (LoginPage, RegisterPage do this)
+- AC8.6: Pages in `src/pages/` are thin orchestrators — useParams → call hook → render feature component
+- AC8.7: `routeTree.gen.ts` is auto-generated and not manually edited
+
+**Pattern for adding a new route:**
+1. Create `src/routes/app/YourPage.tsx` with `createFileRoute('/app/your-page')`
+2. Create `src/pages/YourPage.tsx` as thin orchestrator
+3. Route tree auto-updates
 
 **Dependencies:** S7
-**Estimated Effort:** 20-25 minutes
-**Status:** COMPLETED
+**Estimated Effort:** 15-20 minutes
+**Status:** IN_PROGRESS
 
 ---
 
@@ -195,8 +215,8 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 **Reference:** TRUTH.md:340, AGENTS.md:16, react-vite-ts-expert/SKILL.md:67
 
 **Acceptance Criteria:**
-- AC9.1: `QueryClientProvider` wraps the app in `main.tsx`
-- AC9.2: `QueryClient` configured with sensible defaults
+- AC9.1: `QueryClientProvider` wraps the app in `routes/__root.tsx`
+- AC9.2: `QueryClient` configured with sensible defaults (staleTime, retry, refetchOnWindowFocus)
 - AC9.3: Feature hooks use TanStack Query (not useState/useEffect directly for server state)
 
 **Dependencies:** S8

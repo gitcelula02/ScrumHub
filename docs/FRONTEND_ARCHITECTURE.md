@@ -120,44 +120,54 @@ frontend/
 
 ### `src/routes/__root.tsx`
 
-**Purpose:** The single React root component for the entire application. In TanStack Router, this file defines the HTML shell (`<html>`, `<head>`, `<body>`) and the global provider tree.
+**Purpose:** The root route in TanStack Router's file-based routing. This file defines the HTML shell (`<html>`, `<head>`, `<body>`) and the global provider tree. It effectively replaces both `main.tsx` and `App.tsx` from traditional React apps.
 
 **Responsibilities:**
-1. Declares all `Provider` wrappers (QueryClientProvider, AuthProvider).
-2. Defines the global `<head>` content (Meta tags, title, stylesheets).
+1. Declares all `Provider` wrappers (`QueryClientProvider`, `AuthProvider`).
+2. Defines the global `<head>` content (meta tags, title, stylesheets via `HeadContent`).
 3. Renders the `<Outlet />` for all sub-routes.
-4. Handles the 404 (Not Found) and global error states.
+4. Handles 404 (`NotFoundComponent`) and global error states.
 
 **Provider order (outermost to innermost):**
 ```
-QueryClientProvider → AuthProvider → Router Outlet
+QueryClientProvider → AuthProvider → Outlet
 ```
+
+**File-based routing note:**
+- The file path `src/routes/__root.tsx` maps to the root `/` path
+- TanStack Router auto-generates `routeTree.gen.ts` from route files
+- Do not edit `routeTree.gen.ts` manually — it is regenerated on file changes
 
 **What to change here:**
 - Adding a new global context provider.
 - Modifying meta tags or the application title.
 - Adjusting the base HTML/Body structure.
 
-**Route structure:**
+**Route structure (TanStack Router file-based):**
 ```
-/                       → LandingPage (public)
-/login                  → LoginPage (public)
-/register               → RegisterPage (public)
+/                       → routes/index.tsx (LandingPage inline)
+│                          Also exports to src/pages/LandingPage.tsx if delegated
+/login                  → routes/login.tsx → pages/AuthPages.tsx
+/register               → routes/register.tsx → pages/AuthPages.tsx
 
-<AppShell> (authenticated wrapper):
-  /projects             → ProjectListPage
-  /projects/new         → ProjectCreatePage
-  /projects/:projectId  → ProjectPage
-  /projects/:projectId/backlog   → BacklogPage
-  /projects/:projectId/board     → BoardPage
-  /projects/:projectId/sprints   → SprintPage
-  /projects/:projectId/calendar  → CalendarPage
-  /projects/:projectId/chat      → ChatPage
-  /projects/:projectId/workspace → WorkspacePage
-  /projects/:projectId/settings  → SettingsPage
-  /settings              → SettingsPage (user settings, no project)
+/app (authenticated):
+  /app                  → routes/app.tsx (AuthGuard wrapper)
+  /app/dashboard        → routes/app/dashboard.tsx (currently placeholder)
+```
 
-*                      → NotFound
+**Future authenticated routes (per TRUTH.md target):**
+```
+/app/projects             → ProjectListPage
+/app/projects/new         → ProjectCreatePage
+/app/projects/:projectId  → ProjectPage
+/app/projects/:projectId/backlog   → BacklogPage
+/app/projects/:projectId/board     → BoardPage
+/app/projects/:projectId/sprints   → SprintPage
+/app/projects/:projectId/calendar  → CalendarPage
+/app/projects/:projectId/chat      → ChatPage
+/app/projects/:projectId/workspace → WorkspacePage
+/app/projects/:projectId/settings  → SettingsPage
+/app/settings             → SettingsPage (user settings, no project)
 ```
 
 **What to change here:**
@@ -677,7 +687,7 @@ Located at `src/components/`, these are **reuseable across features** — unlike
 
 ## 11. Pages (Route Targets)
 
-Pages live in `src/pages/` (flat structure). Per TRUTH.md, they are thin wrappers that:
+Pages live in `src/pages/` (flat structure). Route files in `src/routes/` delegate to these pages. Pages are **thin wrappers** that:
 1. Extract URL params via `useParams()`
 2. Call feature hooks
 3. Render feature components
@@ -685,23 +695,35 @@ Pages live in `src/pages/` (flat structure). Per TRUTH.md, they are thin wrapper
 
 Pages **should not** contain business logic — that belongs in hooks.
 
-### Key Pages
+### Current Pages vs Routes
 
-| Page | Route | Uses Hook | Key Component |
-|------|-------|-----------|---------------|
+| Route File | Page | Delegated To | Status |
+|------------|------|--------------|--------|
+| `routes/index.tsx` | LandingPage | Inline | Inline (no delegation) |
+| `routes/login.tsx` | LoginPage | `pages/AuthPages.tsx` | ✓ |
+| `routes/register.tsx` | RegisterPage | `pages/AuthPages.tsx` | ✓ |
+| `routes/app.tsx` | AuthGuard | Inline (wraps AppShell) | Auth layout |
+| `routes/app/dashboard.tsx` | Dashboard | Inline placeholder | Empty placeholder |
+
+### Target Pages (per TRUTH.md)
+
+These pages should exist in `src/pages/` and be wired to routes under `/app/`:
+
+| Page | Target Route | Uses Hook | Key Component |
+|------|-------------|-----------|---------------|
 | `LandingPage.tsx` | `/` | — | Public marketing page |
 | `LoginPage.tsx` | `/login` | `useAuthRedirect()` | Auth form |
 | `RegisterPage.tsx` | `/register` | `useAuthRedirect()` | Registration form |
-| `ProjectListPage.tsx` | `/projects` | `useProjects()` | Project cards grid |
-| `ProjectCreatePage.tsx` | `/projects/new` | `useCreateProject()` | Project creation form |
-| `ProjectPage.tsx` | `/projects/:projectId` | — | Redirects to `/projects/:projectId/overview` |
-| `BacklogPage.tsx` | `/projects/:projectId/backlog` | `useBacklog(projectId)` | `BacklogTable` |
-| `BoardPage.tsx` | `/projects/:projectId/board` | `useBoard(projectId)` | `BoardView` + `ManageBoardsModal` |
-| `SprintPage.tsx` | `/projects/:projectId/sprints` | `useSprints(projectId)` | `SprintView` + `SprintCreateModal` |
-| `CalendarPage.tsx` | `/projects/:projectId/calendar` | `useCalendar(projectId)` | `CalendarView` |
-| `ChatPage.tsx` | `/projects/:projectId/chat` | `useChat(projectId)` | `ChatLayout` |
-| `WorkspacePage.tsx` | `/projects/:projectId/workspace` | `useWorkspace(projectId)` | `WorkspaceView` + `WorkspaceToolbar` |
-| `SettingsPage.tsx` | `/projects/:projectId/settings` or `/settings` | `useSettings()` | `SettingsLayout` + settings panels |
+| `ProjectListPage.tsx` | `/app/projects` | `useProjects()` | Project cards grid |
+| `ProjectCreatePage.tsx` | `/app/projects/new` | `useCreateProject()` | Project creation form |
+| `ProjectPage.tsx` | `/app/projects/:projectId` | — | Redirects to `/app/projects/:projectId/overview` |
+| `BacklogPage.tsx` | `/app/projects/:projectId/backlog` | `useBacklog(projectId)` | `BacklogTable` |
+| `BoardPage.tsx` | `/app/projects/:projectId/board` | `useBoard(projectId)` | `BoardView` + `ManageBoardsModal` |
+| `SprintPage.tsx` | `/app/projects/:projectId/sprints` | `useSprints(projectId)` | `SprintView` + `SprintCreateModal` |
+| `CalendarPage.tsx` | `/app/projects/:projectId/calendar` | `useCalendar(projectId)` | `CalendarView` |
+| `ChatPage.tsx` | `/app/projects/:projectId/chat` | `useChat(projectId)` | `ChatLayout` |
+| `WorkspacePage.tsx` | `/app/projects/:projectId/workspace` | `useWorkspace(projectId)` | `WorkspaceView` + `WorkspaceToolbar` |
+| `SettingsPage.tsx` | `/app/projects/:projectId/settings` or `/app/settings` | `useSettings()` | `SettingsLayout` + settings panels |
 | `NotFound.tsx` | `*` | — | 404 page |
 
 ---

@@ -455,7 +455,7 @@ Settings:
 - API keys follow: user key → project shared key → plan credits
 
 ## Architecture Migration Status
-The frontend architecture migration was completed on **May 5, 2026**. 
+The frontend architecture migration was completed on **May 5, 2026**.
 The application is fully migrated to the target architecture:
 - **Feature-first organization**: All features are isolated in `src/features/` with proper barrel exports.
 - **Global Structure**: Shared services, hooks, types, and UI components (`src/components/ui/`) are implemented.
@@ -464,3 +464,82 @@ The application is fully migrated to the target architecture:
 - **Maintenance Enforcement**: ESLint rules actively enforce architectural boundaries and styling conventions.
 
 *Any future changes to the architecture must be reflected in this document.*
+
+## Structure
+### Frontend (TanStack Router File-Based Routing)
+
+The frontend uses **TanStack Router** with file-based routing. Route files live in `src/routes/` and map directly to URL paths.
+
+```
+frontend/src/
+├── routeTree.gen.ts      # Auto-generated route tree (do not edit manually)
+├── router.tsx            # Router instance factory
+├── routes/
+│   ├── __root.tsx        # Root route — sets up providers, HTML shell
+│   ├── index.tsx         # Landing page (/)
+│   ├── login.tsx         # Login page (/login)
+│   ├── register.tsx      # Register page (/register)
+│   ├── app.tsx           # Authenticated layout route (/app)
+│   │   └── dashboard.tsx # Dashboard page (/app/dashboard)
+│   └── *.tsx             # Other routes follow same pattern
+├── pages/                # Page components (thin orchestrators)
+│   ├── *.tsx             # Delegated from routes/ when needed
+├── components/            # Shared UI components
+│   ├── layout/           # AppShell, Sidebar, TopBar, etc.
+│   └── ui/               # UI atoms (buttons, badges, etc.)
+├── features/              # Feature modules (self-contained)
+│   └── [feature]/         # See feature structure below
+├── services/              # Global API client (apiClient.ts)
+├── store/                 # Global state (AuthContext, ThemeRegistry)
+├── hooks/                 # Global hooks (useAuthGuard, useEntityTheme)
+├── styles/                # Global CSS (globals.css with oklch vars)
+├── types/                 # Global TypeScript types
+└── utils/                 # Pure utilities (themeUtils.ts)
+```
+
+### Entry Points
+
+| File | Purpose |
+|------|---------|
+| `routes/__root.tsx` | Root route — replaces `main.tsx` + `App.tsx`. Sets up `QueryClientProvider`, `AuthProvider`, HTML shell, and `HeadContent`. |
+| `routes/app.tsx` | Authenticated layout route — wraps `/app/*` routes with `AuthGuard` and `AppShell`. |
+
+### Route Pattern
+
+- **`src/routes/*.tsx`** files map to URL paths via TanStack Router file-based routing
+- Route files can contain inline components OR delegate to `src/pages/*.tsx`
+- `createFileRoute('/path')` creates a route with that URL path
+- Route tree is auto-generated in `routeTree.gen.ts`
+
+### Page Pattern
+
+Pages in `src/pages/` are **thin orchestrators** that:
+1. Extract URL params via `useParams()`
+2. Call feature hooks
+3. Render feature components
+
+Pages should contain **no business logic**.
+
+### Feature Module Structure
+
+```
+features/<name>/
+├── components/     # Feature-specific components
+├── hooks/          # Feature hooks
+├── services/       # Feature API calls
+├── types/          # Feature TypeScript types
+├── utils/          # Feature utilities
+├── styles/         # Feature styles
+└── index.ts        # Barrel export
+```
+
+### Components Structure
+
+```
+components/
+├── layout/         # Layout components (AppShell, Sidebar, TopBar, etc.)
+│   └── *.tsx
+└── ui/             # UI atoms (Button, Badge, Card, etc.)
+    ├── *.tsx
+    └── index.ts    # Barrel export
+```
