@@ -453,3 +453,14 @@ Settings:
 **AI Settings Override Chain:**
 - When AI makes a decision, it resolves settings in priority order: user_project_override → user → project → general
 - API keys follow: user key → project shared key → plan credits
+
+## Architecture Migration Status
+The frontend architecture migration was completed on **May 5, 2026**. 
+The application is fully migrated to the target architecture:
+- **Feature-first organization**: All features are isolated in `src/features/` with proper barrel exports.
+- **Global Structure**: Shared services, hooks, types, and UI components (`src/components/ui/`) are implemented.
+- **Tooling**: Built with Vite (native configuration without Lovable black-box plugins), React, TypeScript, TanStack Router, and TanStack Query.
+- **Styling**: Enforced strict adherence to `FRONTEND_STYLING.md` using Tailwind CSS v4 and `oklch` CSS variables.
+- **Maintenance Enforcement**: ESLint rules actively enforce architectural boundaries and styling conventions.
+
+*Any future changes to the architecture must be reflected in this document.*

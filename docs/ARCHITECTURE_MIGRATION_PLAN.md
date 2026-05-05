@@ -271,7 +271,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** S11
 **Estimated Effort:** 15-20 minutes
-**Status:** IN_PROGRESS
+**Status:** COMPLETED
 
 ---
 
@@ -304,7 +304,7 @@ This plan outlines the migration of the current `frontend/` codebase to the arch
 
 **Dependencies:** S12
 **Estimated Effort:** 30-40 minutes (ESLint config + documentation)
-**Status:** NOT_STARTED
+**Status:** COMPLETED
 
 ---
 

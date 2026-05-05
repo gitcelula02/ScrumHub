@@ -3,6 +3,18 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* 
+ * CSS Variable Naming Convention for Tailwind Integration
+ * --------------------------------------------------------
+ * All color variables should be defined in oklch format.
+ * Semantic tokens (e.g., --editor, --sidebar-bg) are defined in :root.
+ * The @theme inline block maps these semantic tokens to Tailwind's internal CSS variables 
+ * (e.g., --color-background: var(--editor)) to make them available as Tailwind classes 
+ * (e.g., bg-background, text-foreground).
+ * 
+ * NEVER use hardcoded hex values (#RRGGBB). Always add a new oklch variable.
+ */
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

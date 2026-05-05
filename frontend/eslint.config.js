@@ -22,6 +22,36 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "error",
+      
+      // AC13.2: Architectural Violations
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/features/*/*", "!@/features/*/types"],
+              message: "Architectural Violation: Do not import from feature internals. Use the feature barrel export or shared atoms."
+            }
+          ]
+        }
+      ],
+      
+      // AC13.1 & AC13.3: FRONTEND_STYLING.md Anti-patterns Enforcement
+      // Note: We use no-restricted-syntax to catch common styling violations in className and style attributes
+      "no-restricted-syntax": [
+        "error",
+        {
+          // Prevent inline hex styles: style={{ backgroundColor: '#fff' }}
+          selector: "JSXAttribute[name.name='style'] Property[key.name=/color/i] Literal[value=/^#/]",
+          message: "Styling Violation (FRONTEND_STYLING.md): No inline hex styles allowed. Use oklch CSS variables."
+        },
+        {
+          // Prevent Tailwind anti-patterns: bg-gradient, shadow-2xl, rounded-full, light mode colors
+          selector: "JSXAttribute[name.name='className'] Literal[value=/(bg-gradient|shadow-2xl|rounded-full|bg-white|text-gray-)/]",
+          message: "Styling Violation (FRONTEND_STYLING.md): Anti-pattern classes detected (bg-gradient, shadow-2xl, rounded-full, light mode colors)."
+        }
+      ]
     },
   },
   eslintPluginPrettier,
