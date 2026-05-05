@@ -23,6 +23,7 @@ This document describes the complete file structure, purpose, and architectural 
 13. [Adding New Features](#13-adding-new-features)
 14. [Key Conventions](#14-key-conventions)
 15. [Common Patterns](#15-common-patterns)
+16. [Assets Management](#16-assets-management)
 
 ---
 
@@ -44,9 +45,14 @@ ScrumHub follows a **Feature-First Architecture** with strict boundaries:
 ## 2. Directory Structure
 
 ```
-frontend/src/
-├── App.tsx                          # Root component with routing + providers
-├── main.tsx                         # Entry point — mounts App to #root
+frontend/
+├── public/                          # STATIC ASSETS — served at root / (favicon, robots.txt, etc)
+│   ├── favicon.ico
+│   └── images/                      # Static images (landing page, etc)
+├── src/
+│   ├── assets/                      # BUNDLED ASSETS — imported in components (icons, logos)
+│   ├── routes/__root.tsx            # ROOT COMPONENT — providers + HTML shell + root outlet
+│   ├── client.tsx                   # Entry point — mounts StartClient to #root
 ├── components/                      # SHARED UI — used by multiple features
 │   ├── AIAssistantButton.tsx        # Fixed-position AI chat trigger
 │   ├── layout/                      # Structural components (AppShell, Sidebar, TopBar, MobileMenu)
@@ -101,33 +107,36 @@ frontend/src/
 
 ## 3. Entry Points
 
-### `src/main.tsx`
+### `src/client.tsx`
 
-**Purpose:** The single DOM entry point. Creates a React root and mounts `App`.
+**Purpose:** The single DOM entry point for the browser. It hydrates or renders the `<StartClient />` component, which initializes the TanStack Router.
 
-```tsx
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-```
-
-**What to change here:** Almost never. Only if you need to add global providers (e.g., ErrorBoundary) that wrap the entire app before anything else renders.
+**Responsibilities:**
+- Bootstraps the application on the client-side.
+- Handles hydration for SSR-compatible routes.
+- Connects the React root to the DOM element with ID `root`.
 
 ---
 
-### `src/App.tsx`
+### `src/routes/__root.tsx`
 
-**Purpose:** Root React component that declares:
-1. All `Provider` wrappers (AuthProvider, ThemeRegistryProvider)
-2. The complete route tree (public + authenticated)
-3. Which routes are wrapped in `AppShell` (authenticated layout)
+**Purpose:** The single React root component for the entire application. In TanStack Router, this file defines the HTML shell (`<html>`, `<head>`, `<body>`) and the global provider tree.
+
+**Responsibilities:**
+1. Declares all `Provider` wrappers (QueryClientProvider, AuthProvider).
+2. Defines the global `<head>` content (Meta tags, title, stylesheets).
+3. Renders the `<Outlet />` for all sub-routes.
+4. Handles the 404 (Not Found) and global error states.
 
 **Provider order (outermost to innermost):**
 ```
-QueryClientProvider → AuthProvider → ThemeRegistryProvider → Router
+QueryClientProvider → AuthProvider → Router Outlet
 ```
+
+**What to change here:**
+- Adding a new global context provider.
+- Modifying meta tags or the application title.
+- Adjusting the base HTML/Body structure.
 
 **Route structure:**
 ```
@@ -977,6 +986,27 @@ registerEntities(data.map(epic => ({ id: epic.id, color: epic.color })));
 ### Entity-Theme-Agnostic Components
 
 Components like `EpicBadge`, `SprintPill`, and `Sidebar` receive entity data and compute styling externally. They only ever access `var(--entity-*)` CSS variables or receive a pre-computed `style={theme}` prop. This means they never need to change when the color algorithm changes.
+
+---
+
+## 16. Assets Management
+
+ScrumHub uses a dual-asset strategy based on Vite conventions:
+
+### Static Assets (`frontend/public/`)
+- **Purpose:** Files that should be served exactly as-is, without processing by the build tool.
+- **Access:** Referenced via absolute paths (e.g., `<img src="/images/logo.png" />`).
+- **Use Case:** Favicons, `robots.txt`, large videos, or third-party libraries not in npm.
+
+### Bundled Assets (`frontend/src/assets/`)
+- **Purpose:** Files that are part of the dependency graph and should be optimized/hashed by Vite.
+- **Access:** Imported in components (e.g., `import logo from '@/assets/logo.svg'`).
+- **Use Case:** SVG icons, small images, and CSS background images.
+
+### Documentation Assets (`docs/assets/`)
+- **Purpose:** Images and media used exclusively within the Markdown documentation files.
+- **Access:** Relative paths within `.md` files.
+- **Use Case:** Architecture diagrams, UX sketches, and design references.
 
 ---
 
