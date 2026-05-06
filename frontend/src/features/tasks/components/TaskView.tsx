@@ -29,7 +29,7 @@ export function TaskView({ taskId }: TaskViewProps) {
   if (error || !task) {
     return <div className="h-full flex items-center justify-center text-destructive font-mono">Error al cargar la tarea.</div>;
   }
-
+  console.log(task)
   return (
     <div className="h-full overflow-auto bg-editor">
       <div className="max-w-4xl mx-auto p-8">
@@ -50,7 +50,7 @@ export function TaskView({ taskId }: TaskViewProps) {
             {task.status}
           </span>
           <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm text-[11px] font-mono border border-panel-border text-muted-foreground">
-            <GitBranch size={11} /> feature/{task.id.toLowerCase()}
+            <GitBranch size={11} /> feature/{task.id}
           </span>
         </div>
 
