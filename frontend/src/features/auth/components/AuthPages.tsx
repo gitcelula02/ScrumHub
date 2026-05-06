@@ -18,14 +18,14 @@ export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const auth = useAuthSession();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       const response = await authService.login({ email, password });
       auth.login(response.token, response.user);
@@ -80,8 +80,8 @@ export function LoginPage() {
               />
             </div>
           </div>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="w-full bg-status-bar hover:bg-status-bar/90 text-status-bar-fg font-semibold"
             disabled={isSubmitting}
           >

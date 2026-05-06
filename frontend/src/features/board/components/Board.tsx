@@ -31,7 +31,7 @@ const PRIORITY_DOT = {
 export function Board({ onOpenTask }: BoardProps) {
   const { data: tasks = [], isLoading } = useTasks();
   const { mutate: moveTask } = useMoveTask();
-  
+
   const [dragId, setDragId] = useState<string | null>(null);
   const [overCol, setOverCol] = useState<TaskStatus | null>(null);
 
@@ -42,9 +42,9 @@ export function Board({ onOpenTask }: BoardProps) {
   return (
     <div className="h-full overflow-auto bg-editor p-6">
       <div className="mb-6 flex items-baseline gap-3">
-        <h1 className="text-xl font-semibold text-foreground">Tablero · Sprint 24</h1>
+        <h1 className="text-xl font-semibold text-foreground">Tablero</h1>
         <span className="font-mono text-xs text-muted-foreground">
-          {tasks.length} tareas · branch <span className="text-status-bar">main</span>
+          {tasks.length} tareas
         </span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">

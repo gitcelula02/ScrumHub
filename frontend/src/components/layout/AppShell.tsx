@@ -12,7 +12,7 @@ import { exportSprintReport } from "@/features/workspace/utils/exportPdf";
 import type { Tab, Task } from "@/types";
 import { Outlet } from "@tanstack/react-router";
 
-const DASHBOARD_TAB: Tab = { id: "dashboard", label: "Tablero — Sprint 24", kind: "dashboard" };
+const DASHBOARD_TAB: Tab = { id: "dashboard", label: "Tablero", kind: "dashboard" };
 const EPICS_TAB: Tab = { id: "epics", label: "Épicas", kind: "epics" };
 const PERMS_TAB: Tab = { id: "permissions", label: "Permisos del equipo", kind: "permissions" };
 
