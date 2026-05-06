@@ -1,6 +1,10 @@
 import { apiClient } from '@/services/apiClient';
 import type { User } from '@/types';
 
+interface AuthResponse {
+  data: LoginResponse;
+}
+
 interface LoginResponse {
   user: User;
   token: string;
@@ -20,7 +24,8 @@ export const authService = {
    * Performs login with credentials.
    */
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
-    return apiClient.post<LoginResponse>('/auth/login', credentials);
+    const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
+    return response.data;
   },
 
   /**

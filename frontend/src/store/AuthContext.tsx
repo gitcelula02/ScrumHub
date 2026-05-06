@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import type { User } from '@/types';
 
 interface AuthContextType {
@@ -16,16 +16,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session
     const savedUser = localStorage.getItem('user');
     const token = localStorage.getItem('auth_token');
-    if (savedUser && token) {
-      setUser(JSON.parse(savedUser));
+    if (savedUser && token && savedUser !== 'undefined') {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch {
+        localStorage.removeItem('user');
+        localStorage.removeItem('auth_token');
+      }
     }
     setIsLoading(false);
   }, []);
 
   const login = (token: string, userData: User) => {
+    if (!token || !userData) {
+      console.error('Invalid login arguments');
+      return;
+    }
     localStorage.setItem('auth_token', token);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
