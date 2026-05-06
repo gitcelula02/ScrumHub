@@ -17,7 +17,7 @@ export const backlogService = {
    * Fetches a single task by ID.
    */
   getTaskById: async (id: string): Promise<Task> => {
-    return apiClient.get<Task>(`/tasks/${id}`);
+    return apiClient.get<Task>(`/tasks/${id}?include=comments`);
   },
 
   /**
