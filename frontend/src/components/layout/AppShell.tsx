@@ -17,7 +17,7 @@ const DASHBOARD_TAB: Tab = { id: "dashboard", label: "Tablero", kind: "dashboard
  * child route content.
  */
 export function AppShell({ children }: { children?: ReactNode }) {
-  const params = useParams({ from: "/app/projects/$projectId", strict: false });
+  const params = useParams({ strict: false });
   const { data: tasks = [] } = useTasks();
   const [tabs, setTabs] = useState<Tab[]>([DASHBOARD_TAB]);
   const [activeTab, setActiveTab] = useState<string>("dashboard");
@@ -55,8 +55,6 @@ export function AppShell({ children }: { children?: ReactNode }) {
     });
   };
 
-  const current = tabs.find((t) => t.id === activeTab) ?? DASHBOARD_TAB;
-
   const alertCount = useMemo(() => {
     const now = new Date("2026-04-29");
     return tasks.filter((t) => {
@@ -80,7 +78,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
           <Tabs tabs={tabs} activeId={activeTab} onSelect={setActiveTab} onClose={closeTab} />
           <div className="flex-1 flex min-h-0">
             <div className="flex-1 min-w-0">
-{children || <Outlet />}
+              {children || <Outlet />}
             </div>
           </div>
         </main>
