@@ -32,7 +32,7 @@ export function ActivityBar({ onNotifications, projectId }: ActivityBarProps) {
   const navigate = useNavigate();
   const matchRoute = useMatchRoute();
   const routerState = useRouterState();
-  const { data: tasks = [] } = useTasks();
+  const { data: tasks = [] } = useTasks(projectId ?? '');
 
   const currentPath = routerState.location.pathname;
 

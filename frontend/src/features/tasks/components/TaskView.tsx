@@ -5,6 +5,7 @@ import type { Task } from "@/types";
 
 interface TaskViewProps {
   taskId: string;
+  projectId: string;
 }
 
 const PRIORITY_BADGE = {
@@ -19,8 +20,8 @@ const PRIORITY_BADGE = {
  * Smart feature component for viewing and managing a single task.
  * Automatically fetches task data based on the provided taskId.
  */
-export function TaskView({ taskId }: TaskViewProps) {
-  const { data: task, isLoading, error } = useTask(taskId);
+export function TaskView({ taskId, projectId }: TaskViewProps) {
+  const { data: task, isLoading, error } = useTask(projectId, taskId);
 
   if (isLoading) {
     return <div className="h-full flex items-center justify-center text-muted-foreground font-mono">Cargando tarea...</div>;

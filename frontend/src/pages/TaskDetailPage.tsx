@@ -7,7 +7,7 @@ import { TaskView } from "@/features/tasks";
  * Thin orchestrator — delegates to feature components.
  */
 export function TaskDetailPage() {
-  const { taskId } = useParams({ from: "/app/projects/$projectId/tasks/$taskId" });
+  const { projectId, taskId } = useParams({ from: "/app/projects/$projectId/tasks/$taskId" });
 
-  return <TaskView taskId={taskId} />;
+  return <TaskView taskId={taskId} projectId={projectId} />;
 }

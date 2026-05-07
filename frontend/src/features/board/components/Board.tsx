@@ -7,6 +7,7 @@ import type { Task, TaskStatus } from "@/types";
 
 interface BoardProps {
   onOpenTask: (t: Task) => void;
+  projectId: string;
 }
 
 const COLUMNS: { id: TaskStatus; label: string }[] = [
@@ -28,9 +29,9 @@ const PRIORITY_DOT = {
  * Feature component for the Kanban board.
  * Connects to useTasks and useMoveTask for data and state transitions.
  */
-export function Board({ onOpenTask }: BoardProps) {
-  const { data: tasks = [], isLoading } = useTasks();
-  const { mutate: moveTask } = useMoveTask();
+export function Board({ onOpenTask, projectId }: BoardProps) {
+  const { data: tasks = [], isLoading } = useTasks(projectId);
+  const { mutate: moveTask } = useMoveTask(projectId);
 
   const [dragId, setDragId] = useState<string | null>(null);
   const [overCol, setOverCol] = useState<TaskStatus | null>(null);

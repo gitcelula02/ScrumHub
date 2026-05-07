@@ -15,5 +15,5 @@ export function DashboardPage() {
     navigate({ to: "/app/projects/$projectId/tasks/$taskId", params: { projectId, taskId: task.id } });
   };
 
-  return <Board onOpenTask={handleOpenTask} />;
+  return <Board onOpenTask={handleOpenTask} projectId={projectId} />;
 }

@@ -18,7 +18,7 @@ const DASHBOARD_TAB: Tab = { id: "dashboard", label: "Tablero", kind: "dashboard
  */
 export function AppShell({ children }: { children?: ReactNode }) {
   const params = useParams({ strict: false });
-  const { data: tasks = [] } = useTasks();
+  const { data: tasks = [] } = useTasks(params.projectId ?? '');
   const [tabs, setTabs] = useState<Tab[]>([DASHBOARD_TAB]);
   const [activeTab, setActiveTab] = useState<string>("dashboard");
   const [paletteOpen, setPaletteOpen] = useState(false);
