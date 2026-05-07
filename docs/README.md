@@ -10,7 +10,8 @@ Complete documentation index for the ScrumHub project.
 |----------|---------|
 | **[TRUTH.md](./TRUTH.md)** | **Source of Truth** — Architecture, entities, UI/UX, features. Always read this first. |
 | **[AGENTS.md](./AGENTS.md)** | AI Assistant coding guide. Stack, conventions, component patterns. |
-| **[BRAND_CONTEXT.md](./BRAND_CONTEXT.md)** | Visual design language. Typography, colors, layout principles. |
+| **[FRONTEND_STYLING.md](./FRONTEND_STYLING.md)** | Visual design language + maintenance guide. Typography, colors, layout, component specs, anti-patterns, and enforcement checklists. |
+| **[FRONTEND_ARCHITECTURE.md](./FRONTEND_ARCHITECTURE.md)** | Frontend technical structure — File organization, Three-Tier Rule, routing logic, and scalability. |
 
 ---
 
@@ -41,11 +42,15 @@ TRUTH.md (start here)
     ↓
 AGENTS.md (coding conventions)
     ↓
+FRONTEND_STYLING.md (visual design, maintenance, anti-patterns)
+    ↓
+FRONTEND_ARCHITECTURE.md (technical structure, component tiers)
+    ↓
 ERD.md (data) ←→ ENDPOINTS.md (API)
     ↓
 FEATURES.md (what we build)
     ↓
-UX.md / BRAND_CONTEXT.md (how it looks)
+UX.md (how it works)
 ```
 
 ### When Working On...
@@ -53,10 +58,10 @@ UX.md / BRAND_CONTEXT.md (how it looks)
 | Task | Read First |
 |------|------------|
 | Any code | TRUTH.md + AGENTS.md |
-| UI Components | BRAND_CONTEXT.md + AGENTS.md |
+| UI Components | FRONTEND_STYLING.md + AGENTS.md |
 | Backend/Data | TRUTH.md + ERD.md |
 | API Integration | TRUTH.md + ENDPOINTS.md |
-| UX Design | UX.md + BRAND_CONTEXT.md |
+| UX Design | UX.md + FRONTEND_STYLING.md |
 
 ---
 
@@ -65,7 +70,7 @@ UX.md / BRAND_CONTEXT.md (how it looks)
 1. **TRUTH.md is the source of truth** — If docs conflict, TRUTH.md wins
 2. **AGENTS.md defines coding conventions** — Follow these patterns strictly
 3. **ERD.md and ENDPOINTS.md must stay in sync** — Update both when changing data
-4. **BRAND_CONTEXT.md is design reference** — UI must match visual language
+4. **FRONTEND_STYLING.md is the design system** — UI must match visual language, typography, component specs, and anti-patterns defined there
 
 ---
 
