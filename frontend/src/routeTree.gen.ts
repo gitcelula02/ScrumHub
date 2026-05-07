@@ -15,6 +15,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppProjectsIndexRouteImport } from './routes/app/projects/index'
+import { Route as AppProjectsCreateRouteImport } from './routes/app/projects/create'
 import { Route as AppProjectsProjectIdRouteRouteImport } from './routes/app/projects/$projectId/route'
 import { Route as AppProjectsProjectIdSprintsRouteImport } from './routes/app/projects/$projectId/sprints'
 import { Route as AppProjectsProjectIdSettingsRouteImport } from './routes/app/projects/$projectId/settings'
@@ -55,6 +56,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const AppProjectsIndexRoute = AppProjectsIndexRouteImport.update({
   id: '/projects/',
   path: '/projects/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProjectsCreateRoute = AppProjectsCreateRouteImport.update({
+  id: '/projects/create',
+  path: '/projects/create',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProjectsProjectIdRouteRoute =
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/app/': typeof AppIndexRoute
   '/app/projects/$projectId': typeof AppProjectsProjectIdRouteRouteWithChildren
+  '/app/projects/create': typeof AppProjectsCreateRoute
   '/app/projects/': typeof AppProjectsIndexRoute
   '/app/projects/$projectId/backlog': typeof AppProjectsProjectIdBacklogRoute
   '/app/projects/$projectId/board': typeof AppProjectsProjectIdBoardRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/app': typeof AppIndexRoute
   '/app/projects/$projectId': typeof AppProjectsProjectIdRouteRouteWithChildren
+  '/app/projects/create': typeof AppProjectsCreateRoute
   '/app/projects': typeof AppProjectsIndexRoute
   '/app/projects/$projectId/backlog': typeof AppProjectsProjectIdBacklogRoute
   '/app/projects/$projectId/board': typeof AppProjectsProjectIdBoardRoute
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/app/': typeof AppIndexRoute
   '/app/projects/$projectId': typeof AppProjectsProjectIdRouteRouteWithChildren
+  '/app/projects/create': typeof AppProjectsCreateRoute
   '/app/projects/': typeof AppProjectsIndexRoute
   '/app/projects/$projectId/backlog': typeof AppProjectsProjectIdBacklogRoute
   '/app/projects/$projectId/board': typeof AppProjectsProjectIdBoardRoute
@@ -190,6 +199,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/app/'
     | '/app/projects/$projectId'
+    | '/app/projects/create'
     | '/app/projects/'
     | '/app/projects/$projectId/backlog'
     | '/app/projects/$projectId/board'
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/app'
     | '/app/projects/$projectId'
+    | '/app/projects/create'
     | '/app/projects'
     | '/app/projects/$projectId/backlog'
     | '/app/projects/$projectId/board'
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/app/'
     | '/app/projects/$projectId'
+    | '/app/projects/create'
     | '/app/projects/'
     | '/app/projects/$projectId/backlog'
     | '/app/projects/$projectId/board'
@@ -289,6 +301,13 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/app/projects/'
       preLoaderRoute: typeof AppProjectsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/projects/create': {
+      id: '/app/projects/create'
+      path: '/projects/create'
+      fullPath: '/app/projects/create'
+      preLoaderRoute: typeof AppProjectsCreateRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/projects/$projectId': {
@@ -407,12 +426,14 @@ const AppProjectsProjectIdRouteRouteWithChildren =
 interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppProjectsProjectIdRouteRoute: typeof AppProjectsProjectIdRouteRouteWithChildren
+  AppProjectsCreateRoute: typeof AppProjectsCreateRoute
   AppProjectsIndexRoute: typeof AppProjectsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppProjectsProjectIdRouteRoute: AppProjectsProjectIdRouteRouteWithChildren,
+  AppProjectsCreateRoute: AppProjectsCreateRoute,
   AppProjectsIndexRoute: AppProjectsIndexRoute,
 }
 

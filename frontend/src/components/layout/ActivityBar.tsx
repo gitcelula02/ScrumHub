@@ -17,8 +17,10 @@ const items: { id: ActivityView; icon: React.ElementType; label: string; path: s
   { id: "sprints", icon: Zap, label: "Sprints", path: "/app/projects/$projectId/sprints", projectOnly: true },
   { id: "epics", icon: Layers, label: "Épicas", path: "/app/projects/$projectId/dashboard", projectOnly: true },
   { id: "permissions", icon: Shield, label: "Permisos", path: "/app/projects/$projectId/settings", projectOnly: true },
-  { id: "search", icon: Search, label: "Buscar", path: "/app/projects/$projectId/dashboard", projectOnly: true },
-  { id: "branches", icon: GitBranch, label: "Ramas", path: "/app/projects/$projectId/dashboard", projectOnly: true },
+  // TODO: Enable once /app/projects/$projectId/search route is created
+  // { id: "search", icon: Search, label: "Buscar", path: "/app/projects/$projectId/search", projectOnly: true },
+  // TODO: Enable once /app/projects/$projectId/branches route is created
+  // { id: "branches", icon: GitBranch, label: "Ramas", path: "/app/projects/$projectId/branches", projectOnly: true },
 ];
 
 /**
