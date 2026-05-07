@@ -66,11 +66,11 @@ export function TaskView({ taskId }: TaskViewProps) {
             <MessageSquare size={12} /> Comentarios
           </h2>
           <div className="space-y-3">
-            {task.comments.map((c, i) => (
+            {task.comments?.map((c, i) => (
               <div key={i} className="border border-panel-border rounded-sm p-3 bg-sidebar-bg">
                 <div className="flex items-center gap-2 mb-1">
                   <div className="w-5 h-5 rounded-full bg-accent text-accent-foreground text-[9px] font-semibold flex items-center justify-center">
-                    {c.author.split(" ").map((p) => p[0]).slice(0, 2).join("")}
+                    {c.author?.split(" ").map((p) => p[0]).slice(0, 2).join("")}
                   </div>
                   <span className="text-[12px] text-foreground">{c.author}</span>
                   <span className="font-mono text-[11px] text-muted-foreground">{c.when}</span>
@@ -103,7 +103,7 @@ export function PropertiesPanel({ taskId }: { taskId: string }) {
         <Field label="Asignado a">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold flex items-center justify-center">
-              {task.assignee.split(" ").map((p) => p[0]).slice(0, 2).join("")}
+              {task.assignee?.split(" ").map((p) => p[0]).slice(0, 2).join("")}
             </div>
             <span>{task.assignee}</span>
           </div>
@@ -118,7 +118,7 @@ export function PropertiesPanel({ taskId }: { taskId: string }) {
         </Field>
         <Field label="Etiquetas">
           <div className="flex flex-wrap gap-1">
-            {task.labels.map((l) => (
+            {task.labels?.map((l) => (
               <span
                 key={l}
                 className="flex items-center gap-1 px-1.5 py-0.5 text-[11px] font-mono border border-panel-border rounded-sm text-muted-foreground"

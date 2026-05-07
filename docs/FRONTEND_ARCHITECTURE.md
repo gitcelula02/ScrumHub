@@ -284,26 +284,26 @@ This enables type-safe navigation with `useNavigate()` and `router.navigate()`.
 The layout is **NOT** the traditional sidebar + topbar pattern. It is a **VS Code-inspired multi-panel IDE layout**:
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│  TitleBar  (window controls + "ScrumHub" + Ctrl+Shift+P)          │
-├─────┬──────────────────────────────┬────────────────────────────┤
-│     │  Explorer (file-tree style)  │                             │
-│  A  │  ┌─ Dashboard ────────────┐  │   Tab1 │ Tab2 │ Tab3 │     │
-│  c  │  ├─ project/              │  ├──────────────────────────────┤
-│  t  │  │  ├─ Tasks              │  │                              │
-│  i  │  │  ├─ Epics              │  │   <Outlet /> (Dashboard)     │
-│  v  │  │  └─ Sprints            │  │   OR                         │
-│  i  │  └────────────────────────┘  │   <EpicsView />              │
-│  t  │                              │   OR                         │
-│  y  │                              │   <TaskView taskId="..." />  │
-│     │                              │                              │
-│  B  ├──────────────────────────────┤  ┌──────────────────────┐  │
-│  a  │                              │  │  PropertiesPanel      │  │
-│  r  │                              │  │  (task detail)        │  │
-│     │                              │  └──────────────────────┘  │
-├─────┴──────────────────────────────┴────────────────────────────┤
-│  StatusBar  (main ● | 3 alerts | notifications)                  │
-└──────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│  TitleBar  (window controls + "ScrumHub" + Ctrl+Shift+P)            │
+├─────┬──────────────────────────────┬────────────────────────────────┤
+│     │  Explorer (file-tree style)  │                                │
+│  A  │  ┌─ Project/ ────────────┐   │   Tab1 │ Tab2 │ Tab3 │         │
+│  c  │  ├─ Epics/               │   ├────────────────────────────────┤
+│  t  │  │  ├─ Tasks             │   │                                │
+│  i  │  │  ├─ User Stories      │   │   <Outlet /> (Dashboard)       │
+│  v  │  │  └─ Sprints           │   │   OR                           │
+│  i  │  └───────────────────────┘   │   <EpicsView />                │
+│  t  │                              │   OR                           │
+│  y  │                              │   <TaskView taskId="..." />    │
+│     │                              │                                │
+│  B  ├──────────────────────────────┤  ┌──────────────────────┐      │
+│  a  │                              │  │  PropertiesPanel     │      │
+│  r  │                              │  │  (task detail)       │      │
+│     │                              │  └──────────────────────┘      │
+├─────┴──────────────────────────────┴────────────────────────────────┤
+│  StatusBar  (main ● | 3 alerts | notifications)                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ### `AppShell.tsx` — Main Layout Container
@@ -347,10 +347,6 @@ IDE-style tabs (like VS Code tabs). Each tab represents an open item:
 ### `StatusBar.tsx` — Bottom Bar
 
 Git branch indicator, alert count, notification trigger. Mirrors VS Code's status bar.
-
-### Layout Components NOT Currently Used
-
-`Sidebar.tsx` and `TopBar.tsx` exist in `src/components/layout/` but are **not imported or rendered** by the current `AppShell`. They may be remnants of a previous layout approach. Do not use them — extend the current VS Code pattern instead.
 
 ---
 

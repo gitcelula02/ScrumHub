@@ -112,7 +112,8 @@ export function Explorer({ view, tasks, activeId, onOpen }: ExplorerProps) {
                       </button>
                       {epicOpen &&
                         epic.tasks.map((t) => {
-                          const Icon = STATUS_ICON[t.status];
+                          const Icon = STATUS_ICON[t.status as keyof typeof STATUS_ICON] || Circle;
+                          const colorClass = STATUS_COLOR[t.status as keyof typeof STATUS_COLOR] || "text-muted-foreground";
                           const isActive = t.id === activeId;
                           return (
                             <button
@@ -123,7 +124,7 @@ export function Explorer({ view, tasks, activeId, onOpen }: ExplorerProps) {
                                 isActive && "bg-list-active hover:bg-list-active"
                               )}
                             >
-                              <Icon size={13} className={cn("shrink-0", STATUS_COLOR[t.status])} />
+                              <Icon size={13} className={cn("shrink-0", colorClass)} />
                               <span className="font-mono text-[11px] text-muted-foreground shrink-0">
                                 {t.id}
                               </span>
