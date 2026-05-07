@@ -54,13 +54,13 @@ export const apiClient = (async <T>(endpoint: string, options: RequestOptions = 
 apiClient.get = <T>(endpoint: string, options?: RequestOptions) =>
   apiClient<T>(endpoint, { ...options, method: 'GET' });
 
-apiClient.post = <T>(endpoint: string, body?: any, options?: RequestOptions) =>
+apiClient.post = <T>(endpoint: string, body?: unknown, options?: RequestOptions) =>
   apiClient<T>(endpoint, { ...options, method: 'POST', body: JSON.stringify(body) });
 
-apiClient.put = <T>(endpoint: string, body?: any, options?: RequestOptions) =>
+apiClient.put = <T>(endpoint: string, body?: unknown, options?: RequestOptions) =>
   apiClient<T>(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) });
 
-apiClient.patch = <T>(endpoint: string, body?: any, options?: RequestOptions) =>
+apiClient.patch = <T>(endpoint: string, body?: unknown, options?: RequestOptions) =>
   apiClient<T>(endpoint, { ...options, method: 'PATCH', body: JSON.stringify(body) });
 
 apiClient.delete = <T>(endpoint: string, options?: RequestOptions) =>

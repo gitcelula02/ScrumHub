@@ -30,7 +30,7 @@ export function TaskView({ taskId, projectId }: TaskViewProps) {
   if (error || !task) {
     return <div className="h-full flex items-center justify-center text-destructive font-mono">Error al cargar la tarea.</div>;
   }
-  console.log(task)
+
   return (
     <div className="h-full overflow-auto bg-editor">
       <div className="max-w-4xl mx-auto p-8">
@@ -90,10 +90,10 @@ export function TaskView({ taskId, projectId }: TaskViewProps) {
  * @component PropertiesPanel
  * Feature component for the task properties sidebar.
  */
-export function PropertiesPanel({ taskId }: { taskId: string }) {
-  const { data: task } = useTask(taskId);
+export function PropertiesPanel({ projectId, taskId }: { projectId: string; taskId: string }) {
+  const { data: task, isLoading } = useTask(projectId, taskId);
 
-  if (!task) return null;
+  if (isLoading || !task) return null;
 
   return (
     <aside className="w-72 bg-sidebar-bg border-l border-panel-border overflow-auto">

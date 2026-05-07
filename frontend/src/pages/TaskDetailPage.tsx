@@ -1,5 +1,5 @@
 import { useParams } from "@tanstack/react-router";
-import { TaskView } from "@/features/tasks";
+import { TaskView, PropertiesPanel } from "@/features/tasks";
 
 /**
  * @page TaskDetailPage
@@ -9,5 +9,12 @@ import { TaskView } from "@/features/tasks";
 export function TaskDetailPage() {
   const { projectId, taskId } = useParams({ from: "/app/projects/$projectId/tasks/$taskId" });
 
-  return <TaskView taskId={taskId} projectId={projectId} />;
+  return (
+    <div className="flex h-full">
+      <div className="flex-1 min-w-0">
+        <TaskView taskId={taskId} projectId={projectId} />
+      </div>
+      <PropertiesPanel projectId={projectId} taskId={taskId} />
+    </div>
+  );
 }

@@ -13,7 +13,7 @@ import type { Task } from '@/types';
 export function useTasks(projectId: string) {
   return useQuery<Task[]>({
     queryKey: ['project', projectId, 'tasks'],
-    queryFn: () => backlogService.getTasks(),
+    queryFn: () => backlogService.getTasks(projectId),
   });
 }
 

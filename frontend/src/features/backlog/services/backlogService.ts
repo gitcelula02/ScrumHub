@@ -7,10 +7,11 @@ import type { Task } from '@/types';
  */
 export const backlogService = {
   /**
-   * Fetches all tasks for the backlog.
+   * Fetches all tasks for a project.
+   * @param {string} projectId - The project identifier
    */
-  getTasks: async (): Promise<Task[]> => {
-    return apiClient.get<Task[]>('/tasks');
+  getTasks: async (projectId: string): Promise<Task[]> => {
+    return apiClient.get<Task[]>('/tasks', { params: { project_id: projectId } });
   },
 
   /**
