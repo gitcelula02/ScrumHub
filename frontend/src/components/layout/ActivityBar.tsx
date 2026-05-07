@@ -1,7 +1,6 @@
 import { FolderKanban, ListTodo, Zap, GitBranch, Settings, Search, Bell, Layers, Shield, FileDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useNavigate, useRouterState } from "@tanstack/react-router";
-import { useParams } from "@tanstack/react-router";
+import { useNavigate, useRouterState, useMatchRoute } from "@tanstack/react-router";
 import { useTasks } from "@/features/backlog";
 import { exportSprintReport } from "@/features/workspace/utils/exportPdf";
 
@@ -9,16 +8,17 @@ export type ActivityView = "projects" | "backlog" | "sprints" | "search" | "bran
 
 interface ActivityBarProps {
   onNotifications: () => void;
+  projectId?: string;
 }
 
-const items: { id: ActivityView; icon: React.ElementType; label: string; path: string }[] = [
+const items: { id: ActivityView; icon: React.ElementType; label: string; path: string; projectOnly?: boolean }[] = [
   { id: "projects", icon: FolderKanban, label: "Proyectos", path: "/app/projects" },
-  { id: "backlog", icon: ListTodo, label: "Backlog", path: "/app/projects/$projectId/backlog" },
-  { id: "sprints", icon: Zap, label: "Sprints", path: "/app/projects/$projectId/sprints" },
-  { id: "epics", icon: Layers, label: "Épicas", path: "/app/projects/$projectId/dashboard" },
-  { id: "permissions", icon: Shield, label: "Permisos", path: "/app/projects/$projectId/settings" },
-  { id: "search", icon: Search, label: "Buscar", path: "/app/projects/$projectId/dashboard" },
-  { id: "branches", icon: GitBranch, label: "Ramas", path: "/app/projects/$projectId/dashboard" },
+  { id: "backlog", icon: ListTodo, label: "Backlog", path: "/app/projects/$projectId/backlog", projectOnly: true },
+  { id: "sprints", icon: Zap, label: "Sprints", path: "/app/projects/$projectId/sprints", projectOnly: true },
+  { id: "epics", icon: Layers, label: "Épicas", path: "/app/projects/$projectId/dashboard", projectOnly: true },
+  { id: "permissions", icon: Shield, label: "Permisos", path: "/app/projects/$projectId/settings", projectOnly: true },
+  { id: "search", icon: Search, label: "Buscar", path: "/app/projects/$projectId/dashboard", projectOnly: true },
+  { id: "branches", icon: GitBranch, label: "Ramas", path: "/app/projects/$projectId/dashboard", projectOnly: true },
 ];
 
 /**
@@ -26,9 +26,9 @@ const items: { id: ActivityView; icon: React.ElementType; label: string; path: s
  * VS Code-style vertical activity bar for main view switching.
  * Uses TanStack Router for navigation instead of state callbacks.
  */
-export function ActivityBar({ onNotifications }: ActivityBarProps) {
+export function ActivityBar({ onNotifications, projectId }: ActivityBarProps) {
   const navigate = useNavigate();
-  const params = useParams({ from: "/app/projects/$projectId" });
+  const matchRoute = useMatchRoute();
   const routerState = useRouterState();
   const { data: tasks = [] } = useTasks();
 
@@ -36,15 +36,18 @@ export function ActivityBar({ onNotifications }: ActivityBarProps) {
 
   const isActive = (path: string) => {
     if (path === "/app/projects") return currentPath === "/app/projects";
-    if (path.includes("$projectId")) return currentPath.includes(path.split("$projectId")[1]);
+    if (path.includes("$projectId")) {
+      const pathWithoutParam = path.split("$projectId")[1];
+      return currentPath.includes(pathWithoutParam);
+    }
     return false;
   };
 
   const handleNavigate = (path: string, id: ActivityView) => {
     if (id === "projects") {
       navigate({ to: path });
-    } else {
-      navigate({ to: path, params: { projectId: params.projectId } });
+    } else if (projectId) {
+      navigate({ to: path, params: { projectId } });
     }
   };
 
@@ -63,15 +66,20 @@ export function ActivityBar({ onNotifications }: ActivityBarProps) {
   return (
     <aside className="w-12 bg-activity-bar flex flex-col items-center justify-between border-r border-panel-border select-none">
       <div className="flex flex-col">
-        {items.map(({ id, icon: Icon, label, path }) => {
+        {items.map(({ id, icon: Icon, label, path, projectOnly }) => {
+          if (projectOnly && !projectId) return null;
           const active = isActive(path);
           return (
             <button
               key={id}
               onClick={() => handleNavigate(path, id)}
               title={label}
+              disabled={projectOnly && !projectId}
               className={cn(
-                "relative w-12 h-12 flex items-center justify-center text-activity-bar-fg hover:text-activity-bar-active transition-colors",
+                "relative w-12 h-12 flex items-center justify-center text-activity-bar-fg transition-colors",
+                active && "text-activity-bar-active",
+                (projectOnly && !projectId) && "opacity-30 cursor-not-allowed",
+                !active && !projectOnly && "hover:text-activity-bar-active",
                 active && "text-activity-bar-active"
               )}
             >
@@ -104,9 +112,13 @@ export function ActivityBar({ onNotifications }: ActivityBarProps) {
           )}
         </button>
         <button
-          onClick={() => navigate({ to: "/app/projects/$projectId/settings", params: { projectId: params.projectId } })}
+          onClick={() => projectId && navigate({ to: "/app/projects/$projectId/settings", params: { projectId } })}
           title="Ajustes"
-          className="w-12 h-12 flex items-center justify-center text-activity-bar-fg hover:text-activity-bar-active"
+          disabled={!projectId}
+          className={cn(
+            "w-12 h-12 flex items-center justify-center transition-colors",
+            projectId ? "text-activity-bar-fg hover:text-activity-bar-active" : "text-activity-bar-fg opacity-30 cursor-not-allowed"
+          )}
         >
           <Settings size={22} strokeWidth={1.5} />
         </button>

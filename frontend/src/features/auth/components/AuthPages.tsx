@@ -30,7 +30,7 @@ export function LoginPage() {
       const response = await authService.login({ email, password });
       auth.login(response.token, response.user);
       toast.success("Bienvenido de nuevo");
-      navigate({ to: "/app/dashboard" });
+      navigate({ to: "/app/projects" });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Error al iniciar sesión";
       toast.error(message);

@@ -40,6 +40,9 @@ function NotFoundComponent() {
 }
 
 function RootBeforeLoad() {
+  if (typeof window === 'undefined') {
+    return { isAuthenticated: false, isLoading: true };
+  }
   const userJson = localStorage.getItem('user');
   const token = localStorage.getItem('auth_token');
   const isAuthenticated = !!(userJson && token && userJson !== 'undefined');
