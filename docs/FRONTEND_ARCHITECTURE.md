@@ -65,15 +65,15 @@ frontend/src/
 │
 ├── components/
 │   ├── layout/                     # VS Code-style layout components
-│   │   ├── ActivityBar.tsx         # Left icon bar (projects/backlog/sprints/epics/perms)
+│   │   ├── index.ts                # Barrel export (AppShell, ActivityBar, TitleBar, StatusBar)
+│   │   ├── ActivityBar.tsx        # Left icon bar (projects/backlog/sprints/settings)
 │   │   ├── AppShell.tsx            # Main IDE-like container (TitleBar + ActivityBar +
 │   │   │                           #   Explorer + Tabs + Outlet + StatusBar)
 │   │   ├── MobileMenu.tsx          # Mobile overlay nav
-│   │   ├── Sidebar.tsx             # (exists but NOT used in current AppShell)
 │   │   ├── StatusBar.tsx           # Bottom bar (git branch, notifications, alerts)
 │   │   ├── TitleBar.tsx            # Top bar (window controls, app title, palette trigger)
+│   │   ├── Sidebar.tsx             # (exists but NOT used in current AppShell)
 │   │   └── TopBar.tsx              # (exists but NOT used in current AppShell)
-│   │   NO index.ts barrel export   # ← NOTE: barrel export missing, add when extending
 │   │
 │   └── ui/                         # 45 shared UI atoms (all have JSDoc, all exported via index.ts)
 │       ├── index.ts                 # Barrel export for all 45 atoms
@@ -92,11 +92,11 @@ frontend/src/
 │   ├── calendar/                   # STUB (index.ts only) ← needs implementation
 │   ├── chat/                       # STUB (index.ts only) ← needs implementation
 │   ├── overview/                   # STUB (index.ts only) ← needs implementation
-│   ├── projects/                   # EpicsView.tsx, project services
+│   ├── projects/                   # projectQuery, projectService
 │   ├── quest-tree/                 # STUB (index.ts only) ← needs implementation
 │   ├── settings/                   # PermissionsView.tsx + settings services
 │   ├── sprints/                    # STUB (index.ts only) ← needs implementation
-│   ├── tasks/                      # TaskView.tsx + PropertiesPanel import (BROKEN: missing file)
+│   ├── tasks/                      # TaskView.tsx + PropertiesPanel (fixed)
 │   ├── workspace/                  # Explorer.tsx, Tabs.tsx, CommandPalette.tsx, utils
 │   └── ai/                         # AINotifications.tsx, useAI, aiService
 │
@@ -105,9 +105,25 @@ frontend/src/
 │   ├── index.tsx                   # Landing page (/)
 │   ├── login.tsx                   # Login (/login)
 │   ├── register.tsx               # Register (/register)
-│   ├── app.tsx                     # Auth guard (/app) — wraps all authenticated routes
 │   └── app/
-│       └── dashboard.tsx           # Dashboard (/app/dashboard) — placeholder, just shows <Outlet />
+│       ├── route.tsx               # Auth guard wrapper (beforeLoad)
+│       ├── index.tsx               # Redirect to /app/projects
+│       └── projects/
+│           ├── index.tsx           # Project list (/app/projects)
+│           ├── create.tsx          # Create project (/app/projects/create)
+│           └── $projectId/
+│               ├── route.tsx       # Project layout + project loader
+│               ├── dashboard.tsx
+│               ├── board.tsx
+│               ├── backlog.tsx
+│               ├── calendar.tsx
+│               ├── sprints.tsx
+│               ├── settings.tsx
+│               ├── tasks/$taskId.tsx
+│               ├── epics/$epicId.tsx
+│               └── chat/
+│                   ├── index.tsx
+│                   └── $sessionId.tsx
 │
 ├── pages/                          # Route target pages (thin orchestrators)
 │   ├── LandingPage.tsx             # Public landing
@@ -310,13 +326,11 @@ The layout is **NOT** the traditional sidebar + topbar pattern. It is a **VS Cod
 
 **Purpose:** The central VS Code-like shell. It composes TitleBar, ActivityBar, Explorer, Tabs, and StatusBar around a `<Outlet />` for route content.
 
-**Current behavior (problematic):**
-- `AppShell` is a **stateful panel manager**, not a pure layout wrapper
-- The `<Outlet />` from TanStack Router only renders for `current.kind === "dashboard"`
-- Most "views" (EpicsView, TaskView, PermissionsView) are rendered directly inside `AppShell` as conditional JSX based on `ActivityView` state — NOT as proper child routes
-- This means clicking ActivityBar icons doesn't navigate to new routes; it changes which panel is shown
-
-**What to change (see Section 15):** Each ActivityView should become a proper child route of `/app/`.
+**Realized behavior (post-migration):**
+- `AppShell` is a **pure layout wrapper** — it renders `<Outlet />` and nothing else
+- Views are determined by the route tree, not by local state
+- `AppShell` only renders inside `/app/projects/$projectId/*` via the layout route
+- ActivityBar uses `useNavigate` for route-driven navigation
 
 ### `TitleBar.tsx` — Top Bar
 
@@ -430,12 +444,12 @@ features/<name>/
 |---------|--------|-------|-------|
 | `workspace/` | ✅ Complete | 6 | Explorer, Tabs, CommandPalette, utils |
 | `board/` | ✅ Complete | 4 | Board.tsx, useBoard, boardService |
-| `tasks/` | ⚠️ Broken | 2 | TaskView exists; PropertiesPanel imported but missing |
+| `tasks/` | ✅ Complete | 2 | TaskView, PropertiesPanel (both working) |
 | `ai/` | ✅ Complete | 4 | AINotifications, useAI, aiService |
 | `auth/` | ✅ Complete | 4 | authService, useAuthSession, AuthPages |
-| `projects/` | ✅ Partial | 2 | EpicsView; needs backlog/board/sprint views |
+| `projects/` | ✅ Complete | 3 | projectQuery, projectService, projectService |
 | `settings/` | ✅ Partial | 2 | PermissionsView; needs general/user settings panels |
-| `backlog/` | ✅ Partial | 3 | useTasks, backlogService; needs BacklogTable component |
+| `backlog/` | ✅ Complete | 3 | useTasks (hierarchical keys), backlogService (project-scoped API) |
 | `calendar/` | ❌ Stub | 1 | index.ts only |
 | `chat/` | ❌ Stub | 1 | index.ts only |
 | `overview/` | ❌ Stub | 1 | index.ts only |
@@ -446,8 +460,9 @@ features/<name>/
 
 **`features/tasks/`** — Task Detail View
 - `components/TaskView.tsx`: Renders a task's full detail (title, status, assignee, description, comments)
-- Currently imported by `AppShell` as a conditional panel (not a route)
-- **BROKEN:** `AppShell` also imports `PropertiesPanel` which does not exist as a file
+- `components/TaskView.tsx` also exports `PropertiesPanel`: Renders task properties sidebar (assignee, reporter, sprint, points, due date, labels)
+- **`src/pages/TaskDetailPage.tsx`**: Thin orchestrator that composes both components in a side-by-side flex layout (`<div className="flex h-full">`) — `TaskView` takes `flex-1 min-w-0` (left), `PropertiesPanel` takes `~288px` fixed sidebar (right)
+- `PropertiesPanel` is conditional — only renders when `task` data is loaded (`if (isLoading || !task) return null`)
 
 **`features/workspace/`** — VS Code Explorer Pattern
 - `components/Explorer.tsx`: File-tree style project explorer
@@ -590,195 +605,103 @@ async getData() {
 
 ---
 
-## 15. TanStack Router Scalability Guide
+## 15. TanStack Router Scalability — Realized Structure
 
-### Current Problem: State-Driven Views, Not Route-Driven Views
+### Realized Route Architecture
 
-The current `AppShell` uses React state (`view: ActivityView`, `tabs: Tab[]`) to determine what content to show. Only the Dashboard content uses `<Outlet />` for routing. This creates a scaling problem:
-
-**Problem:** Adding a new view (e.g., Calendar, Board, Chat) requires:
-1. Adding a new `ActivityView` type
-2. Adding a new icon in `ActivityBar`
-3. Adding conditional rendering in `AppShell`
-4. Manually managing tab state for the new view
-
-This violates the **open/closed principle** — `AppShell` must be modified every time a new view is added.
-
-### Recommended Pattern: Route-Driven Layout
-
-TanStack Router supports **nested layouts** natively. The recommended approach is to make each major view a proper child route of `/app/`:
+The migration to route-driven layout is complete. The application now follows the `$projectId` layout pattern:
 
 ```
-/app                          → AppShell layout (AuthGuard + AppShell)
-/app/dashboard                → Dashboard content (current <Outlet /> content)
-/app/backlog                 → BacklogView (proper route!)
-/app/board                    → BoardView (proper route!)
-/app/calendar                 → CalendarView (proper route!)
-/app/chat                     → ChatView (proper route!)
-/app/sprints                  → SprintView (proper route!)
-/app/sprints/:sprintId        → SprintDetailView
-/app/workspace                → WorkspaceView
-/app/settings                 → SettingsView
-/app/tasks/:taskId            → TaskDetailPage (outside AppShell or as modal)
+/app                          → Auth guard (beforeLoad redirect)
+/app/projects                 → Workspace context (no AppShell)
+/app/projects/create           → Create project (no AppShell)
+/app/projects/$projectId/*    → Project workspace (AppShell + Outlet)
 ```
 
-**Benefits:**
-1. **Deep linking** — every view has a URL; users can bookmark, share, and navigate with browser back/forward
-2. **No state explosion** — new views don't require modifying `AppShell`; they add a new route file
-3. **TanStack Router loads the correct tree automatically** — just create the file
-4. **Parallel data fetching** — route `loader:` functions can fetch data before the component renders
-5. **Route-level code splitting** — each route component is lazily loaded
+### Project Layout Route
 
-### How to Add a Route
-
-**Step 1:** Create the route file in `src/routes/app/`:
+**`src/routes/app/projects/$projectId/route.tsx`** is the single source of truth for the project layout:
 
 ```tsx
-// src/routes/app/calendar.tsx
-import { createFileRoute } from "@tanstack/react-router";
-
-export const Route = createFileRoute("/app/calendar")({
-  component: CalendarPage,
+export const Route = createFileRoute("/app/projects/$projectId")({
+  loader: async ({ params, context: { queryClient } }) => {
+    return queryClient.ensureQueryData(projectQuery(params.projectId));
+  },
+  component: ProjectLayout,
 });
-```
 
-**Step 2:** Create the page in `src/pages/`:
-
-```tsx
-// src/pages/CalendarPage.tsx
-import { useParams } from "@tanstack/react-router";
-import { useCalendar } from "@/features/calendar/hooks/useCalendar";
-import { CalendarView } from "@/features/calendar/components/CalendarView";
-
-export default function CalendarPage() {
-  const { projectId } = useParams({ from: "/app/calendar" });
-  const { tasksByDate, loading } = useCalendar(projectId);
-  return <CalendarView tasksByDate={tasksByDate} loading={loading} />;
-}
-```
-
-**Step 3:** Add to `src/features/calendar/` (create if stub):
-
-```ts
-// src/features/calendar/hooks/useCalendar.ts
-// src/features/calendar/services/calendarService.ts
-// src/features/calendar/components/CalendarView.tsx
-```
-
-TanStack Router's code generation (`routeTree.gen.ts`) **automatically picks up the new file** — no manual registration needed.
-
-### AppShell Refactoring Strategy
-
-The goal is to make `AppShell` a **pure layout** that only renders `<Outlet />` for all child routes, removing the state-driven panel switching:
-
-```tsx
-// TARGET: src/routes/app.tsx
-function AppShellLayout() {
+function ProjectLayout() {
   return (
     <AppShell>
-      <Outlet />   // Each child route renders here
+      <Outlet />
     </AppShell>
   );
 }
-
-// src/routes/app/dashboard.tsx → /app/dashboard
-// src/routes/app/backlog.tsx   → /app/backlog
-// src/routes/app/board.tsx    → /app/board
-// etc.
 ```
 
-**Migration approach (incremental):**
-1. Keep existing `AppShell` as-is
-2. For each new view (calendar, board, chat), create a proper route file AND move rendering out of `AppShell` state into the route component
-3. Gradually migrate existing state-driven views (EpicsView, PermissionsView, TaskView) to route-driven
-4. Once all views are routes, simplify `AppShell` to a pure `<Outlet />` wrapper
+**Key rules:**
+- `AppShell` renders ONLY in this file — nowhere else in the route tree
+- The `loader` pre-fetches the project before any child renders
+- Child routes access project from TanStack Query cache, not from props
 
-### TanStack Router Key APIs
+### Child Route Pattern
 
-| API | File | Purpose |
-|-----|------|---------|
-| `createFileRoute("/path")` | `routes/*.tsx` | Define a route (maps to URL path) |
-| `createRootRoute()` | `routes/__root.tsx` | Define root route with HTML shell |
-| `useNavigate()` | Any component | Type-safe navigation |
-| `useParams()` | Route component | Access URL params |
-| `redirect({ to: "/path" })` | Route loaders | Redirect within a loader |
-| `router.invalidate()` | Event handlers | Force re-fetch of all queries |
-
-### Type-Safe Navigation
+Each view under a project is a thin route + page:
 
 ```tsx
-import { useNavigate } from "@tanstack/react-router";
+// Route file: src/routes/app/projects/$projectId/board.tsx
+export const Route = createFileRoute("/app/projects/$projectId/board")({
+  component: BoardPage,
+});
 
-const navigate = useNavigate();
-
-// Navigate to a route (type-checked!)
-navigate({ to: "/app/calendar", params: { projectId: "123" } });
-navigate({ to: "/app/tasks/$taskId", params: { taskId: task.id } });
-
-// Go back
-navigate({ to: -1 });
+// Page file: src/pages/BoardPage.tsx
+export function BoardPage() {
+  const { projectId } = useParams({ from: "/app/projects/$projectId/board" });
+  const { columns, tasks, isLoading } = useBoard(projectId);
+  return <BoardView columns={columns} tasks={tasks} isLoading={isLoading} />;
+}
 ```
+
+### Auth Guard Pattern
+
+Auth protection uses `beforeLoad` in the root route (not a render-then-redirect component):
+
+```tsx
+// routes/__root.tsx
+beforeLoad: ({ location }) => {
+  const { isAuthenticated } = RootBeforeLoad(); // reads localStorage
+  if (!isAuthenticated && location.pathname.startsWith('/app')) {
+    throw redirect({ to: '/login', search: { redirect: location.href } });
+  }
+},
+```
+
+### Query Key Hierarchical Structure
+
+All project-scoped queries use hierarchical keys:
+
+| Hook | Query Key |
+|------|-----------|
+| `useTasks(projectId)` | `['project', projectId, 'tasks']` |
+| `useTask(projectId, taskId)` | `['project', projectId, 'tasks', taskId]` |
+| `useSprints(projectId)` | `['project', projectId, 'sprints']` |
+| `useBoard(projectId)` | `['project', projectId, 'board']` |
+
+This ensures cache isolation per project and correct invalidation.
 
 ---
 
 ## 16. Known Issues
 
-### 1. `PropertiesPanel` Does Not Exist (BROKEN IMPORT)
-
-`src/components/layout/AppShell.tsx:9` imports `PropertiesPanel` from `@/features/tasks`:
-```tsx
-import { TaskView, PropertiesPanel } from "@/features/tasks";
-```
-
-But `src/features/tasks/index.ts` only exports `TaskView`:
-```ts
-export * from './components/TaskView';
-// PropertiesPanel is NOT exported (and the file may not exist)
-```
-
-**Impact:** AppShell will fail to compile or crash at runtime when trying to render `<PropertiesPanel />`.
-
-**Fix:** Create `src/features/tasks/components/PropertiesPanel.tsx` and export it from `src/features/tasks/index.ts`.
-
-### 2. `Sidebar.tsx` and `TopBar.tsx` Are Unused
+### 1. `Sidebar.tsx` and `TopBar.tsx` Are Unused
 
 These layout components exist in `src/components/layout/` but are **not imported by the current `AppShell`**. The current layout uses ActivityBar/Explorer/TitleBar instead. These files may be removed or repurposed.
 
-### 3. Many Features Are Stubs
+### 2. Many Features Are Stubs
 
 `calendar/`, `chat/`, `overview/`, `quest-tree/`, `sprints/` only have `index.ts` files. They need components, hooks, and services.
 
-### 4. Dashboard Route Is a Placeholder
-
-`/app/dashboard` renders `DashboardPage` but `DashboardPage` likely just shows `<Outlet />`. It needs real dashboard content (stats, velocity chart, etc. — which `features/overview/` stubs suggest should exist).
-
-### 5. No `src/components/layout/index.ts`
-
-The layout directory lacks a barrel export. Import directly:
-```tsx
-import { AppShell } from "@/components/layout/AppShell";
-```
-
-Consider adding `index.ts` for consistency with `src/components/ui/index.ts`.
-
-### 6. `src/routes/app.tsx` — AuthGuard Pattern
-
-The current `AuthGuard` component redirects to `/login` using `useEffect` + `useNavigate`. This works but uses a render-then-redirect pattern. TanStack Router supports `beforeLoad` hooks on routes for earlier redirect (before render). Consider migrating to:
-
-```tsx
-export const Route = createFileRoute("/app")({
-  beforeLoad: ({ context, location }) => {
-    if (!context.auth.isAuthenticated) {
-      throw redirect({ to: "/login", search: { redirect: location.href } });
-    }
-  },
-  component: AppShell,
-});
-```
-
-This would require passing auth context through the router context.
-
 ---
 
-*Last reviewed: 2026-05-06*
-*Last updated from codebase inspection*
+*Last reviewed: 2026-05-07*
+*Last updated: Route-driven migration completed — AppShell decoupled, $projectId layout, hierarchical query keys*
