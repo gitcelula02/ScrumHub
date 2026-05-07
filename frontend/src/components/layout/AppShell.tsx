@@ -1,20 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-import { ActivityBar, type ActivityView } from "./ActivityBar";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { ActivityBar } from "./ActivityBar";
 import { StatusBar } from "./StatusBar";
 import { TitleBar } from "./TitleBar";
 import { Explorer, Tabs, CommandPalette } from "@/features/workspace";
-import { TaskView, PropertiesPanel } from "@/features/tasks";
-import { EpicsView } from "@/features/projects";
-import { PermissionsView } from "@/features/settings";
 import { AINotifications } from "@/features/ai";
 import { useTasks } from "@/features/backlog";
-import { exportSprintReport } from "@/features/workspace/utils/exportPdf";
 import type { Tab, Task } from "@/types";
-import { Outlet } from "@tanstack/react-router";
+import { Outlet, useParams } from "@tanstack/react-router";
 
 const DASHBOARD_TAB: Tab = { id: "dashboard", label: "Tablero", kind: "dashboard" };
-const EPICS_TAB: Tab = { id: "epics", label: "Épicas", kind: "epics" };
-const PERMS_TAB: Tab = { id: "permissions", label: "Permisos del equipo", kind: "permissions" };
 
 /**
  * @component AppShell
@@ -22,9 +16,9 @@ const PERMS_TAB: Tab = { id: "permissions", label: "Permisos del equipo", kind: 
  * Explorer, Tabs, StatusBar) and uses TanStack Router's <Outlet /> to render
  * child route content.
  */
-export function AppShell() {
+export function AppShell({ children }: { children?: ReactNode }) {
+  const params = useParams({ from: "/app/projects/$projectId" });
   const { data: tasks = [] } = useTasks();
-  const [view, setView] = useState<ActivityView>("projects");
   const [tabs, setTabs] = useState<Tab[]>([DASHBOARD_TAB]);
   const [activeTab, setActiveTab] = useState<string>("dashboard");
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -50,15 +44,6 @@ export function AppShell() {
     openTab({ id: t.id, label: t.id, kind: "task", taskId: t.id });
   };
 
-  const handleViewChange = (v: ActivityView) => {
-    setView(v);
-    if (v === "epics") openTab(EPICS_TAB);
-    else if (v === "permissions") openTab(PERMS_TAB);
-    else if (v === "projects" || v === "backlog" || v === "sprints") {
-      openTab(DASHBOARD_TAB);
-    }
-  };
-
   const closeTab = (id: string) => {
     if (id === "dashboard") return;
     setTabs((prev) => {
@@ -69,7 +54,6 @@ export function AppShell() {
   };
 
   const current = tabs.find((t) => t.id === activeTab) ?? DASHBOARD_TAB;
-  const currentTaskId = current.kind === "task" ? current.taskId : null;
 
   const alertCount = useMemo(() => {
     const now = new Date("2026-04-29");
@@ -85,30 +69,14 @@ export function AppShell() {
     <div className="h-screen w-screen flex flex-col bg-editor text-foreground overflow-hidden">
       <TitleBar onPalette={() => setPaletteOpen(true)} />
       <div className="flex-1 flex min-h-0">
-        <ActivityBar
-          active={view}
-          onChange={handleViewChange}
-          onNotifications={() => setNotificationsOpen(true)}
-          onExport={() => exportSprintReport(tasks)}
-          alertCount={alertCount}
-        />
-        <Explorer view={view} tasks={tasks} activeId={currentTaskId ?? null} onOpen={openTask} />
+        <ActivityBar onNotifications={() => setNotificationsOpen(true)} />
+        <Explorer view="projects" tasks={tasks} activeId={null} onOpen={openTask} />
         <main className="flex-1 flex flex-col min-w-0">
           <Tabs tabs={tabs} activeId={activeTab} onSelect={setActiveTab} onClose={closeTab} />
           <div className="flex-1 flex min-h-0">
             <div className="flex-1 min-w-0">
-              {current.kind === "dashboard" && (
-                <Outlet />
-              )}
-              {current.kind === "epics" && (
-                <EpicsView onOpenTask={openTask} />
-              )}
-              {current.kind === "permissions" && <PermissionsView />}
-              {current.kind === "task" && currentTaskId && (
-                <TaskView taskId={currentTaskId} />
-              )}
+              {children || <Outlet />}
             </div>
-            {currentTaskId && <PropertiesPanel taskId={currentTaskId} />}
           </div>
         </main>
       </div>

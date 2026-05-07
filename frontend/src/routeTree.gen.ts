@@ -13,7 +13,19 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
+import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as AppProjectsIndexRouteImport } from './routes/app/projects/index'
+import { Route as AppProjectsProjectIdRouteRouteImport } from './routes/app/projects/$projectId/route'
+import { Route as AppProjectsProjectIdSprintsRouteImport } from './routes/app/projects/$projectId/sprints'
+import { Route as AppProjectsProjectIdSettingsRouteImport } from './routes/app/projects/$projectId/settings'
+import { Route as AppProjectsProjectIdDashboardRouteImport } from './routes/app/projects/$projectId/dashboard'
+import { Route as AppProjectsProjectIdCalendarRouteImport } from './routes/app/projects/$projectId/calendar'
+import { Route as AppProjectsProjectIdBoardRouteImport } from './routes/app/projects/$projectId/board'
+import { Route as AppProjectsProjectIdBacklogRouteImport } from './routes/app/projects/$projectId/backlog'
+import { Route as AppProjectsProjectIdChatIndexRouteImport } from './routes/app/projects/$projectId/chat/index'
+import { Route as AppProjectsProjectIdTasksTaskIdRouteImport } from './routes/app/projects/$projectId/tasks/$taskId'
+import { Route as AppProjectsProjectIdEpicsEpicIdRouteImport } from './routes/app/projects/$projectId/epics/$epicId'
+import { Route as AppProjectsProjectIdChatSessionIdRouteImport } from './routes/app/projects/$projectId/chat/$sessionId'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -35,25 +47,119 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppDashboardRoute = AppDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProjectsIndexRoute = AppProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProjectsProjectIdRouteRoute =
+  AppProjectsProjectIdRouteRouteImport.update({
+    id: '/projects/$projectId',
+    path: '/projects/$projectId',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppProjectsProjectIdSprintsRoute =
+  AppProjectsProjectIdSprintsRouteImport.update({
+    id: '/sprints',
+    path: '/sprints',
+    getParentRoute: () => AppProjectsProjectIdRouteRoute,
+  } as any)
+const AppProjectsProjectIdSettingsRoute =
+  AppProjectsProjectIdSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AppProjectsProjectIdRouteRoute,
+  } as any)
+const AppProjectsProjectIdDashboardRoute =
+  AppProjectsProjectIdDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AppProjectsProjectIdRouteRoute,
+  } as any)
+const AppProjectsProjectIdCalendarRoute =
+  AppProjectsProjectIdCalendarRouteImport.update({
+    id: '/calendar',
+    path: '/calendar',
+    getParentRoute: () => AppProjectsProjectIdRouteRoute,
+  } as any)
+const AppProjectsProjectIdBoardRoute =
+  AppProjectsProjectIdBoardRouteImport.update({
+    id: '/board',
+    path: '/board',
+    getParentRoute: () => AppProjectsProjectIdRouteRoute,
+  } as any)
+const AppProjectsProjectIdBacklogRoute =
+  AppProjectsProjectIdBacklogRouteImport.update({
+    id: '/backlog',
+    path: '/backlog',
+    getParentRoute: () => AppProjectsProjectIdRouteRoute,
+  } as any)
+const AppProjectsProjectIdChatIndexRoute =
+  AppProjectsProjectIdChatIndexRouteImport.update({
+    id: '/chat/',
+    path: '/chat/',
+    getParentRoute: () => AppProjectsProjectIdRouteRoute,
+  } as any)
+const AppProjectsProjectIdTasksTaskIdRoute =
+  AppProjectsProjectIdTasksTaskIdRouteImport.update({
+    id: '/tasks/$taskId',
+    path: '/tasks/$taskId',
+    getParentRoute: () => AppProjectsProjectIdRouteRoute,
+  } as any)
+const AppProjectsProjectIdEpicsEpicIdRoute =
+  AppProjectsProjectIdEpicsEpicIdRouteImport.update({
+    id: '/epics/$epicId',
+    path: '/epics/$epicId',
+    getParentRoute: () => AppProjectsProjectIdRouteRoute,
+  } as any)
+const AppProjectsProjectIdChatSessionIdRoute =
+  AppProjectsProjectIdChatSessionIdRouteImport.update({
+    id: '/chat/$sessionId',
+    path: '/chat/$sessionId',
+    getParentRoute: () => AppProjectsProjectIdRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/app/dashboard': typeof AppDashboardRoute
+  '/app/': typeof AppIndexRoute
+  '/app/projects/$projectId': typeof AppProjectsProjectIdRouteRouteWithChildren
+  '/app/projects/': typeof AppProjectsIndexRoute
+  '/app/projects/$projectId/backlog': typeof AppProjectsProjectIdBacklogRoute
+  '/app/projects/$projectId/board': typeof AppProjectsProjectIdBoardRoute
+  '/app/projects/$projectId/calendar': typeof AppProjectsProjectIdCalendarRoute
+  '/app/projects/$projectId/dashboard': typeof AppProjectsProjectIdDashboardRoute
+  '/app/projects/$projectId/settings': typeof AppProjectsProjectIdSettingsRoute
+  '/app/projects/$projectId/sprints': typeof AppProjectsProjectIdSprintsRoute
+  '/app/projects/$projectId/chat/$sessionId': typeof AppProjectsProjectIdChatSessionIdRoute
+  '/app/projects/$projectId/epics/$epicId': typeof AppProjectsProjectIdEpicsEpicIdRoute
+  '/app/projects/$projectId/tasks/$taskId': typeof AppProjectsProjectIdTasksTaskIdRoute
+  '/app/projects/$projectId/chat/': typeof AppProjectsProjectIdChatIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/app/dashboard': typeof AppDashboardRoute
+  '/app': typeof AppIndexRoute
+  '/app/projects/$projectId': typeof AppProjectsProjectIdRouteRouteWithChildren
+  '/app/projects': typeof AppProjectsIndexRoute
+  '/app/projects/$projectId/backlog': typeof AppProjectsProjectIdBacklogRoute
+  '/app/projects/$projectId/board': typeof AppProjectsProjectIdBoardRoute
+  '/app/projects/$projectId/calendar': typeof AppProjectsProjectIdCalendarRoute
+  '/app/projects/$projectId/dashboard': typeof AppProjectsProjectIdDashboardRoute
+  '/app/projects/$projectId/settings': typeof AppProjectsProjectIdSettingsRoute
+  '/app/projects/$projectId/sprints': typeof AppProjectsProjectIdSprintsRoute
+  '/app/projects/$projectId/chat/$sessionId': typeof AppProjectsProjectIdChatSessionIdRoute
+  '/app/projects/$projectId/epics/$epicId': typeof AppProjectsProjectIdEpicsEpicIdRoute
+  '/app/projects/$projectId/tasks/$taskId': typeof AppProjectsProjectIdTasksTaskIdRoute
+  '/app/projects/$projectId/chat': typeof AppProjectsProjectIdChatIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,14 +167,77 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/app/dashboard': typeof AppDashboardRoute
+  '/app/': typeof AppIndexRoute
+  '/app/projects/$projectId': typeof AppProjectsProjectIdRouteRouteWithChildren
+  '/app/projects/': typeof AppProjectsIndexRoute
+  '/app/projects/$projectId/backlog': typeof AppProjectsProjectIdBacklogRoute
+  '/app/projects/$projectId/board': typeof AppProjectsProjectIdBoardRoute
+  '/app/projects/$projectId/calendar': typeof AppProjectsProjectIdCalendarRoute
+  '/app/projects/$projectId/dashboard': typeof AppProjectsProjectIdDashboardRoute
+  '/app/projects/$projectId/settings': typeof AppProjectsProjectIdSettingsRoute
+  '/app/projects/$projectId/sprints': typeof AppProjectsProjectIdSprintsRoute
+  '/app/projects/$projectId/chat/$sessionId': typeof AppProjectsProjectIdChatSessionIdRoute
+  '/app/projects/$projectId/epics/$epicId': typeof AppProjectsProjectIdEpicsEpicIdRoute
+  '/app/projects/$projectId/tasks/$taskId': typeof AppProjectsProjectIdTasksTaskIdRoute
+  '/app/projects/$projectId/chat/': typeof AppProjectsProjectIdChatIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/login' | '/register' | '/app/dashboard'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/login'
+    | '/register'
+    | '/app/'
+    | '/app/projects/$projectId'
+    | '/app/projects/'
+    | '/app/projects/$projectId/backlog'
+    | '/app/projects/$projectId/board'
+    | '/app/projects/$projectId/calendar'
+    | '/app/projects/$projectId/dashboard'
+    | '/app/projects/$projectId/settings'
+    | '/app/projects/$projectId/sprints'
+    | '/app/projects/$projectId/chat/$sessionId'
+    | '/app/projects/$projectId/epics/$epicId'
+    | '/app/projects/$projectId/tasks/$taskId'
+    | '/app/projects/$projectId/chat/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/login' | '/register' | '/app/dashboard'
-  id: '__root__' | '/' | '/app' | '/login' | '/register' | '/app/dashboard'
+  to:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/app'
+    | '/app/projects/$projectId'
+    | '/app/projects'
+    | '/app/projects/$projectId/backlog'
+    | '/app/projects/$projectId/board'
+    | '/app/projects/$projectId/calendar'
+    | '/app/projects/$projectId/dashboard'
+    | '/app/projects/$projectId/settings'
+    | '/app/projects/$projectId/sprints'
+    | '/app/projects/$projectId/chat/$sessionId'
+    | '/app/projects/$projectId/epics/$epicId'
+    | '/app/projects/$projectId/tasks/$taskId'
+    | '/app/projects/$projectId/chat'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/login'
+    | '/register'
+    | '/app/'
+    | '/app/projects/$projectId'
+    | '/app/projects/'
+    | '/app/projects/$projectId/backlog'
+    | '/app/projects/$projectId/board'
+    | '/app/projects/$projectId/calendar'
+    | '/app/projects/$projectId/dashboard'
+    | '/app/projects/$projectId/settings'
+    | '/app/projects/$projectId/sprints'
+    | '/app/projects/$projectId/chat/$sessionId'
+    | '/app/projects/$projectId/epics/$epicId'
+    | '/app/projects/$projectId/tasks/$taskId'
+    | '/app/projects/$projectId/chat/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -108,22 +277,143 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/dashboard': {
-      id: '/app/dashboard'
-      path: '/dashboard'
-      fullPath: '/app/dashboard'
-      preLoaderRoute: typeof AppDashboardRouteImport
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/app/projects/': {
+      id: '/app/projects/'
+      path: '/projects'
+      fullPath: '/app/projects/'
+      preLoaderRoute: typeof AppProjectsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/projects/$projectId': {
+      id: '/app/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/app/projects/$projectId'
+      preLoaderRoute: typeof AppProjectsProjectIdRouteRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/projects/$projectId/sprints': {
+      id: '/app/projects/$projectId/sprints'
+      path: '/sprints'
+      fullPath: '/app/projects/$projectId/sprints'
+      preLoaderRoute: typeof AppProjectsProjectIdSprintsRouteImport
+      parentRoute: typeof AppProjectsProjectIdRouteRoute
+    }
+    '/app/projects/$projectId/settings': {
+      id: '/app/projects/$projectId/settings'
+      path: '/settings'
+      fullPath: '/app/projects/$projectId/settings'
+      preLoaderRoute: typeof AppProjectsProjectIdSettingsRouteImport
+      parentRoute: typeof AppProjectsProjectIdRouteRoute
+    }
+    '/app/projects/$projectId/dashboard': {
+      id: '/app/projects/$projectId/dashboard'
+      path: '/dashboard'
+      fullPath: '/app/projects/$projectId/dashboard'
+      preLoaderRoute: typeof AppProjectsProjectIdDashboardRouteImport
+      parentRoute: typeof AppProjectsProjectIdRouteRoute
+    }
+    '/app/projects/$projectId/calendar': {
+      id: '/app/projects/$projectId/calendar'
+      path: '/calendar'
+      fullPath: '/app/projects/$projectId/calendar'
+      preLoaderRoute: typeof AppProjectsProjectIdCalendarRouteImport
+      parentRoute: typeof AppProjectsProjectIdRouteRoute
+    }
+    '/app/projects/$projectId/board': {
+      id: '/app/projects/$projectId/board'
+      path: '/board'
+      fullPath: '/app/projects/$projectId/board'
+      preLoaderRoute: typeof AppProjectsProjectIdBoardRouteImport
+      parentRoute: typeof AppProjectsProjectIdRouteRoute
+    }
+    '/app/projects/$projectId/backlog': {
+      id: '/app/projects/$projectId/backlog'
+      path: '/backlog'
+      fullPath: '/app/projects/$projectId/backlog'
+      preLoaderRoute: typeof AppProjectsProjectIdBacklogRouteImport
+      parentRoute: typeof AppProjectsProjectIdRouteRoute
+    }
+    '/app/projects/$projectId/chat/': {
+      id: '/app/projects/$projectId/chat/'
+      path: '/chat'
+      fullPath: '/app/projects/$projectId/chat/'
+      preLoaderRoute: typeof AppProjectsProjectIdChatIndexRouteImport
+      parentRoute: typeof AppProjectsProjectIdRouteRoute
+    }
+    '/app/projects/$projectId/tasks/$taskId': {
+      id: '/app/projects/$projectId/tasks/$taskId'
+      path: '/tasks/$taskId'
+      fullPath: '/app/projects/$projectId/tasks/$taskId'
+      preLoaderRoute: typeof AppProjectsProjectIdTasksTaskIdRouteImport
+      parentRoute: typeof AppProjectsProjectIdRouteRoute
+    }
+    '/app/projects/$projectId/epics/$epicId': {
+      id: '/app/projects/$projectId/epics/$epicId'
+      path: '/epics/$epicId'
+      fullPath: '/app/projects/$projectId/epics/$epicId'
+      preLoaderRoute: typeof AppProjectsProjectIdEpicsEpicIdRouteImport
+      parentRoute: typeof AppProjectsProjectIdRouteRoute
+    }
+    '/app/projects/$projectId/chat/$sessionId': {
+      id: '/app/projects/$projectId/chat/$sessionId'
+      path: '/chat/$sessionId'
+      fullPath: '/app/projects/$projectId/chat/$sessionId'
+      preLoaderRoute: typeof AppProjectsProjectIdChatSessionIdRouteImport
+      parentRoute: typeof AppProjectsProjectIdRouteRoute
     }
   }
 }
 
+interface AppProjectsProjectIdRouteRouteChildren {
+  AppProjectsProjectIdBacklogRoute: typeof AppProjectsProjectIdBacklogRoute
+  AppProjectsProjectIdBoardRoute: typeof AppProjectsProjectIdBoardRoute
+  AppProjectsProjectIdCalendarRoute: typeof AppProjectsProjectIdCalendarRoute
+  AppProjectsProjectIdDashboardRoute: typeof AppProjectsProjectIdDashboardRoute
+  AppProjectsProjectIdSettingsRoute: typeof AppProjectsProjectIdSettingsRoute
+  AppProjectsProjectIdSprintsRoute: typeof AppProjectsProjectIdSprintsRoute
+  AppProjectsProjectIdChatSessionIdRoute: typeof AppProjectsProjectIdChatSessionIdRoute
+  AppProjectsProjectIdEpicsEpicIdRoute: typeof AppProjectsProjectIdEpicsEpicIdRoute
+  AppProjectsProjectIdTasksTaskIdRoute: typeof AppProjectsProjectIdTasksTaskIdRoute
+  AppProjectsProjectIdChatIndexRoute: typeof AppProjectsProjectIdChatIndexRoute
+}
+
+const AppProjectsProjectIdRouteRouteChildren: AppProjectsProjectIdRouteRouteChildren =
+  {
+    AppProjectsProjectIdBacklogRoute: AppProjectsProjectIdBacklogRoute,
+    AppProjectsProjectIdBoardRoute: AppProjectsProjectIdBoardRoute,
+    AppProjectsProjectIdCalendarRoute: AppProjectsProjectIdCalendarRoute,
+    AppProjectsProjectIdDashboardRoute: AppProjectsProjectIdDashboardRoute,
+    AppProjectsProjectIdSettingsRoute: AppProjectsProjectIdSettingsRoute,
+    AppProjectsProjectIdSprintsRoute: AppProjectsProjectIdSprintsRoute,
+    AppProjectsProjectIdChatSessionIdRoute:
+      AppProjectsProjectIdChatSessionIdRoute,
+    AppProjectsProjectIdEpicsEpicIdRoute: AppProjectsProjectIdEpicsEpicIdRoute,
+    AppProjectsProjectIdTasksTaskIdRoute: AppProjectsProjectIdTasksTaskIdRoute,
+    AppProjectsProjectIdChatIndexRoute: AppProjectsProjectIdChatIndexRoute,
+  }
+
+const AppProjectsProjectIdRouteRouteWithChildren =
+  AppProjectsProjectIdRouteRoute._addFileChildren(
+    AppProjectsProjectIdRouteRouteChildren,
+  )
+
 interface AppRouteChildren {
-  AppDashboardRoute: typeof AppDashboardRoute
+  AppIndexRoute: typeof AppIndexRoute
+  AppProjectsProjectIdRouteRoute: typeof AppProjectsProjectIdRouteRouteWithChildren
+  AppProjectsIndexRoute: typeof AppProjectsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppDashboardRoute: AppDashboardRoute,
+  AppIndexRoute: AppIndexRoute,
+  AppProjectsProjectIdRouteRoute: AppProjectsProjectIdRouteRouteWithChildren,
+  AppProjectsIndexRoute: AppProjectsIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

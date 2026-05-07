@@ -54,3 +54,13 @@ export interface Tab {
   kind: 'dashboard' | 'task' | 'epics' | 'permissions';
   taskId?: string;
 }
+
+export interface RouterContext {
+  auth: {
+    isAuthenticated: boolean;
+    isLoading: boolean;
+  };
+  queryClient: QueryClient;
+}
+
+import { QueryClient } from '@tanstack/react-query';

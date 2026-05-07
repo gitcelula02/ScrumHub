@@ -2,6 +2,7 @@ import "./shim";
 import { createRouter, useRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import "./styles/globals.css";
+import { QueryClient } from "@tanstack/react-query";
 
 function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
@@ -60,9 +61,8 @@ export const getRouter = () => {
   const router = createRouter({
     routeTree,
     context: {
-      // Context values are provided via React context in __root.tsx
-      // This empty context is for router-level context (loaders, beforeLoad)
-      // TanStack Start handles SSR context injection separately
+      auth: undefined as { isAuthenticated: boolean; isLoading: boolean } | undefined,
+      queryClient: undefined as QueryClient | undefined,
     },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,

@@ -1,6 +1,6 @@
 import "../shim";
 import React from "react";
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute, HeadContent, Scripts, redirect } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import "../styles/globals.css";
@@ -39,7 +39,20 @@ function NotFoundComponent() {
   );
 }
 
+function RootBeforeLoad() {
+  const userJson = localStorage.getItem('user');
+  const token = localStorage.getItem('auth_token');
+  const isAuthenticated = !!(userJson && token && userJson !== 'undefined');
+  return { isAuthenticated, isLoading: false };
+}
+
 export const Route = createRootRoute({
+  beforeLoad: ({ location }) => {
+    const { isAuthenticated } = RootBeforeLoad();
+    if (!isAuthenticated && location.pathname.startsWith('/app')) {
+      throw redirect({ to: '/login', search: { redirect: location.href } });
+    }
+  },
   head: () => ({
     meta: [
       { charSet: "utf-8" },

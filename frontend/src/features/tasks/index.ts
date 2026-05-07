@@ -1,1 +1,1 @@
-export * from './components/TaskView';
+export { TaskView, PropertiesPanel } from './components/TaskView';
