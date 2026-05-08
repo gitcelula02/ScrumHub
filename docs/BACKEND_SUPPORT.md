@@ -43,27 +43,25 @@ GET /api/users              → [{ id, name, avatar }, ...]
 
 ## Frontend Infrastructure Gaps
 
-The following features described in `AGENTS.md` are **not yet implemented** and block proper entity color handling:
+The following features described in `AGENTS.md` are **now implemented**:
 
-| Gap | Description | Impact |
-|-----|-------------|--------|
-| `ThemeRegistry` | Context provider that caches computed CSS variables per entity color | ProjectCard uses inline `style={{ backgroundColor }}` instead of `--entity-*` vars |
-| `registerEntities()` | Function to register entities with their colors for ThemeRegistry | Entity colors not properly isolated per-project |
-| `useEntityTheme(hex)` | Hook that computes `--entity-bg`, `--entity-fg`, `--entity-border`, `--entity-solid` from hex | Current `useEntityTheme` only returns fixed tokens, not computed values |
+| Gap | Status | Implementation |
+|-----|--------|----------------|
+| `ThemeRegistry` | ✅ **Completed** | `src/store/ThemeRegistry.tsx` — `EntityThemeRegistryProvider` with `getTheme(entityId, color)` function |
+| `useEntityTheme` | ✅ **Completed** | `src/hooks/useEntityTheme.ts` — accepts `(entityId, color)` and returns `React.CSSProperties` with `--entity-*` vars |
+| `generateEntityTheme` | ✅ **Completed** | `src/utils/themeUtils.ts` — OKLCH-based color math for sober variants |
 
-### Required Implementation (Future)
-
-```typescript
-// src/store/ThemeRegistry.tsx
-// 1. Build entity theme from hex color
-// 2. Inject --entity-* CSS variables via inline style
-// 3. Cache computed themes per entity id
-
-// src/hooks/useEntityTheme.ts
-// Update to accept hex color and compute actual entity CSS variables
-export const useEntityTheme = (hexColor: string) => {
-  // Compute and return { --entity-bg, --entity-fg, --entity-border, --entity-solid }
-}
+**Current Flow:**
+```
+useEntityTheme(project.id, project.color)
+  ↓
+EntityThemeRegistry.getTheme() — O(1) cache lookup
+  ↓
+Cache miss → generateEntityTheme(hex) → compute OKLCH variants
+  ↓
+Cache result → return CSSProperties with --entity-solid/bg/border/fg
+  ↓
+Container style={theme} injects vars to subtree
 ```
 
 ---

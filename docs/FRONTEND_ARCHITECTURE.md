@@ -742,5 +742,69 @@ These layout components exist in `src/components/layout/` but are **not imported
 
 ---
 
+## 17. Entity Color System
+
+The entity color system provides dynamic, perceptual color variants for entities with user-defined colors (Project, Epic, Sprint, Status).
+
+### Color Chain
+
+```
+API response: { color: "#3B6D11", id: "1", ... }
+        ↓
+Feature hook calls useEntityTheme(entityId, color)
+        ↓
+EntityThemeRegistry.getTheme() checks cache (O(1) lookup after first compute)
+        ↓
+Cache miss → generateEntityTheme(hex) from themeUtils.ts
+        ↓
+CSS variables --entity-solid/bg/border/fg are computed via OKLCH math
+        ↓
+Feature component spreads style={theme} on container element
+        ↓
+Children access var(--entity-solid), var(--entity-bg), etc.
+```
+
+### CSS Variable Definitions
+
+| Variable | Value | Usage |
+|----------|-------|-------|
+| `--entity-solid` | Full hex | Icon backgrounds, color dots |
+| `--entity-bg` | Low-lightness OKLCH | Badge fills, row tints |
+| `--entity-border` | Medium-lightness OKLCH | Accent borders |
+| `--entity-fg` | High-lightness OKLCH | Text on colored backgrounds |
+
+### Provider Order (Critical)
+
+Providers in `__root.tsx` must be ordered as follows (outermost to innermost):
+
+```tsx
+<QueryClientProvider>
+  <EntityThemeRegistryProvider>   {/* O(1) theme cache */}
+    <ThemeRegistryProvider>      {/* UI theme (dark/light) */}
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
+    </ThemeRegistryProvider>
+  </EntityThemeRegistryProvider>
+</QueryClientProvider>
+```
+
+### Color Math (`src/utils/themeUtils.ts`)
+
+| Function | Purpose |
+|---------|---------|
+| `hexToRgb(hex)` | Parse hex → `{ r, g, b }` |
+| `hexToOklch(hex)` | Parse hex → `{ l, c, h }` (OKLCH color space) |
+| `generateEntityTheme(hex)` | Compute 4 variants → `React.CSSProperties` |
+
+### "Sober" Aesthetic
+
+The system uses muted, desaturated variants while preserving hue identity. This ensures:
+- No jarring saturated colors in the UI
+- All entity-colored elements stay on-brand
+- High contrast for accessibility (--entity-fg ensures readability)
+
+---
+
 *Last reviewed: 2026-05-07*
-*Last updated: Route-driven migration completed — AppShell decoupled, $projectId layout, hierarchical query keys. Added QueryClient context injection documentation.*
+*Last updated: Route-driven migration completed — AppShell decoupled, $projectId layout, hierarchical query keys. Added QueryClient context injection documentation. Added Section 17: Entity Color System with OKLCH math and ThemeRegistry provider.*

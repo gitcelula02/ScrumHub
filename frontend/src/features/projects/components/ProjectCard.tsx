@@ -1,6 +1,7 @@
 import { Star, MoreHorizontal, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { useEntityTheme } from "@/hooks/useEntityTheme";
 import type { Project, ProjectStatus } from "../types";
 
 interface ProjectCardProps {
@@ -57,6 +58,7 @@ export function ProjectCard({
 }: ProjectCardProps) {
   if (!project) return null;
 
+  const theme = useEntityTheme(project.id, project.color);
   const initials = (project.key || "PR").slice(0, 2).toUpperCase();
   const projectStatus = (project.status || "active") as ProjectStatus;
   const statusStyle = STATUS_COLORS[projectStatus] || STATUS_COLORS.active;
@@ -64,6 +66,7 @@ export function ProjectCard({
   return (
     <div
       onClick={onClick}
+      style={theme}
       className={cn(
         "group relative flex flex-col rounded-xl border bg-sidebar-bg p-4 cursor-pointer",
         "border-panel-border hover:border-sidebar-border/80",
@@ -75,8 +78,8 @@ export function ProjectCard({
         <div className="flex items-center gap-3">
           {/* Project Icon */}
           <div
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-[13px] font-bold text-white"
-            style={{ backgroundColor: project.color || "var(--primary)" }}
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-[13px] font-bold"
+            style={{ backgroundColor: 'var(--entity-solid)', color: 'var(--entity-fg)' }}
           >
             {initials}
           </div>

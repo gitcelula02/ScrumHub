@@ -95,13 +95,18 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 import { AuthProvider } from "@/store/AuthContext";
+import { ThemeRegistryProvider, EntityThemeRegistryProvider } from "@/store/ThemeRegistry";
 
 function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Outlet />
-      </AuthProvider>
+      <EntityThemeRegistryProvider>
+        <ThemeRegistryProvider>
+          <AuthProvider>
+            <Outlet />
+          </AuthProvider>
+        </ThemeRegistryProvider>
+      </EntityThemeRegistryProvider>
     </QueryClientProvider>
   );
 }

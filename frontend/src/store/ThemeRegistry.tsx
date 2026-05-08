@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { generateEntityTheme, DEFAULT_ENTITY_THEME } from '@/utils/themeUtils';
 
 type Theme = 'dark' | 'light' | 'high-contrast';
 
@@ -7,13 +8,17 @@ interface ThemeRegistryType {
   setTheme: (theme: Theme) => void;
 }
 
-export const ThemeRegistryContext = createContext<ThemeRegistryType | undefined>(undefined);
+interface EntityThemeRegistry {
+  getTheme: (entityId: string, color: string | undefined | null) => React.CSSProperties;
+}
 
-export const ThemeRegistryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ThemeRegistryCtx = createContext<ThemeRegistryType | undefined>(undefined);
+const EntityThemeRegistryCtx = createContext<EntityThemeRegistry | undefined>(undefined);
+
+export function ThemeRegistryProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
-    // Apply theme class to document
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark', 'high-contrast');
     root.classList.add(theme);
@@ -28,8 +33,50 @@ export const ThemeRegistryProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   return (
-    <ThemeRegistryContext.Provider value={{ theme, setTheme }}>
+    <ThemeRegistryCtx.Provider value={{ theme, setTheme }}>
       {children}
-    </ThemeRegistryContext.Provider>
+    </ThemeRegistryCtx.Provider>
   );
-};
+}
+
+export function EntityThemeRegistryProvider({ children }: { children: React.ReactNode }) {
+  const cache = useMemo(() => new Map<string, React.CSSProperties>(), []);
+
+  const getTheme = useCallback((entityId: string, color: string | undefined | null): React.CSSProperties => {
+    if (!color) {
+      return DEFAULT_ENTITY_THEME;
+    }
+
+    if (cache.has(entityId)) {
+      return cache.get(entityId)!;
+    }
+
+    const theme = generateEntityTheme(color);
+    cache.set(entityId, theme);
+    return theme;
+  }, [cache]);
+
+  const value = useMemo(() => ({ getTheme }), [getTheme]);
+
+  return (
+    <EntityThemeRegistryCtx.Provider value={value}>
+      {children}
+    </EntityThemeRegistryCtx.Provider>
+  );
+}
+
+export function useThemeRegistry() {
+  const context = useContext(ThemeRegistryCtx);
+  if (context === undefined) {
+    throw new Error('useThemeRegistry must be used within a ThemeRegistryProvider');
+  }
+  return context;
+}
+
+export function useEntityThemeRegistry() {
+  const context = useContext(EntityThemeRegistryCtx);
+  if (context === undefined) {
+    throw new Error('useEntityThemeRegistry must be used within an EntityThemeRegistryProvider');
+  }
+  return context;
+}

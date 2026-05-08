@@ -1,21 +1,32 @@
+import type React from 'react';
 import { useMemo } from 'react';
+import { useEntityThemeRegistry } from '@/store/ThemeRegistry';
+import { DEFAULT_ENTITY_THEME } from '@/utils/themeUtils';
 
 /**
- * Hook to determine theme tokens based on an entity (Project, Task, etc.)
+ * @hook useEntityTheme
+ * Returns CSS variables for an entity's color theme.
+ *
+ * Uses the EntityThemeRegistry to cache computed themes, ensuring
+ * O(1) lookup after first computation.
+ *
+ * @param entityId - Unique identifier for the entity (e.g., project.id)
+ * @param color - The entity's color hex string (e.g., project.color)
+ * @returns React.CSSProperties object with --entity-* CSS variables
+ *
+ * @example
+ * const theme = useEntityTheme(project.id, project.color);
+ * <div style={theme}>
+ *   <div style={{ backgroundColor: 'var(--entity-solid)' }}>Icon</div>
+ * </div>
  */
-export const useEntityTheme = (type: 'project' | 'task' | 'sprint', priority?: string) => {
+export function useEntityTheme(entityId: string, color: string | undefined | null): React.CSSProperties {
+  const { getTheme } = useEntityThemeRegistry();
+
   return useMemo(() => {
-    switch (type) {
-      case 'project':
-        return 'var(--primary)';
-      case 'task':
-        if (priority === 'high') return 'var(--priority-high)';
-        if (priority === 'med') return 'var(--priority-med)';
-        return 'var(--priority-low)';
-      case 'sprint':
-        return 'oklch(0.70 0.15 220)';
-      default:
-        return 'inherit';
+    if (!entityId) {
+      return DEFAULT_ENTITY_THEME;
     }
-  }, [type, priority]);
-};
+    return getTheme(entityId, color);
+  }, [entityId, color, getTheme]);
+}
