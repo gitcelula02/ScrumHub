@@ -8,6 +8,8 @@ This document tracks the data needs for each frontend view that requires backend
 
 ### Completed
 - [x] Projects list endpoint: `GET /api/projects` — returns `Project[]` directly (array, not wrapped)
+- [x] Service consolidation: `api.ts` now imports patched `projectsService` from `services/projectsService.ts`
+- [x] `projectQuery` properly handles null (throws `Error` for 404 behavior)
 
 ### Implemented (Frontend Mock)
 | Function | Current Implementation | Backend Requirement |
@@ -66,6 +68,23 @@ export const useEntityTheme = (hexColor: string) => {
 
 ---
 
+## Architecture Decisions
+
+### Duplicate Service Consolidation (2026-05-07)
+
+**Problem**: The `projects` feature had two service definitions:
+- `services/projectsService.ts` (patched to handle both wrapped/unwrapped responses)
+- `api.ts` (had local `projectService` that was UNPATCHED — caused "Query data cannot be undefined")
+
+**Solution**: Consolidated to single source of truth:
+- `api.ts` now imports and uses `projectsService` from `./services/projectsService.ts`
+- `projectQuery` wraps the call with null checking and throws for 404 behavior
+- Removed redundant `projectService` definition from `api.ts`
+
+**Rule**: Each feature should have ONE service file in `services/`. `api.ts` only defines query options (TanStack Query), not service implementations.
+
+---
+
 ## Future Views to Document
 
 Add new views here as they are implemented:
@@ -81,4 +100,4 @@ Add new views here as they are implemented:
 
 *Last updated: 2026-05-07*
 
-*Updated 2026-05-07: Added Frontend Infrastructure Gaps section documenting missing ThemeRegistry, registerEntities(), and useEntityTheme computation*
+*Updated 2026-05-07: Added Frontend Infrastructure Gaps section documenting missing ThemeRegistry, registerEntities(), and useEntityTheme computation. Added Architecture Decisions section documenting duplicate service consolidation.*

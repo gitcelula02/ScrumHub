@@ -155,8 +155,9 @@ frontend/src/
 ├── types/                          # Global TypeScript types
 │   └── index.ts                   # ID, Entity, Task, Project, User, Tab, TaskStatus, Priority
 │
-└── lib/                            # Third-party utilities
-    └── utils.ts                    # cn() — clsx + tailwind-merge (shadcn/ui pattern)
+└── lib/                            # Shared infrastructure
+    ├── utils.ts                    # cn() — clsx + tailwind-merge (shadcn/ui pattern)
+    └── queryClient.ts               # Shared TanStack Query instance (critical for loaders)
 ```
 
 ---
@@ -644,6 +645,44 @@ function ProjectLayout() {
 - The `loader` pre-fetches the project before any child renders
 - Child routes access project from TanStack Query cache, not from props
 
+### Critical: QueryClient Context Injection
+
+**Loaders run OUTSIDE the React component tree** and cannot access `QueryClientProvider`. They must receive `queryClient` directly from the router context.
+
+**The shared QueryClient is defined in `src/lib/queryClient.ts`** and wired in two places:
+
+```tsx
+// src/lib/queryClient.ts — SINGLETON instance
+import { QueryClient } from "@tanstack/react-query";
+export const queryClient = new QueryClient({ ... });
+```
+
+```tsx
+// src/router.tsx — Inject into router context for loaders
+import { queryClient } from "./lib/queryClient";
+export const getRouter = () => {
+  const router = createRouter({
+    routeTree,
+    context: { queryClient },  // ← MUST be passed here
+    ...
+  });
+};
+```
+
+```tsx
+// src/routes/__root.tsx — Use same instance in QueryClientProvider
+import { queryClient } from "@/lib/queryClient";
+function RootComponent() {
+  return (
+    <QueryClientProvider client={queryClient}>  // ← Same instance
+      <AuthProvider><Outlet /></AuthProvider>
+    </QueryClientProvider>
+  );
+}
+```
+
+**Why this matters:** Without this wiring, `loader` functions throw `Cannot read properties of undefined (reading 'ensureQueryData')` because `context.queryClient` is `undefined`.
+
 ### Child Route Pattern
 
 Each view under a project is a thin route + page:
@@ -704,4 +743,4 @@ These layout components exist in `src/components/layout/` but are **not imported
 ---
 
 *Last reviewed: 2026-05-07*
-*Last updated: Route-driven migration completed — AppShell decoupled, $projectId layout, hierarchical query keys*
+*Last updated: Route-driven migration completed — AppShell decoupled, $projectId layout, hierarchical query keys. Added QueryClient context injection documentation.*

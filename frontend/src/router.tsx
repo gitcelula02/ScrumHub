@@ -2,7 +2,7 @@ import "./shim";
 import { createRouter, useRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import "./styles/globals.css";
-import { QueryClient } from "@tanstack/react-query";
+import { queryClient } from "./lib/queryClient";
 
 function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
@@ -62,7 +62,7 @@ export const getRouter = () => {
     routeTree,
     context: {
       auth: undefined as { isAuthenticated: boolean; isLoading: boolean } | undefined,
-      queryClient: undefined as QueryClient | undefined,
+      queryClient,
     },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,

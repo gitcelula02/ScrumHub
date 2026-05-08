@@ -1,43 +1,23 @@
+/**
+ * @module projects/api
+ * Project query definitions using TanStack Query.
+ *
+ * Uses projectsService from ./services/projectsService.ts (patched to handle
+ * both wrapped and unwrapped API responses).
+ */
+
 import { queryOptions } from "@tanstack/react-query";
-import { apiClient } from "@/services/apiClient";
-import type { Project } from "@/types";
-
-interface ProjectResponse {
-  data: Project;
-}
-
-const projectService = {
-  getById: async (projectId: string): Promise<Project> => {
-    try {
-      const response = await apiClient.get<ProjectResponse>(`/projects/${projectId}`);
-      return response.data;
-    } catch {
-      return {
-        id: projectId,
-        name: `Project ${projectId}`,
-        description: "Mock project description",
-        color: "#6B5CFF",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-    }
-  },
-
-  getAll: async (): Promise<Project[]> => {
-    try {
-      const response = await apiClient.get<{ data: Project[] }>("/projects");
-      return response.data;
-    } catch {
-      return [];
-    }
-  },
-};
+import { projectsService } from "./services/projectsService";
 
 export const projectQuery = (projectId: string) =>
   queryOptions({
     queryKey: ["project", projectId],
-    queryFn: () => projectService.getById(projectId),
+    queryFn: async () => {
+      const project = await projectsService.getById(projectId);
+      if (!project) {
+        throw new Error(`Project ${projectId} not found`);
+      }
+      return project;
+    },
     staleTime: 1000 * 60 * 5,
   });
-
-export { projectService };
