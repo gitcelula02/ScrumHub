@@ -56,7 +56,7 @@ export function ProjectCard({
   isFeatured = false,
   onClick,
 }: ProjectCardProps) {
-  const theme = useEntityTheme(project.id, project.color);
+  const theme = useEntityTheme(project?.id ?? "", project?.color);
   if (!project) return null;
   const initials = (project.key || "PR").slice(0, 2).toUpperCase();
   const projectStatus = (project.status || "active") as ProjectStatus;
