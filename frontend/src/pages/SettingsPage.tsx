@@ -6,7 +6,9 @@ import { useParams } from "@tanstack/react-router";
  * Thin orchestrator — delegates to feature components.
  */
 export function SettingsPage() {
-  const { projectId } = useParams({ from: "/app/projects/$projectId/settings" });
+  const { projectId } = useParams({
+    from: "/app/projects/$projectId/settings",
+  });
 
   return (
     <div className="h-full overflow-auto bg-editor p-4">

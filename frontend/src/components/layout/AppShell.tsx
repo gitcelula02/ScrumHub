@@ -8,7 +8,11 @@ import { useTasks } from "@/features/backlog";
 import type { Tab, Task } from "@/types";
 import { Outlet, useParams } from "@tanstack/react-router";
 
-const DASHBOARD_TAB: Tab = { id: "dashboard", label: "Tablero", kind: "dashboard" };
+const DASHBOARD_TAB: Tab = {
+  id: "dashboard",
+  label: "Tablero",
+  kind: "dashboard",
+};
 
 /**
  * @component AppShell
@@ -18,7 +22,7 @@ const DASHBOARD_TAB: Tab = { id: "dashboard", label: "Tablero", kind: "dashboard
  */
 export function AppShell({ children }: { children?: ReactNode }) {
   const params = useParams({ strict: false });
-  const { data: tasks = [] } = useTasks(params.projectId ?? '');
+  const { data: tasks = [] } = useTasks(params.projectId ?? "");
   const [tabs, setTabs] = useState<Tab[]>([DASHBOARD_TAB]);
   const [activeTab, setActiveTab] = useState<string>("dashboard");
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -28,7 +32,11 @@ export function AppShell({ children }: { children?: ReactNode }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "p") {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        e.shiftKey &&
+        e.key.toLowerCase() === "p"
+      ) {
         e.preventDefault();
         setPaletteOpen(true);
       }
@@ -38,7 +46,9 @@ export function AppShell({ children }: { children?: ReactNode }) {
   }, []);
 
   const openTab = (tab: Tab) => {
-    setTabs((prev) => (prev.find((p) => p.id === tab.id) ? prev : [...prev, tab]));
+    setTabs((prev) =>
+      prev.find((p) => p.id === tab.id) ? prev : [...prev, tab],
+    );
     setActiveTab(tab.id);
   };
 
@@ -50,19 +60,22 @@ export function AppShell({ children }: { children?: ReactNode }) {
     if (id === "dashboard") return;
     setTabs((prev) => {
       const next = prev.filter((p) => p.id !== id);
-      if (activeTab === id) setActiveTab(next[next.length - 1]?.id ?? "dashboard");
+      if (activeTab === id)
+        setActiveTab(next[next.length - 1]?.id ?? "dashboard");
       return next;
     });
   };
 
   const alertCount = useMemo(() => {
     const now = new Date("2026-04-29");
-    return tasks.filter((t) => {
-      if (t.status === "done") return false;
-      const d = new Date(t.due);
-      const days = Math.ceil((d.getTime() - now.getTime()) / 86400000);
-      return days < 0 || (days <= 2 && t.priority === "high");
-    }).length + 1;
+    return (
+      tasks.filter((t) => {
+        if (t.status === "done") return false;
+        const d = new Date(t.due);
+        const days = Math.ceil((d.getTime() - now.getTime()) / 86400000);
+        return days < 0 || (days <= 2 && t.priority === "high");
+      }).length + 1
+    );
   }, [tasks]);
 
   return (
@@ -73,13 +86,21 @@ export function AppShell({ children }: { children?: ReactNode }) {
           onNotifications={() => setNotificationsOpen(true)}
           projectId={projectId}
         />
-        <Explorer view="projects" tasks={tasks} activeId={null} onOpen={openTask} />
+        <Explorer
+          view="projects"
+          tasks={tasks}
+          activeId={null}
+          onOpen={openTask}
+        />
         <main className="flex-1 flex flex-col min-w-0">
-          <Tabs tabs={tabs} activeId={activeTab} onSelect={setActiveTab} onClose={closeTab} />
+          <Tabs
+            tabs={tabs}
+            activeId={activeTab}
+            onSelect={setActiveTab}
+            onClose={closeTab}
+          />
           <div className="flex-1 flex min-h-0">
-            <div className="flex-1 min-w-0">
-              {children || <Outlet />}
-            </div>
+            <div className="flex-1 min-w-0">{children || <Outlet />}</div>
           </div>
         </main>
       </div>
@@ -89,8 +110,12 @@ export function AppShell({ children }: { children?: ReactNode }) {
         alertCount={alertCount}
         onNotifications={() => setNotificationsOpen(true)}
       />
-      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+      />
       <AINotifications
+        projectId={projectId ?? ""}
         open={notificationsOpen}
         onClose={() => setNotificationsOpen(false)}
       />

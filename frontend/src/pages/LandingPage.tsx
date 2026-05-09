@@ -20,8 +20,16 @@ export function LandingPage() {
           <span className="font-semibold tracking-tight">ScrumHub</span>
         </div>
         <div className="flex items-center gap-4">
-          <Link to="/login" className="text-sm hover:text-status-bar transition-colors">Iniciar Sesión</Link>
-          <Link to="/register" className="h-8 px-4 flex items-center bg-status-bar text-status-bar-fg rounded-sm text-sm font-semibold hover:opacity-90">
+          <Link
+            to="/login"
+            className="text-sm hover:text-status-bar transition-colors"
+          >
+            Iniciar Sesión
+          </Link>
+          <Link
+            to="/register"
+            className="h-8 px-4 flex items-center bg-status-bar text-status-bar-fg rounded-sm text-sm font-semibold hover:opacity-90"
+          >
             Pruébalo gratis
           </Link>
         </div>
@@ -41,10 +49,16 @@ export function LandingPage() {
             Menos clics, más código, mejor Scrum.
           </p>
           <div className="flex items-center justify-center gap-4">
-            <Link to="/register" className="h-12 px-8 flex items-center bg-status-bar text-status-bar-fg rounded-sm text-lg font-bold hover:bg-status-bar/90 transition-all">
+            <Link
+              to="/register"
+              className="h-12 px-8 flex items-center bg-status-bar text-status-bar-fg rounded-sm text-lg font-bold hover:bg-status-bar/90 transition-all"
+            >
               Comenzar ahora
             </Link>
-            <LandingButton variant="outline" className="h-12 px-8 border-panel-border hover:bg-list-hover text-lg">
+            <LandingButton
+              variant="outline"
+              className="h-12 px-8 border-panel-border hover:bg-list-hover text-lg"
+            >
               Ver documentación
             </LandingButton>
           </div>
@@ -73,25 +87,44 @@ export function LandingPage() {
   );
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
   return (
     <div className="p-6 bg-sidebar-bg border border-panel-border rounded-sm hover:border-status-bar/40 transition-colors group">
       <div className="w-10 h-10 rounded-sm bg-editor flex items-center justify-center mb-4 border border-panel-border group-hover:border-status-bar/20">
         {icon}
       </div>
       <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+      <p className="text-sm text-muted-foreground leading-relaxed">
+        {description}
+      </p>
     </div>
   );
 }
 
-function LandingButton({ variant, className, children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "outline" | "solid" }) {
+function LandingButton({
+  variant,
+  className,
+  children,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "outline" | "solid";
+}) {
   return (
     <button
       className={cn(
         "px-4 rounded-sm transition-colors",
-        variant === "outline" ? "border border-panel-border hover:bg-list-hover" : "bg-status-bar text-status-bar-fg",
-        className
+        variant === "outline"
+          ? "border border-panel-border hover:bg-list-hover"
+          : "bg-status-bar text-status-bar-fg",
+        className,
       )}
       {...props}
     >

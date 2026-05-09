@@ -56,9 +56,8 @@ export function ProjectCard({
   isFeatured = false,
   onClick,
 }: ProjectCardProps) {
-  if (!project) return null;
-
   const theme = useEntityTheme(project.id, project.color);
+  if (!project) return null;
   const initials = (project.key || "PR").slice(0, 2).toUpperCase();
   const projectStatus = (project.status || "active") as ProjectStatus;
   const statusStyle = STATUS_COLORS[projectStatus] || STATUS_COLORS.active;
@@ -70,7 +69,7 @@ export function ProjectCard({
       className={cn(
         "group relative flex flex-col rounded-xl border bg-sidebar-bg p-4 cursor-pointer",
         "border-panel-border hover:border-sidebar-border/80",
-        "transition-all duration-150 hover:bg-sidebar-bg/80"
+        "transition-all duration-150 hover:bg-sidebar-bg/80",
       )}
     >
       {/* Header */}
@@ -79,7 +78,10 @@ export function ProjectCard({
           {/* Project Icon */}
           <div
             className="flex h-10 w-10 items-center justify-center rounded-lg text-[13px] font-bold"
-            style={{ backgroundColor: 'var(--entity-solid)', color: 'var(--entity-fg)' }}
+            style={{
+              backgroundColor: "var(--entity-solid)",
+              color: "var(--entity-fg)",
+            }}
           >
             {initials}
           </div>
@@ -98,10 +100,7 @@ export function ProjectCard({
         {/* Right Actions */}
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           {isFeatured && (
-            <Star
-              size={14}
-              className="text-yellow-500 fill-yellow-500"
-            />
+            <Star size={14} className="text-yellow-500 fill-yellow-500" />
           )}
           <button
             onClick={(e) => {
@@ -126,7 +125,7 @@ export function ProjectCard({
           className={cn(
             "text-[10px] font-medium px-2 py-0 h-5",
             statusStyle.bg,
-            statusStyle.text
+            statusStyle.text,
           )}
         >
           {STATUS_LABELS[project.status]}

@@ -1,5 +1,5 @@
-import { useContext } from 'react';
-import { AuthContext } from '@/store/AuthContext';
+import { useContext } from "react";
+import { AuthContext } from "@/store/AuthContext";
 
 /**
  * @hook useAuthSession
@@ -7,9 +7,9 @@ import { AuthContext } from '@/store/AuthContext';
  */
 export function useAuthSession() {
   const context = useContext(AuthContext);
-  
+
   if (context === undefined) {
-    throw new Error('useAuthSession must be used within an AuthProvider');
+    throw new Error("useAuthSession must be used within an AuthProvider");
   }
 
   return context;

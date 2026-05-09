@@ -38,8 +38,13 @@ export function PermissionsView() {
   const togglePerm = (idx: number, key: string) => {
     setMembers((prev) =>
       prev.map((m, i) =>
-        i === idx ? { ...m, permissions: { ...m.permissions, [key]: !m.permissions[key] } } : m
-      )
+        i === idx
+          ? {
+              ...m,
+              permissions: { ...m.permissions, [key]: !m.permissions[key] },
+            }
+          : m,
+      ),
     );
   };
 
@@ -68,7 +73,9 @@ export function PermissionsView() {
           <span>Miembro</span>
           <span>Rol</span>
           {PERMS.map((p) => (
-            <span key={p.key} className="text-center">{p.label}</span>
+            <span key={p.key} className="text-center">
+              {p.label}
+            </span>
           ))}
         </div>
         {members.map((m, idx) => (
@@ -78,11 +85,17 @@ export function PermissionsView() {
           >
             <div className="flex items-center gap-2 min-w-0">
               <div className="w-7 h-7 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold flex items-center justify-center shrink-0">
-                {m.name.split(" ").map((p) => p[0]).slice(0, 2).join("")}
+                {m.name
+                  .split(" ")
+                  .map((p) => p[0])
+                  .slice(0, 2)
+                  .join("")}
               </div>
               <div className="min-w-0">
                 <div className="text-[13px] truncate">{m.name}</div>
-                <div className="font-mono text-[11px] text-muted-foreground truncate">{m.email}</div>
+                <div className="font-mono text-[11px] text-muted-foreground truncate">
+                  {m.email}
+                </div>
               </div>
             </div>
             <select
@@ -90,7 +103,7 @@ export function PermissionsView() {
               onChange={(e) => setRole(idx, e.target.value as Role)}
               className={cn(
                 "h-7 px-2 text-[11px] font-mono uppercase rounded-sm border bg-transparent outline-none cursor-pointer",
-                ROLE_BADGE[m.role as keyof typeof ROLE_BADGE] || ""
+                ROLE_BADGE[m.role as keyof typeof ROLE_BADGE] || "",
               )}
             >
               <option value="admin">admin</option>
@@ -108,7 +121,7 @@ export function PermissionsView() {
                       "w-5 h-5 rounded-sm border flex items-center justify-center transition-colors",
                       on
                         ? "bg-status-bar border-status-bar text-status-bar-fg"
-                        : "border-panel-border bg-editor hover:border-status-bar/50"
+                        : "border-panel-border bg-editor hover:border-status-bar/50",
                     )}
                   >
                     {on && <Check size={12} strokeWidth={3} />}
@@ -121,7 +134,9 @@ export function PermissionsView() {
       </div>
 
       <p className="mt-4 text-[12px] text-muted-foreground font-mono">
-        // Los permisos se evalúan vía <span className="text-status-bar">has_role(user, role)</span> en la base de datos.
+        // Los permisos se evalúan vía{" "}
+        <span className="text-status-bar">has_role(user, role)</span> en la base
+        de datos.
       </p>
     </div>
   );

@@ -1,7 +1,7 @@
-import type React from 'react';
-import { useMemo } from 'react';
-import { useEntityThemeRegistry } from '@/store/ThemeRegistry';
-import { DEFAULT_ENTITY_THEME } from '@/utils/themeUtils';
+import type React from "react";
+import { useMemo } from "react";
+import { useEntityThemeRegistry } from "@/store/ThemeRegistry";
+import { DEFAULT_ENTITY_THEME } from "@/utils/themeUtils";
 
 /**
  * @hook useEntityTheme
@@ -20,7 +20,10 @@ import { DEFAULT_ENTITY_THEME } from '@/utils/themeUtils';
  *   <div style={{ backgroundColor: 'var(--entity-solid)' }}>Icon</div>
  * </div>
  */
-export function useEntityTheme(entityId: string, color: string | undefined | null): React.CSSProperties {
+export function useEntityTheme(
+  entityId: string,
+  color: string | undefined | null,
+): React.CSSProperties {
   const { getTheme } = useEntityThemeRegistry();
 
   return useMemo(() => {

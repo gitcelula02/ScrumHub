@@ -1,3 +1,6 @@
-import { createStartHandler, defaultRenderHandler } from '@tanstack/react-start/server'
+import {
+  createStartHandler,
+  defaultRenderHandler,
+} from "@tanstack/react-start/server";
 
-export default createStartHandler(defaultRenderHandler)
+export default createStartHandler(defaultRenderHandler);

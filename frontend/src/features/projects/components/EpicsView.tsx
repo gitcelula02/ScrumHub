@@ -4,6 +4,7 @@ import { useTasks } from "@/features/backlog";
 import type { Task } from "@/types";
 
 interface EpicsViewProps {
+  projectId: string;
   onOpenTask: (t: Task) => void;
 }
 
@@ -26,11 +27,15 @@ const PRIORITY_DOT = {
  * Smart feature component for viewing high-level epic progress.
  * Automatically fetches all tasks to aggregate epic-level status.
  */
-export function EpicsView({ onOpenTask }: EpicsViewProps) {
-  const { data: tasks = [], isLoading } = useTasks();
+export function EpicsView({ projectId, onOpenTask }: EpicsViewProps) {
+  const { data: tasks = [], isLoading } = useTasks(projectId);
 
   if (isLoading) {
-    return <div className="h-full flex items-center justify-center text-muted-foreground font-mono">Cargando épicas...</div>;
+    return (
+      <div className="h-full flex items-center justify-center text-muted-foreground font-mono">
+        Cargando épicas...
+      </div>
+    );
   }
 
   const map = new Map<string, Task[]>();
@@ -56,11 +61,16 @@ export function EpicsView({ onOpenTask }: EpicsViewProps) {
           const pct = total ? Math.round((done / total) * 100) : 0;
           const points = list.reduce((s, t) => s + t.points, 0);
           return (
-            <div key={epic} className="bg-sidebar-bg border border-panel-border rounded-sm">
+            <div
+              key={epic}
+              className="bg-sidebar-bg border border-panel-border rounded-sm"
+            >
               <div className="flex items-center justify-between px-4 h-11 border-b border-panel-border">
                 <div className="flex items-center gap-2">
                   <Layers size={14} className="text-status-bar" />
-                  <h2 className="text-[14px] font-semibold text-foreground">{epic}</h2>
+                  <h2 className="text-[14px] font-semibold text-foreground">
+                    {epic}
+                  </h2>
                   <span className="font-mono text-[11px] text-muted-foreground">
                     {done}/{total} · {points} pts
                   </span>
@@ -85,14 +95,25 @@ export function EpicsView({ onOpenTask }: EpicsViewProps) {
                     className="w-full flex items-center gap-3 px-4 py-2 hover:bg-list-hover text-left text-[13px]"
                   >
                     <span
-                      className={cn("w-1.5 h-1.5 rounded-full shrink-0", STATUS_COLOR[t.status as keyof typeof STATUS_COLOR] || "bg-muted")}
+                      className={cn(
+                        "w-1.5 h-1.5 rounded-full shrink-0",
+                        STATUS_COLOR[t.status as keyof typeof STATUS_COLOR] ||
+                          "bg-muted",
+                      )}
                     />
                     <span className="font-mono text-[11px] text-muted-foreground w-20 shrink-0">
                       {t.id}
                     </span>
                     <span className="flex-1 truncate">{t.title}</span>
                     <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                      <span className={cn("w-2 h-2 rounded-full", PRIORITY_DOT[t.priority as keyof typeof PRIORITY_DOT] || "bg-muted")} />
+                      <span
+                        className={cn(
+                          "w-2 h-2 rounded-full",
+                          PRIORITY_DOT[
+                            t.priority as keyof typeof PRIORITY_DOT
+                          ] || "bg-muted",
+                        )}
+                      />
                       {t.priority}
                     </span>
                     <span className="font-mono text-[11px] text-muted-foreground w-24 truncate text-right">

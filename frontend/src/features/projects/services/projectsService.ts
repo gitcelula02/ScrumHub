@@ -17,7 +17,9 @@ interface ProjectResponse {
 const projectsService = {
   getAll: async (): Promise<Project[]> => {
     try {
-      const response = await apiClient.get<Project[] | ProjectsResponse>("/projects");
+      const response = await apiClient.get<Project[] | ProjectsResponse>(
+        "/projects",
+      );
       return Array.isArray(response) ? response : response.data;
     } catch {
       return [];
@@ -26,7 +28,9 @@ const projectsService = {
 
   getById: async (projectId: string): Promise<Project | null> => {
     try {
-      const response = await apiClient.get<Project | ProjectResponse>(`/projects/${projectId}`);
+      const response = await apiClient.get<Project | ProjectResponse>(
+        `/projects/${projectId}`,
+      );
       if (!response) return null;
       return "data" in response ? response.data : response;
     } catch {

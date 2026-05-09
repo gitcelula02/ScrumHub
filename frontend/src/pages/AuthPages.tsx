@@ -1,4 +1,7 @@
-import { LoginPage as LoginFeature, RegisterPage as RegisterFeature } from "@/features/auth";
+import {
+  LoginPage as LoginFeature,
+  RegisterPage as RegisterFeature,
+} from "@/features/auth";
 
 export function LoginPage() {
   return <LoginFeature />;

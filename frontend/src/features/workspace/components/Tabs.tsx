@@ -30,11 +30,13 @@ export function Tabs({ tabs, activeId, onSelect, onClose }: Props) {
               "group flex items-center gap-2 pl-3 pr-2 h-full border-r border-panel-border cursor-pointer text-[13px] shrink-0",
               isActive
                 ? "bg-tab-active text-foreground border-t-2 border-t-tab-border -mt-px"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             <Icon size={14} className={isActive ? "text-status-bar" : ""} />
-            <span className={tab.kind === "task" ? "font-mono text-[12px]" : ""}>
+            <span
+              className={tab.kind === "task" ? "font-mono text-[12px]" : ""}
+            >
               {tab.label}
             </span>
             <button

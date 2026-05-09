@@ -8,11 +8,16 @@ import type { Task } from "@/types";
  * Thin orchestrator — delegates to feature components.
  */
 export function DashboardPage() {
-  const { projectId } = useParams({ from: "/app/projects/$projectId/dashboard" });
+  const { projectId } = useParams({
+    from: "/app/projects/$projectId/dashboard",
+  });
   const navigate = useNavigate();
 
   const handleOpenTask = (task: Task) => {
-    navigate({ to: "/app/projects/$projectId/tasks/$taskId", params: { projectId, taskId: task.id } });
+    navigate({
+      to: "/app/projects/$projectId/tasks/$taskId",
+      params: { projectId, taskId: task.id },
+    });
   };
 
   return <Board onOpenTask={handleOpenTask} projectId={projectId} />;

@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { aiService } from '../services/aiService';
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { aiService } from "../services/aiService";
 
 /**
  * @hook useAIInsights
@@ -7,7 +7,7 @@ import { aiService } from '../services/aiService';
  */
 export function useAIInsights(projectId: string) {
   return useQuery({
-    queryKey: ['ai-insights', projectId],
+    queryKey: ["project", projectId, "ai-insights"],
     queryFn: () => aiService.getInsights(projectId),
     enabled: !!projectId,
   });

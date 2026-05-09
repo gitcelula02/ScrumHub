@@ -1,1 +1,1 @@
-export * from './components/PermissionsView';
+export * from "./components/PermissionsView";

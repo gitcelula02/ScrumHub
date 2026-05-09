@@ -7,7 +7,9 @@ import { TaskView, PropertiesPanel } from "@/features/tasks";
  * Thin orchestrator — delegates to feature components.
  */
 export function TaskDetailPage() {
-  const { projectId, taskId } = useParams({ from: "/app/projects/$projectId/tasks/$taskId" });
+  const { projectId, taskId } = useParams({
+    from: "/app/projects/$projectId/tasks/$taskId",
+  });
 
   return (
     <div className="flex h-full">

@@ -28,11 +28,7 @@ export function exportSprintReport(tasks: Task[], sprint = "Sprint 24") {
   doc.setFontSize(11);
   doc.setTextColor(110, 110, 110);
   y += 18;
-  doc.text(
-    `${sprint} · Generado ${new Date().toLocaleString("es-ES")}`,
-    M,
-    y
-  );
+  doc.text(`${sprint} · Generado ${new Date().toLocaleString("es-ES")}`, M, y);
 
   // Stats
   y += 28;
@@ -156,7 +152,7 @@ export function exportSprintReport(tasks: Task[], sprint = "Sprint 24") {
       `ScrumHub · ${sprint} · Página ${p} / ${pageCount}`,
       W / 2,
       H - 20,
-      { align: "center" }
+      { align: "center" },
     );
   }
 

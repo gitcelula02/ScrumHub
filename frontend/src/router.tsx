@@ -4,7 +4,13 @@ import { routeTree } from "./routeTree.gen";
 import "./styles/globals.css";
 import { queryClient } from "./lib/queryClient";
 
-function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function DefaultErrorComponent({
+  error,
+  reset,
+}: {
+  error: Error;
+  reset: () => void;
+}) {
   const router = useRouter();
 
   return (
@@ -26,7 +32,9 @@ function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => vo
             />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Something went wrong</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          Something went wrong
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           An unexpected error occurred. Please try again.
         </p>
@@ -61,7 +69,9 @@ export const getRouter = () => {
   const router = createRouter({
     routeTree,
     context: {
-      auth: undefined as { isAuthenticated: boolean; isLoading: boolean } | undefined,
+      auth: undefined as
+        | { isAuthenticated: boolean; isLoading: boolean }
+        | undefined,
       queryClient,
     },
     scrollRestoration: true,

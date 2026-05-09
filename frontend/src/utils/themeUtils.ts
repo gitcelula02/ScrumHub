@@ -27,15 +27,24 @@ export const adjustLightness = (variable: string, amount: number) => {
  * Parses a hex color string into RGB components.
  * @returns {{ r: number, g: number, b: number }} or null if invalid
  */
-export function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+export function hexToRgb(
+  hex: string,
+): { r: number; g: number; b: number } | null {
   const cleanHex = hex.replace("#", "");
-  if (!/^[0-9A-Fa-f]{6}$/.test(cleanHex) && !/^[0-9A-Fa-f]{3}$/.test(cleanHex)) {
+  if (
+    !/^[0-9A-Fa-f]{6}$/.test(cleanHex) &&
+    !/^[0-9A-Fa-f]{3}$/.test(cleanHex)
+  ) {
     return null;
   }
 
-  const fullHex = cleanHex.length === 3
-    ? cleanHex.split("").map((c) => c + c).join("")
-    : cleanHex;
+  const fullHex =
+    cleanHex.length === 3
+      ? cleanHex
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : cleanHex;
 
   const r = parseInt(fullHex.substring(0, 2), 16);
   const g = parseInt(fullHex.substring(2, 4), 16);
@@ -48,7 +57,11 @@ export function hexToRgb(hex: string): { r: number; g: number; b: number } | nul
  * Converts RGB (0-255) to OKLCH components.
  * @returns {{ l: number, c: number, h: number }}
  */
-export function rgbToOklch(r: number, g: number, b: number): { l: number; c: number; h: number } {
+export function rgbToOklch(
+  r: number,
+  g: number,
+  b: number,
+): { l: number; c: number; h: number } {
   // RGB to XYZ (D65 illuminant)
   let rn = r / 255;
   let gn = g / 255;
@@ -59,8 +72,8 @@ export function rgbToOklch(r: number, g: number, b: number): { l: number; c: num
   bn = bn <= 0.04045 ? bn / 12.92 : Math.pow((bn + 0.055) / 1.055, 2.4);
 
   const x = (rn * 0.4124564 + gn * 0.3575761 + bn * 0.1804375) / 0.951214;
-  const y = (rn * 0.2126729 + gn * 0.7151522 + bn * 0.0721750) / 1.000000;
-  const z = (rn * 0.0193339 + gn * 0.1191920 + bn * 0.9503041) / 0.078476;
+  const y = (rn * 0.2126729 + gn * 0.7151522 + bn * 0.072175) / 1.0;
+  const z = (rn * 0.0193339 + gn * 0.119192 + bn * 0.9503041) / 0.078476;
 
   const lLab = y > 0.008856 ? 116 * Math.pow(y, 1 / 3) - 16 : 903.3 * y;
   const aLab = 500 * (Math.pow(x, 1 / 3) - Math.pow(y, 1 / 3));
@@ -79,11 +92,15 @@ export function rgbToOklch(r: number, g: number, b: number): { l: number; c: num
  * @param c chroma
  * @param h hue (0-360)
  */
-export function oklchToRgb(l: number, c: number, h: number): { r: number; g: number; b: number } {
+export function oklchToRgb(
+  l: number,
+  c: number,
+  h: number,
+): { r: number; g: number; b: number } {
   // OKLab to XYZ
   const lLab = l * 100;
-  const aLab = c * Math.cos(h * Math.PI / 180);
-  const bLabVal = c * Math.sin(h * Math.PI / 180);
+  const aLab = c * Math.cos((h * Math.PI) / 180);
+  const bLabVal = c * Math.sin((h * Math.PI) / 180);
 
   const y = (lLab + 16) / 116;
   const x = aLab / 500 + Math.pow(y, 3);
@@ -97,9 +114,12 @@ export function oklchToRgb(l: number, c: number, h: number): { r: number; g: num
   const gLinear = y3 > 0.008856 ? y3 : (y - 16 / 116) / 7.787;
   const bLinear = z3 > 0.008856 ? z3 : (z - 16 / 116) / 7.787;
 
-  const r = (rLinear * 3.2404542 + gLinear * -1.5371385 + bLinear * -0.4985314) * 255;
-  const g = (rLinear * -0.9692660 + gLinear * 1.8760108 + bLinear * 0.0415560) * 255;
-  const bVal = (rLinear * 0.0556434 + gLinear * -0.2040259 + bLinear * 1.0572252) * 255;
+  const r =
+    (rLinear * 3.2404542 + gLinear * -1.5371385 + bLinear * -0.4985314) * 255;
+  const g =
+    (rLinear * -0.969266 + gLinear * 1.8760108 + bLinear * 0.041556) * 255;
+  const bVal =
+    (rLinear * 0.0556434 + gLinear * -0.2040259 + bLinear * 1.0572252) * 255;
 
   return {
     r: Math.max(0, Math.min(255, Math.round(r))),
@@ -112,7 +132,9 @@ export function oklchToRgb(l: number, c: number, h: number): { r: number; g: num
  * Converts hex color to OKLCH components.
  * @returns {{ l: number, c: number, h: number }} or null if invalid
  */
-export function hexToOklch(hex: string): { l: number; c: number; h: number } | null {
+export function hexToOklch(
+  hex: string,
+): { l: number; c: number; h: number } | null {
   const rgb = hexToRgb(hex);
   if (!rgb) return null;
   return rgbToOklch(rgb.r, rgb.g, rgb.b);
@@ -143,7 +165,7 @@ export function generateEntityTheme(hex: string): React.CSSProperties {
   const bgColor = `oklch(${bgL} ${bgC} ${h})`;
 
   // --entity-border: subtle border (slightly lighter than bg, more chroma)
-  const borderL = Math.max(0.18, l * 0.30);
+  const borderL = Math.max(0.18, l * 0.3);
   const borderC = c * 0.25;
   const borderColor = `oklch(${borderL} ${borderC} ${h})`;
 

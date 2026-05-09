@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { backlogService } from '../services/backlogService';
-import type { Task } from '@/types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { backlogService } from "../services/backlogService";
+import type { Task } from "@/types";
 
 /**
  * @hook useTasks
@@ -12,7 +12,7 @@ import type { Task } from '@/types';
  */
 export function useTasks(projectId: string) {
   return useQuery<Task[]>({
-    queryKey: ['project', projectId, 'tasks'],
+    queryKey: ["project", projectId, "tasks"],
     queryFn: () => backlogService.getTasks(projectId),
   });
 }
@@ -28,7 +28,7 @@ export function useTasks(projectId: string) {
  */
 export function useTask(projectId: string, taskId: string) {
   return useQuery<Task>({
-    queryKey: ['project', projectId, 'tasks', taskId],
+    queryKey: ["project", projectId, "tasks", taskId],
     queryFn: () => backlogService.getTaskById(taskId),
     enabled: !!taskId,
   });
@@ -49,8 +49,12 @@ export function useUpdateTask(projectId: string) {
     mutationFn: ({ id, data }: { id: string; data: Partial<Task> }) =>
       backlogService.updateTask(id, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['project', projectId, 'tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['project', projectId, 'tasks', variables.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["project", projectId, "tasks"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["project", projectId, "tasks", variables.id],
+      });
     },
   });
 }

@@ -1,5 +1,5 @@
-import { apiClient } from '@/services/apiClient';
-import type { Task } from '@/types';
+import { apiClient } from "@/services/apiClient";
+import type { Task } from "@/types";
 
 /**
  * @service BacklogService
@@ -11,7 +11,9 @@ export const backlogService = {
    * @param {string} projectId - The project identifier
    */
   getTasks: async (projectId: string): Promise<Task[]> => {
-    return apiClient.get<Task[]>('/tasks', { params: { project_id: projectId } });
+    return apiClient.get<Task[]>("/tasks", {
+      params: { project_id: projectId },
+    });
   },
 
   /**
@@ -32,6 +34,6 @@ export const backlogService = {
    * Creates a new task.
    */
   createTask: async (data: Partial<Task>): Promise<Task> => {
-    return apiClient.post<Task>('/tasks', data);
-  }
+    return apiClient.post<Task>("/tasks", data);
+  },
 };

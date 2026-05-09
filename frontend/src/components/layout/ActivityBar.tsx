@@ -1,22 +1,79 @@
-import { FolderKanban, ListTodo, Zap, GitBranch, Settings, Search, Bell, Layers, Shield, FileDown } from "lucide-react";
+import {
+  FolderKanban,
+  ListTodo,
+  Zap,
+  GitBranch,
+  Settings,
+  Search,
+  Bell,
+  Layers,
+  Shield,
+  FileDown,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useNavigate, useRouterState, useMatchRoute } from "@tanstack/react-router";
+import {
+  useNavigate,
+  useRouterState,
+  useMatchRoute,
+} from "@tanstack/react-router";
 import { useTasks } from "@/features/backlog";
 import { exportSprintReport } from "@/features/workspace/utils/exportPdf";
 
-export type ActivityView = "projects" | "backlog" | "sprints" | "search" | "branches" | "epics" | "permissions";
+export type ActivityView =
+  | "projects"
+  | "backlog"
+  | "sprints"
+  | "search"
+  | "branches"
+  | "epics"
+  | "permissions";
 
 interface ActivityBarProps {
   onNotifications: () => void;
   projectId?: string;
 }
 
-const items: { id: ActivityView; icon: React.ElementType; label: string; path: string; projectOnly?: boolean }[] = [
-  { id: "projects", icon: FolderKanban, label: "Proyectos", path: "/app/projects" },
-  { id: "backlog", icon: ListTodo, label: "Backlog", path: "/app/projects/$projectId/backlog", projectOnly: true },
-  { id: "sprints", icon: Zap, label: "Sprints", path: "/app/projects/$projectId/sprints", projectOnly: true },
-  { id: "epics", icon: Layers, label: "Épicas", path: "/app/projects/$projectId/dashboard", projectOnly: true },
-  { id: "permissions", icon: Shield, label: "Permisos", path: "/app/projects/$projectId/settings", projectOnly: true },
+const items: {
+  id: ActivityView;
+  icon: React.ElementType;
+  label: string;
+  path: string;
+  projectOnly?: boolean;
+}[] = [
+  {
+    id: "projects",
+    icon: FolderKanban,
+    label: "Proyectos",
+    path: "/app/projects",
+  },
+  {
+    id: "backlog",
+    icon: ListTodo,
+    label: "Backlog",
+    path: "/app/projects/$projectId/backlog",
+    projectOnly: true,
+  },
+  {
+    id: "sprints",
+    icon: Zap,
+    label: "Sprints",
+    path: "/app/projects/$projectId/sprints",
+    projectOnly: true,
+  },
+  {
+    id: "epics",
+    icon: Layers,
+    label: "Épicas",
+    path: "/app/projects/$projectId/dashboard",
+    projectOnly: true,
+  },
+  {
+    id: "permissions",
+    icon: Shield,
+    label: "Permisos",
+    path: "/app/projects/$projectId/settings",
+    projectOnly: true,
+  },
   // TODO: Enable once /app/projects/$projectId/search route is created
   // { id: "search", icon: Search, label: "Buscar", path: "/app/projects/$projectId/search", projectOnly: true },
   // TODO: Enable once /app/projects/$projectId/branches route is created
@@ -32,7 +89,7 @@ export function ActivityBar({ onNotifications, projectId }: ActivityBarProps) {
   const navigate = useNavigate();
   const matchRoute = useMatchRoute();
   const routerState = useRouterState();
-  const { data: tasks = [] } = useTasks(projectId ?? '');
+  const { data: tasks = [] } = useTasks(projectId ?? "");
 
   const currentPath = routerState.location.pathname;
 
@@ -57,13 +114,14 @@ export function ActivityBar({ onNotifications, projectId }: ActivityBarProps) {
     exportSprintReport(tasks);
   };
 
-  const alertCount = tasks.filter((t) => {
-    if (t.status === "done") return false;
-    const now = new Date("2026-04-29");
-    const d = new Date(t.due);
-    const days = Math.ceil((d.getTime() - now.getTime()) / 86400000);
-    return days < 0 || (days <= 2 && t.priority === "high");
-  }).length + 1;
+  const alertCount =
+    tasks.filter((t) => {
+      if (t.status === "done") return false;
+      const now = new Date("2026-04-29");
+      const d = new Date(t.due);
+      const days = Math.ceil((d.getTime() - now.getTime()) / 86400000);
+      return days < 0 || (days <= 2 && t.priority === "high");
+    }).length + 1;
 
   return (
     <aside className="w-12 bg-activity-bar flex flex-col items-center justify-between border-r border-panel-border select-none">
@@ -80,9 +138,9 @@ export function ActivityBar({ onNotifications, projectId }: ActivityBarProps) {
               className={cn(
                 "relative w-12 h-12 flex items-center justify-center text-activity-bar-fg transition-colors",
                 active && "text-activity-bar-active",
-                (projectOnly && !projectId) && "opacity-30 cursor-not-allowed",
+                projectOnly && !projectId && "opacity-30 cursor-not-allowed",
                 !active && !projectOnly && "hover:text-activity-bar-active",
-                active && "text-activity-bar-active"
+                active && "text-activity-bar-active",
               )}
             >
               {active && (
@@ -114,12 +172,20 @@ export function ActivityBar({ onNotifications, projectId }: ActivityBarProps) {
           )}
         </button>
         <button
-          onClick={() => projectId && navigate({ to: "/app/projects/$projectId/settings", params: { projectId } })}
+          onClick={() =>
+            projectId &&
+            navigate({
+              to: "/app/projects/$projectId/settings",
+              params: { projectId },
+            })
+          }
           title="Ajustes"
           disabled={!projectId}
           className={cn(
             "w-12 h-12 flex items-center justify-center transition-colors",
-            projectId ? "text-activity-bar-fg hover:text-activity-bar-active" : "text-activity-bar-fg opacity-30 cursor-not-allowed"
+            projectId
+              ? "text-activity-bar-fg hover:text-activity-bar-active"
+              : "text-activity-bar-fg opacity-30 cursor-not-allowed",
           )}
         >
           <Settings size={22} strokeWidth={1.5} />

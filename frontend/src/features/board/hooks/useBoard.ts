@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { boardService } from '../services/boardService';
-import type { TaskStatus } from '@/types';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { boardService } from "../services/boardService";
+import type { TaskStatus } from "@/types";
 
 /**
  * @hook useMoveTask
@@ -17,7 +17,9 @@ export function useMoveTask(projectId: string) {
     mutationFn: ({ id, status }: { id: string; status: TaskStatus }) =>
       boardService.moveTask(id, status),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['project', projectId, 'tasks'] });
+      queryClient.invalidateQueries({
+        queryKey: ["project", projectId, "tasks"],
+      });
     },
   });
 }

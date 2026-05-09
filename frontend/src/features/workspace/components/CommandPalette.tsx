@@ -8,9 +8,16 @@ interface Props {
 }
 
 const SUGGESTIONS = [
-  { icon: Sparkles, label: "Crea una tarea: 'Refactor auth flow', alta prioridad, asígnalo a Ana" },
+  {
+    icon: Sparkles,
+    label:
+      "Crea una tarea: 'Refactor auth flow', alta prioridad, asígnalo a Ana",
+  },
   { icon: Sparkles, label: "Mueve SCR-104 a En revisión y notifica a Carlos" },
-  { icon: Sparkles, label: "Programa alerta diaria de tareas vencidas del Sprint 24" },
+  {
+    icon: Sparkles,
+    label: "Programa alerta diaria de tareas vencidas del Sprint 24",
+  },
   { icon: Search, label: "Buscar tarea por ID o título…" },
   { icon: ArrowRight, label: "Ir a: Backlog" },
 ];
@@ -37,7 +44,7 @@ export function CommandPalette({ open, onClose }: Props) {
   if (!open) return null;
 
   const filtered = SUGGESTIONS.filter((s) =>
-    s.label.toLowerCase().includes(query.toLowerCase())
+    s.label.toLowerCase().includes(query.toLowerCase()),
   );
 
   return (
@@ -70,7 +77,7 @@ export function CommandPalette({ open, onClose }: Props) {
                 <button
                   onClick={onClose}
                   className={cn(
-                    "w-full flex items-center gap-2 px-3 py-1.5 text-left text-[13px] hover:bg-list-active"
+                    "w-full flex items-center gap-2 px-3 py-1.5 text-left text-[13px] hover:bg-list-active",
                   )}
                 >
                   <Icon size={14} className="text-muted-foreground shrink-0" />
@@ -80,7 +87,9 @@ export function CommandPalette({ open, onClose }: Props) {
             );
           })}
           {filtered.length === 0 && (
-            <li className="px-3 py-3 text-[13px] text-muted-foreground">Sin resultados.</li>
+            <li className="px-3 py-3 text-[13px] text-muted-foreground">
+              Sin resultados.
+            </li>
           )}
         </ul>
       </div>

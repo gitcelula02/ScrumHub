@@ -37,7 +37,11 @@ export function Board({ onOpenTask, projectId }: BoardProps) {
   const [overCol, setOverCol] = useState<TaskStatus | null>(null);
 
   if (isLoading) {
-    return <div className="h-full flex items-center justify-center text-muted-foreground font-mono">Cargando tablero...</div>;
+    return (
+      <div className="h-full flex items-center justify-center text-muted-foreground font-mono">
+        Cargando tablero...
+      </div>
+    );
   }
 
   return (
@@ -68,7 +72,7 @@ export function Board({ onOpenTask, projectId }: BoardProps) {
               }}
               className={cn(
                 "bg-sidebar-bg border rounded-sm flex flex-col min-h-[200px] transition-colors",
-                isOver ? "border-status-bar" : "border-panel-border"
+                isOver ? "border-status-bar" : "border-panel-border",
               )}
             >
               <div className="flex items-center justify-between px-3 h-9 border-b border-panel-border">
@@ -97,17 +101,31 @@ export function Board({ onOpenTask, projectId }: BoardProps) {
                     onClick={() => onOpenTask(t)}
                     className={cn(
                       "cursor-grab active:cursor-grabbing text-left bg-editor hover:bg-list-hover border border-panel-border hover:border-status-bar/60 transition-colors rounded-sm p-3",
-                      dragId === t.id && "opacity-40"
+                      dragId === t.id && "opacity-40",
                     )}
                   >
                     <div className="flex items-start justify-between mb-2">
-                      <span className="font-mono text-[11px] text-muted-foreground">{t.id}</span>
-                      <MoreHorizontal size={14} className="text-muted-foreground" />
+                      <span className="font-mono text-[11px] text-muted-foreground">
+                        {t.id}
+                      </span>
+                      <MoreHorizontal
+                        size={14}
+                        className="text-muted-foreground"
+                      />
                     </div>
-                    <p className="text-[13px] text-foreground leading-snug mb-3">{t.title}</p>
+                    <p className="text-[13px] text-foreground leading-snug mb-3">
+                      {t.title}
+                    </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
-                        <span className={cn("w-2 h-2 rounded-full", PRIORITY_DOT[t.priority as keyof typeof PRIORITY_DOT] || "bg-muted")} />
+                        <span
+                          className={cn(
+                            "w-2 h-2 rounded-full",
+                            PRIORITY_DOT[
+                              t.priority as keyof typeof PRIORITY_DOT
+                            ] || "bg-muted",
+                          )}
+                        />
                         <span className="text-[11px] text-muted-foreground capitalize">
                           {t.priority}
                         </span>

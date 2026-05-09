@@ -1,5 +1,5 @@
-import { apiClient } from '@/services/apiClient';
-import type { Task, TaskStatus } from '@/types';
+import { apiClient } from "@/services/apiClient";
+import type { Task, TaskStatus } from "@/types";
 
 /**
  * @service BoardService
@@ -15,8 +15,16 @@ export const boardService = {
 
   /**
    * Fetches tasks filtered by status for a specific column.
+   * @param {string} projectId - The project identifier for cache scoping
+   * @param {TaskStatus} status - The task status to filter by
+   * @returns {Promise<Task[]>} Array of tasks matching the status
    */
-  getColumnTasks: async (status: TaskStatus): Promise<Task[]> => {
-    return apiClient.get<Task[]>(`/tasks?status=${status}`);
-  }
+  getColumnTasks: async (
+    projectId: string,
+    status: TaskStatus,
+  ): Promise<Task[]> => {
+    return apiClient.get<Task[]>(
+      `/tasks?project_id=${projectId}&status=${status}`,
+    );
+  },
 };

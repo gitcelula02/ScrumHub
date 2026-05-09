@@ -42,14 +42,23 @@ export const TASKS: Task[] = [
     due: "2026-05-04",
     labels: ["auth", "backend", "security"],
     comments: [
-      { author: "María Ruiz", when: "hace 2h", body: "Recordemos rotar el client secret en producción." },
-      { author: "Ana Torres", when: "hace 30m", body: "Listo el callback de Google, voy con GitHub." },
+      {
+        author: "María Ruiz",
+        when: "hace 2h",
+        body: "Recordemos rotar el client secret en producción.",
+      },
+      {
+        author: "Ana Torres",
+        when: "hace 30m",
+        body: "Listo el callback de Google, voy con GitHub.",
+      },
     ],
   },
   {
     id: "SCR-102",
     title: "Diseñar tablero Kanban arrastrable",
-    description: "Soporte de drag & drop entre columnas con persistencia optimista.",
+    description:
+      "Soporte de drag & drop entre columnas con persistencia optimista.",
     status: "todo",
     priority: "medium",
     assignee: "Carlos Pinto",
@@ -65,7 +74,8 @@ export const TASKS: Task[] = [
   {
     id: "SCR-103",
     title: "Asistente IA: parsear lenguaje natural a tareas",
-    description: "El asistente debe interpretar 'crea un bug crítico para el login y asígnalo a Ana'.",
+    description:
+      "El asistente debe interpretar 'crea un bug crítico para el login y asígnalo a Ana'.",
     status: "in-progress",
     priority: "high",
     assignee: "Lucía Méndez",
@@ -77,13 +87,18 @@ export const TASKS: Task[] = [
     due: "2026-05-12",
     labels: ["ai", "nlp"],
     comments: [
-      { author: "Lucía Méndez", when: "ayer", body: "Primer prompt funcionando con 87% accuracy." },
+      {
+        author: "Lucía Méndez",
+        when: "ayer",
+        body: "Primer prompt funcionando con 87% accuracy.",
+      },
     ],
   },
   {
     id: "SCR-104",
     title: "Alertas por correo según prioridad y vencimiento",
-    description: "Cron diario que notifica responsables de tareas vencidas o de alta prioridad.",
+    description:
+      "Cron diario que notifica responsables de tareas vencidas o de alta prioridad.",
     status: "review",
     priority: "medium",
     assignee: "Diego Salas",
@@ -99,7 +114,8 @@ export const TASKS: Task[] = [
   {
     id: "SCR-105",
     title: "Roles y permisos por equipo",
-    description: "Tabla user_roles separada con políticas RLS y función has_role.",
+    description:
+      "Tabla user_roles separada con políticas RLS y función has_role.",
     status: "done",
     priority: "high",
     assignee: "Ana Torres",
@@ -110,7 +126,13 @@ export const TASKS: Task[] = [
     points: 5,
     due: "2026-04-22",
     labels: ["security", "db"],
-    comments: [{ author: "Ana Torres", when: "hace 5d", body: "Mergeado y desplegado en prod." }],
+    comments: [
+      {
+        author: "Ana Torres",
+        when: "hace 5d",
+        body: "Mergeado y desplegado en prod.",
+      },
+    ],
   },
   {
     id: "WEB-201",

@@ -10,9 +10,9 @@ export interface Entity {
   updatedAt?: string;
 }
 
-export type TaskStatus = 'todo' | 'in-progress' | 'review' | 'done';
+export type TaskStatus = "todo" | "in-progress" | "review" | "done";
 
-export type Priority = 'low' | 'medium' | 'high' | 'urgent';
+export type Priority = "low" | "medium" | "high" | "urgent";
 
 export interface Comment {
   author: string;
@@ -51,7 +51,7 @@ export interface User extends Entity {
 export interface Tab {
   id: string;
   label: string;
-  kind: 'dashboard' | 'task' | 'epics' | 'permissions';
+  kind: "dashboard" | "task" | "epics" | "permissions";
   taskId?: string;
 }
 
@@ -63,4 +63,4 @@ export interface RouterContext {
   queryClient: QueryClient;
 }
 
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient } from "@tanstack/react-query";

@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { ChevronRight, ChevronDown, Circle, CircleDot, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  ChevronRight,
+  ChevronDown,
+  Circle,
+  CircleDot,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types";
 import type { ActivityView } from "@/components/layout/ActivityBar";
@@ -67,13 +74,17 @@ function buildTree(tasks: Task[]): TreeNode[] {
 export function Explorer({ view, tasks, activeId, onOpen }: ExplorerProps) {
   const tree = buildTree(tasks);
   const [openProjects, setOpenProjects] = useState<Set<string>>(
-    () => new Set(tree.map((n) => n.id))
+    () => new Set(tree.map((n) => n.id)),
   );
   const [openEpics, setOpenEpics] = useState<Set<string>>(
-    () => new Set(tree.flatMap((n) => n.children.map((c) => c.id)))
+    () => new Set(tree.flatMap((n) => n.children.map((c) => c.id))),
   );
 
-  const toggle = (set: Set<string>, setSet: (s: Set<string>) => void, id: string) => {
+  const toggle = (
+    set: Set<string>,
+    setSet: (s: Set<string>) => void,
+    id: string,
+  ) => {
     const next = new Set(set);
     next.has(id) ? next.delete(id) : next.add(id);
     setSet(next);
@@ -93,7 +104,11 @@ export function Explorer({ view, tasks, activeId, onOpen }: ExplorerProps) {
                 onClick={() => toggle(openProjects, setOpenProjects, proj.id)}
                 className="w-full flex items-center gap-1 px-2 py-0.5 hover:bg-list-hover text-left"
               >
-                {projOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                {projOpen ? (
+                  <ChevronDown size={14} />
+                ) : (
+                  <ChevronRight size={14} />
+                )}
                 <span className="font-semibold uppercase text-[11px] tracking-wide">
                   {proj.label}
                 </span>
@@ -107,13 +122,22 @@ export function Explorer({ view, tasks, activeId, onOpen }: ExplorerProps) {
                         onClick={() => toggle(openEpics, setOpenEpics, epic.id)}
                         className="w-full flex items-center gap-1 pl-4 pr-2 py-0.5 hover:bg-list-hover text-left"
                       >
-                        {epicOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                        {epicOpen ? (
+                          <ChevronDown size={14} />
+                        ) : (
+                          <ChevronRight size={14} />
+                        )}
                         <span className="text-sidebar-fg/90">{epic.label}</span>
                       </button>
                       {epicOpen &&
                         epic.tasks.map((t) => {
-                          const Icon = STATUS_ICON[t.status as keyof typeof STATUS_ICON] || Circle;
-                          const colorClass = STATUS_COLOR[t.status as keyof typeof STATUS_COLOR] || "text-muted-foreground";
+                          const Icon =
+                            STATUS_ICON[t.status as keyof typeof STATUS_ICON] ||
+                            Circle;
+                          const colorClass =
+                            STATUS_COLOR[
+                              t.status as keyof typeof STATUS_COLOR
+                            ] || "text-muted-foreground";
                           const isActive = t.id === activeId;
                           return (
                             <button
@@ -121,10 +145,14 @@ export function Explorer({ view, tasks, activeId, onOpen }: ExplorerProps) {
                               onClick={() => onOpen(t)}
                               className={cn(
                                 "w-full flex items-center gap-2 pl-9 pr-2 py-0.5 text-left hover:bg-list-hover",
-                                isActive && "bg-list-active hover:bg-list-active"
+                                isActive &&
+                                  "bg-list-active hover:bg-list-active",
                               )}
                             >
-                              <Icon size={13} className={cn("shrink-0", colorClass)} />
+                              <Icon
+                                size={13}
+                                className={cn("shrink-0", colorClass)}
+                              />
                               <span className="font-mono text-[11px] text-muted-foreground shrink-0">
                                 {t.id}
                               </span>

@@ -6,7 +6,9 @@ import { useParams } from "@tanstack/react-router";
  * Thin orchestrator — delegates to feature components.
  */
 export function ChatSessionPage() {
-  const { sessionId } = useParams({ from: "/app/projects/$projectId/chat/$sessionId" });
+  const { sessionId } = useParams({
+    from: "/app/projects/$projectId/chat/$sessionId",
+  });
 
   return (
     <div className="h-full overflow-auto bg-editor p-4">

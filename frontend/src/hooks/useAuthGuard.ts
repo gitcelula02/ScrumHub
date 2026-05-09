@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { useAuth } from '../store/useAuth';
+import { useEffect } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useAuth } from "../store/useAuth";
 
 export const useAuthGuard = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -8,7 +8,7 @@ export const useAuthGuard = () => {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      navigate({ to: '/login' });
+      navigate({ to: "/login" });
     }
   }, [isAuthenticated, isLoading, navigate]);
 

@@ -43,7 +43,7 @@ export function ProjectsView() {
         (p) =>
           p.name.toLowerCase().includes(query) ||
           p.description.toLowerCase().includes(query) ||
-          (p.key && p.key.toLowerCase().includes(query))
+          (p.key && p.key.toLowerCase().includes(query)),
       );
     }
 
@@ -86,11 +86,12 @@ export function ProjectsView() {
     return Math.floor(Math.random() * 4) + 1;
   };
 
-  const userInitials = user?.name
-    ?.split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase() || "AD";
+  const userInitials =
+    user?.name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() || "AD";
 
   if (isLoading) {
     return (
@@ -117,8 +118,7 @@ export function ProjectsView() {
             S
           </div>
           <span className="text-[13px] text-muted-foreground">
-            ScrumHub /{" "}
-            <span className="text-foreground">Proyectos</span>
+            ScrumHub / <span className="text-foreground">Proyectos</span>
           </span>
         </div>
 
@@ -162,7 +162,8 @@ export function ProjectsView() {
           <div>
             <h1 className="text-xl font-semibold text-foreground">Proyectos</h1>
             <p className="text-sm text-muted-foreground font-mono mt-0.5">
-              {projects.length} proyectos · {projects.filter((p) => p.status === "active").length} activos
+              {projects.length} proyectos ·{" "}
+              {projects.filter((p) => p.status === "active").length} activos
             </p>
           </div>
           <Button
@@ -191,10 +192,7 @@ export function ProjectsView() {
 
         {filteredProjects.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Package
-              size={48}
-              className="text-muted-foreground/30 mb-4"
-            />
+            <Package size={48} className="text-muted-foreground/30 mb-4" />
             <h3 className="text-lg font-semibold text-foreground mb-2">
               No hay proyectos
             </h3>
@@ -241,21 +239,25 @@ export function ProjectsView() {
             <section>
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-[10px] font-mono font-semibold tracking-wider text-muted-foreground uppercase">
-                  {activeTab === "all" ? "Todos los proyectos" : TABS.find((t) => t.value === activeTab)?.label}
+                  {activeTab === "all"
+                    ? "Todos los proyectos"
+                    : TABS.find((t) => t.value === activeTab)?.label}
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {(activeTab === "all" ? regularProjects : filteredProjects).map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                    leadName={getLeadName(project.owner)}
-                    taskCount={getTaskCount(project.id)}
-                    epicCount={getEpicCount(project.id)}
-                    memberCount={getMemberCount(project.members)}
-                    onClick={() => handleProjectClick(project.id)}
-                  />
-                ))}
+                {(activeTab === "all" ? regularProjects : filteredProjects).map(
+                  (project) => (
+                    <ProjectCard
+                      key={project.id}
+                      project={project}
+                      leadName={getLeadName(project.owner)}
+                      taskCount={getTaskCount(project.id)}
+                      epicCount={getEpicCount(project.id)}
+                      memberCount={getMemberCount(project.members)}
+                      onClick={() => handleProjectClick(project.id)}
+                    />
+                  ),
+                )}
               </div>
             </section>
           </>

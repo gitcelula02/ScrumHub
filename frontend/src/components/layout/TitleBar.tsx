@@ -12,9 +12,14 @@ import { useAuthSession } from "@/features/auth/hooks/useAuthSession";
 
 export function TitleBar({ onPalette }: TitleBarProps) {
   const { user } = useAuthSession();
-  
+
   const initials = user?.name
-    ? user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
     : "??";
 
   return (
@@ -31,7 +36,9 @@ export function TitleBar({ onPalette }: TitleBarProps) {
           className="flex items-center gap-2 h-6 w-[420px] max-w-[60%] px-2 bg-input border border-panel-border rounded-sm text-[12px] text-muted-foreground hover:border-status-bar/60"
         >
           <Search size={12} />
-          <span className="truncate">ScrumHub — buscar tareas, ejecutar comandos IA…</span>
+          <span className="truncate">
+            ScrumHub — buscar tareas, ejecutar comandos IA…
+          </span>
           <span className="ml-auto font-mono text-[10px] px-1 border border-panel-border rounded-sm">
             Ctrl+Shift+P
           </span>

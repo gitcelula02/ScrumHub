@@ -6,7 +6,9 @@ import { useParams } from "@tanstack/react-router";
  * Thin orchestrator — delegates to feature components.
  */
 export function EpicDetailPage() {
-  const { epicId } = useParams({ from: "/app/projects/$projectId/epics/$epicId" });
+  const { epicId } = useParams({
+    from: "/app/projects/$projectId/epics/$epicId",
+  });
 
   return (
     <div className="h-full overflow-auto bg-editor p-4">

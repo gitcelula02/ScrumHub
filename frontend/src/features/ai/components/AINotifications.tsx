@@ -1,10 +1,18 @@
 import { useMemo } from "react";
-import { Sparkles, AlertTriangle, Clock, TrendingUp, Mail, X } from "lucide-react";
+import {
+  Sparkles,
+  AlertTriangle,
+  Clock,
+  TrendingUp,
+  Mail,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTasks } from "@/features/backlog";
 import type { Task } from "@/types";
 
 interface AINotificationsProps {
+  projectId: string;
   open: boolean;
   onClose: () => void;
 }
@@ -66,7 +74,8 @@ function buildAlerts(tasks: Task[]): Alert[] {
       severity: "warning",
       icon: TrendingUp,
       title: `WIP elevado: ${wip} tareas en progreso`,
-      detail: "El equipo está sobrecargado. Considera mover tareas a revisión antes de tomar nuevas.",
+      detail:
+        "El equipo está sobrecargado. Considera mover tareas a revisión antes de tomar nuevas.",
       action: "Ver sugerencias",
     });
   }
@@ -88,8 +97,12 @@ function buildAlerts(tasks: Task[]): Alert[] {
  * Feature component for AI notifications and risk analysis.
  * Automatically fetches current tasks to generate insights.
  */
-export function AINotifications({ open, onClose }: AINotificationsProps) {
-  const { data: tasks = [] } = useTasks();
+export function AINotifications({
+  projectId,
+  open,
+  onClose,
+}: AINotificationsProps) {
+  const { data: tasks = [] } = useTasks(projectId);
   const alerts = useMemo(() => buildAlerts(tasks), [tasks]);
 
   if (!open) return null;
@@ -127,7 +140,7 @@ export function AINotifications({ open, onClose }: AINotificationsProps) {
                 key={a.id}
                 className={cn(
                   "bg-editor border border-panel-border border-l-2 rounded-sm p-3",
-                  SEV_COLOR[a.severity as keyof typeof SEV_COLOR]
+                  SEV_COLOR[a.severity as keyof typeof SEV_COLOR],
                 )}
               >
                 <div className="flex items-start gap-2 mb-1">
@@ -155,7 +168,8 @@ export function AINotifications({ open, onClose }: AINotificationsProps) {
         </div>
 
         <div className="border-t border-panel-border p-3 text-[11px] text-muted-foreground font-mono">
-          IA monitorea cada 15min. Próximo análisis: <span className="text-status-bar">14:42</span>
+          IA monitorea cada 15min. Próximo análisis:{" "}
+          <span className="text-status-bar">14:42</span>
         </div>
       </aside>
     </div>
