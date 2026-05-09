@@ -1,11 +1,12 @@
 import { Layers, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTasks } from "@/features/backlog";
+import { useEpics } from "../hooks/useEpics";
 import type { Task } from "@/types";
 
 interface EpicsViewProps {
   projectId: string;
   onOpenTask: (t: Task) => void;
+  onOpenEpic?: (t: Task) => void;
 }
 
 const STATUS_COLOR = {
@@ -25,10 +26,14 @@ const PRIORITY_DOT = {
 /**
  * @component EpicsView
  * Smart feature component for viewing high-level epic progress.
- * Automatically fetches all tasks to aggregate epic-level status.
+ * Uses proper hierarchical task structure (type === 'EPIC' with parentId).
  */
-export function EpicsView({ projectId, onOpenTask }: EpicsViewProps) {
-  const { data: tasks = [], isLoading } = useTasks(projectId);
+export function EpicsView({
+  projectId,
+  onOpenTask,
+  onOpenEpic,
+}: EpicsViewProps) {
+  const { epics, epicChildren, isLoading } = useEpics(projectId);
 
   if (isLoading) {
     return (
@@ -38,39 +43,37 @@ export function EpicsView({ projectId, onOpenTask }: EpicsViewProps) {
     );
   }
 
-  const map = new Map<string, Task[]>();
-  for (const t of tasks) {
-    if (!map.has(t.epic)) map.set(t.epic, []);
-    map.get(t.epic)!.push(t);
-  }
-  const epics = Array.from(map.entries());
-
   return (
     <div className="h-full overflow-auto bg-editor p-6">
       <div className="mb-6 flex items-baseline gap-3">
         <h1 className="text-xl font-semibold text-foreground">Épicas</h1>
         <span className="font-mono text-xs text-muted-foreground">
-          {epics.length} épicas · {tasks.length} tareas
+          {epics.length} épicas
         </span>
       </div>
 
       <div className="space-y-3">
-        {epics.map(([epic, list]) => {
-          const total = list.length;
-          const done = list.filter((t) => t.status === "done").length;
+        {epics.map((epic) => {
+          const children = epicChildren.get(epic.id) || [];
+          const total = children.length;
+          const done = children.filter((t) => t.status === "done").length;
           const pct = total ? Math.round((done / total) * 100) : 0;
-          const points = list.reduce((s, t) => s + t.points, 0);
+          const points = children.reduce((s, t) => s + t.points, 0);
+
           return (
             <div
-              key={epic}
+              key={epic.id}
               className="bg-sidebar-bg border border-panel-border rounded-sm"
             >
               <div className="flex items-center justify-between px-4 h-11 border-b border-panel-border">
                 <div className="flex items-center gap-2">
                   <Layers size={14} className="text-status-bar" />
-                  <h2 className="text-[14px] font-semibold text-foreground">
-                    {epic}
-                  </h2>
+                  <button
+                    onClick={() => onOpenEpic?.(epic)}
+                    className="text-[14px] font-semibold text-foreground hover:text-status-bar transition-colors"
+                  >
+                    {epic.title}
+                  </button>
                   <span className="font-mono text-[11px] text-muted-foreground">
                     {done}/{total} · {points} pts
                   </span>
@@ -88,7 +91,7 @@ export function EpicsView({ projectId, onOpenTask }: EpicsViewProps) {
                 </div>
               </div>
               <div className="divide-y divide-panel-border">
-                {list.map((t) => (
+                {children.map((t) => (
                   <button
                     key={t.id}
                     onClick={() => onOpenTask(t)}

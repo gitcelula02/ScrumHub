@@ -1,2 +1,1 @@
-// Feature: sprints - Barrel Export
-export {};
+export * from "./components/SprintsView";

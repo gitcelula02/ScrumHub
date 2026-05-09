@@ -23,6 +23,7 @@ import { Route as AppProjectsProjectIdDashboardRouteImport } from './routes/app/
 import { Route as AppProjectsProjectIdCalendarRouteImport } from './routes/app/projects/$projectId/calendar'
 import { Route as AppProjectsProjectIdBoardRouteImport } from './routes/app/projects/$projectId/board'
 import { Route as AppProjectsProjectIdBacklogRouteImport } from './routes/app/projects/$projectId/backlog'
+import { Route as AppProjectsProjectIdEpicsIndexRouteImport } from './routes/app/projects/$projectId/epics/index'
 import { Route as AppProjectsProjectIdChatIndexRouteImport } from './routes/app/projects/$projectId/chat/index'
 import { Route as AppProjectsProjectIdTasksTaskIdRouteImport } from './routes/app/projects/$projectId/tasks/$taskId'
 import { Route as AppProjectsProjectIdEpicsEpicIdRouteImport } from './routes/app/projects/$projectId/epics/$epicId'
@@ -105,6 +106,12 @@ const AppProjectsProjectIdBacklogRoute =
     path: '/backlog',
     getParentRoute: () => AppProjectsProjectIdRouteRoute,
   } as any)
+const AppProjectsProjectIdEpicsIndexRoute =
+  AppProjectsProjectIdEpicsIndexRouteImport.update({
+    id: '/epics/',
+    path: '/epics/',
+    getParentRoute: () => AppProjectsProjectIdRouteRoute,
+  } as any)
 const AppProjectsProjectIdChatIndexRoute =
   AppProjectsProjectIdChatIndexRouteImport.update({
     id: '/chat/',
@@ -149,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/app/projects/$projectId/epics/$epicId': typeof AppProjectsProjectIdEpicsEpicIdRoute
   '/app/projects/$projectId/tasks/$taskId': typeof AppProjectsProjectIdTasksTaskIdRoute
   '/app/projects/$projectId/chat/': typeof AppProjectsProjectIdChatIndexRoute
+  '/app/projects/$projectId/epics/': typeof AppProjectsProjectIdEpicsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -168,6 +176,7 @@ export interface FileRoutesByTo {
   '/app/projects/$projectId/epics/$epicId': typeof AppProjectsProjectIdEpicsEpicIdRoute
   '/app/projects/$projectId/tasks/$taskId': typeof AppProjectsProjectIdTasksTaskIdRoute
   '/app/projects/$projectId/chat': typeof AppProjectsProjectIdChatIndexRoute
+  '/app/projects/$projectId/epics': typeof AppProjectsProjectIdEpicsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -189,6 +198,7 @@ export interface FileRoutesById {
   '/app/projects/$projectId/epics/$epicId': typeof AppProjectsProjectIdEpicsEpicIdRoute
   '/app/projects/$projectId/tasks/$taskId': typeof AppProjectsProjectIdTasksTaskIdRoute
   '/app/projects/$projectId/chat/': typeof AppProjectsProjectIdChatIndexRoute
+  '/app/projects/$projectId/epics/': typeof AppProjectsProjectIdEpicsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/app/projects/$projectId/epics/$epicId'
     | '/app/projects/$projectId/tasks/$taskId'
     | '/app/projects/$projectId/chat/'
+    | '/app/projects/$projectId/epics/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -230,6 +241,7 @@ export interface FileRouteTypes {
     | '/app/projects/$projectId/epics/$epicId'
     | '/app/projects/$projectId/tasks/$taskId'
     | '/app/projects/$projectId/chat'
+    | '/app/projects/$projectId/epics'
   id:
     | '__root__'
     | '/'
@@ -250,6 +262,7 @@ export interface FileRouteTypes {
     | '/app/projects/$projectId/epics/$epicId'
     | '/app/projects/$projectId/tasks/$taskId'
     | '/app/projects/$projectId/chat/'
+    | '/app/projects/$projectId/epics/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -359,6 +372,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProjectsProjectIdBacklogRouteImport
       parentRoute: typeof AppProjectsProjectIdRouteRoute
     }
+    '/app/projects/$projectId/epics/': {
+      id: '/app/projects/$projectId/epics/'
+      path: '/epics'
+      fullPath: '/app/projects/$projectId/epics/'
+      preLoaderRoute: typeof AppProjectsProjectIdEpicsIndexRouteImport
+      parentRoute: typeof AppProjectsProjectIdRouteRoute
+    }
     '/app/projects/$projectId/chat/': {
       id: '/app/projects/$projectId/chat/'
       path: '/chat'
@@ -401,6 +421,7 @@ interface AppProjectsProjectIdRouteRouteChildren {
   AppProjectsProjectIdEpicsEpicIdRoute: typeof AppProjectsProjectIdEpicsEpicIdRoute
   AppProjectsProjectIdTasksTaskIdRoute: typeof AppProjectsProjectIdTasksTaskIdRoute
   AppProjectsProjectIdChatIndexRoute: typeof AppProjectsProjectIdChatIndexRoute
+  AppProjectsProjectIdEpicsIndexRoute: typeof AppProjectsProjectIdEpicsIndexRoute
 }
 
 const AppProjectsProjectIdRouteRouteChildren: AppProjectsProjectIdRouteRouteChildren =
@@ -416,6 +437,7 @@ const AppProjectsProjectIdRouteRouteChildren: AppProjectsProjectIdRouteRouteChil
     AppProjectsProjectIdEpicsEpicIdRoute: AppProjectsProjectIdEpicsEpicIdRoute,
     AppProjectsProjectIdTasksTaskIdRoute: AppProjectsProjectIdTasksTaskIdRoute,
     AppProjectsProjectIdChatIndexRoute: AppProjectsProjectIdChatIndexRoute,
+    AppProjectsProjectIdEpicsIndexRoute: AppProjectsProjectIdEpicsIndexRoute,
   }
 
 const AppProjectsProjectIdRouteRouteWithChildren =

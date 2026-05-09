@@ -14,6 +14,8 @@ export type TaskStatus = "todo" | "in-progress" | "review" | "done";
 
 export type Priority = "low" | "medium" | "high" | "urgent";
 
+export type TaskType = "TASK" | "EPIC" | "STORY" | "BUG";
+
 export interface Comment {
   author: string;
   when: string;
@@ -25,11 +27,13 @@ export interface Task extends Entity {
   description: string;
   status: TaskStatus;
   priority: Priority;
+  type: TaskType;
   assignee: string;
   reporter: string;
   project: string;
-  epic: string;
-  sprint: string;
+  epic?: string;
+  sprint?: string;
+  parentId?: string;
   points: number;
   due: string;
   labels: string[];

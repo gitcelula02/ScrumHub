@@ -64,7 +64,7 @@ const items: {
     id: "epics",
     icon: Layers,
     label: "Épicas",
-    path: "/app/projects/$projectId/dashboard",
+    path: "/app/projects/$projectId/epics",
     projectOnly: true,
   },
   {

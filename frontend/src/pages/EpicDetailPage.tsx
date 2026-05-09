@@ -1,18 +1,34 @@
-import { useParams } from "@tanstack/react-router";
+import { useParams, useNavigate } from "@tanstack/react-router";
+import { EpicDetailView } from "@/features/projects";
+import type { Task } from "@/types";
 
 /**
  * @page EpicDetailPage
- * Epic detail view for a specific epic within a project.
- * Thin orchestrator — delegates to feature components.
+ * Thin orchestrator for the epic detail view.
  */
 export function EpicDetailPage() {
-  const { epicId } = useParams({
+  const { projectId, epicId } = useParams({
     from: "/app/projects/$projectId/epics/$epicId",
   });
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate({ to: "/app/projects/$projectId/epics/", params: { projectId } });
+  };
+
+  const handleOpenTask = (task: Task) => {
+    navigate({
+      to: "/app/projects/$projectId/tasks/$taskId",
+      params: { projectId, taskId: task.id },
+    });
+  };
 
   return (
-    <div className="h-full overflow-auto bg-editor p-4">
-      <div className="text-foreground">Epic detail: {epicId}</div>
-    </div>
+    <EpicDetailView
+      projectId={projectId}
+      epicId={epicId}
+      onBack={handleBack}
+      onOpenTask={handleOpenTask}
+    />
   );
 }
