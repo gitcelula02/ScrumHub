@@ -72,8 +72,8 @@ frontend/src/
 │   │   ├── MobileMenu.tsx          # Mobile overlay nav
 │   │   ├── StatusBar.tsx           # Bottom bar (git branch, notifications, alerts)
 │   │   ├── TitleBar.tsx            # Top bar (window controls, app title, palette trigger)
-│   │   ├── Sidebar.tsx             # (exists but NOT used in current AppShell)
-│   │   └── TopBar.tsx              # (exists but NOT used in current AppShell)
+│   │   ├── Sidebar.tsx             # DEPRECATED — file removed
+│   │   └── TopBar.tsx              # DEPRECATED — file removed
 │   │
 │   └── ui/                         # 45 shared UI atoms (all have JSDoc, all exported via index.ts)
 │       ├── index.ts                 # Barrel export for all 45 atoms
@@ -120,14 +120,23 @@ frontend/src/
 │               ├── sprints.tsx
 │               ├── settings.tsx
 │               ├── tasks/$taskId.tsx
-│               ├── epics/$epicId.tsx
+│               ├── epics/
+│               │   ├── index.tsx       # Epics list (/app/projects/$projectId/epics)
+│               │   └── $epicId.tsx     # Epic detail (/app/projects/$projectId/epics/$epicId)
 │               └── chat/
 │                   ├── index.tsx
 │                   └── $sessionId.tsx
 │
 ├── pages/                          # Route target pages (thin orchestrators)
 │   ├── LandingPage.tsx             # Public landing
-│   ├── DashboardPage.tsx          # Dashboard (used by /app/dashboard)
+│   ├── DashboardPage.tsx           # Dashboard (used by /app/dashboard)
+│   ├── BoardPage.tsx              # Kanban board view
+│   ├── BacklogPage.tsx            # Backlog view with task list
+│   ├── SprintsPage.tsx            # Sprint management view
+│   ├── SettingsPage.tsx           # Tabbed settings (General/Permissions)
+│   ├── EpicsPage.tsx              # Epics list view
+│   ├── EpicDetailPage.tsx         # Single epic detail view
+│   ├── TaskDetailPage.tsx         # Task detail with properties panel
 │   └── AuthPages.tsx              # Shared Login/Register form (delegated by routes)
 │
 ├── store/                          # React Context providers
@@ -210,7 +219,7 @@ The root route defines the HTML shell and global providers. It uses `createRootR
 
 **Provider order (outermost to innermost):**
 ```
-QueryClientProvider → AuthProvider → Outlet
+QueryClientProvider → EntityThemeRegistryProvider → ThemeRegistryProvider → AuthProvider → Outlet
 ```
 
 **TanStack Router patterns used:**
@@ -224,7 +233,7 @@ QueryClientProvider → AuthProvider → Outlet
 export const Route = createRootRoute({
   head: () => ({ meta: [...], links: [...] }),
   shellComponent: RootShell,       // <html><head><body>{children}<Scripts /></body></html>
-  component: RootComponent,         // <QueryClientProvider><AuthProvider><Outlet /></AuthProvider></QueryClientProvider>
+  component: RootComponent,         // <QueryClientProvider><EntityThemeRegistryProvider><ThemeRegistryProvider><AuthProvider><Outlet /></AuthProvider></ThemeRegistryProvider></EntityThemeRegistryProvider></QueryClientProvider>
   errorComponent: ({ error }) => <pre>{error.message}</pre>,
   notFoundComponent: NotFoundComponent,
 });
@@ -444,26 +453,26 @@ features/<name>/
 | Feature | Status | Files | Notes |
 |---------|--------|-------|-------|
 | `workspace/` | ✅ Complete | 6 | Explorer, Tabs, CommandPalette, utils |
-| `board/` | ✅ Complete | 4 | Board.tsx, useBoard, boardService |
-| `tasks/` | ✅ Complete | 2 | TaskView, PropertiesPanel (both working) |
+| `board/` | ✅ Complete | 4 | Board.tsx, useMoveTask mutation, boardService |
+| `tasks/` | ⚠️ Partial | 2 | TaskView exists; PropertiesPanel is MISSING |
 | `ai/` | ✅ Complete | 4 | AINotifications, useAI, aiService |
 | `auth/` | ✅ Complete | 4 | authService, useAuthSession, AuthPages |
-| `projects/` | ✅ Complete | 3 | projectQuery, projectService, projectService |
-| `settings/` | ✅ Partial | 2 | PermissionsView; needs general/user settings panels |
-| `backlog/` | ✅ Complete | 3 | useTasks (hierarchical keys), backlogService (project-scoped API) |
-| `calendar/` | ❌ Stub | 1 | index.ts only |
+| `projects/` | ✅ Complete | 12 | projectQuery, projectService, epicService, useEpics, useEpicDetail, EpicsView, EpicDetailView |
+| `settings/` | ✅ Complete | 3 | PermissionsView, GeneralSettings (both implemented) |
+| `backlog/` | ✅ Complete | 4 | useTasks, backlogService, BacklogView |
+| `sprints/` | ⚠️ Partial | 2 | SprintsView exists; needs hook/service |
+| `calendar/` | ❌ Stub | 1 | index.ts only (calendar.tsx route exists) |
 | `chat/` | ❌ Stub | 1 | index.ts only |
 | `overview/` | ❌ Stub | 1 | index.ts only |
 | `quest-tree/` | ❌ Stub | 1 | index.ts only |
-| `sprints/` | ❌ Stub | 1 | index.ts only |
+| `epics/` | ✅ Implemented | 5 | Implemented within `projects/` feature (EpicsView, EpicDetailView, useEpics, useEpicDetail, epicService) |
 
 ### Key Feature Patterns
 
 **`features/tasks/`** — Task Detail View
 - `components/TaskView.tsx`: Renders a task's full detail (title, status, assignee, description, comments)
-- `components/TaskView.tsx` also exports `PropertiesPanel`: Renders task properties sidebar (assignee, reporter, sprint, points, due date, labels)
-- **`src/pages/TaskDetailPage.tsx`**: Thin orchestrator that composes both components in a side-by-side flex layout (`<div className="flex h-full">`) — `TaskView` takes `flex-1 min-w-0` (left), `PropertiesPanel` takes `~288px` fixed sidebar (right)
-- `PropertiesPanel` is conditional — only renders when `task` data is loaded (`if (isLoading || !task) return null`)
+- `TaskDetailPage.tsx` renders TaskView alone (PropertiesPanel is planned but not yet implemented)
+- PropertiesPanel stub exists in `features/tasks/` but is NOT yet integrated
 
 **`features/workspace/`** — VS Code Explorer Pattern
 - `components/Explorer.tsx`: File-tree style project explorer
@@ -491,9 +500,11 @@ All reusable, stateless UI components. Every component:
 
 **Currently used by AppShell:** ActivityBar, AppShell, Explorer (from workspace feature), StatusBar, TitleBar
 
-**Exist but unused:** Sidebar, TopBar, MobileMenu
+**Exist but unused:** MobileMenu (Sidebar and TopBar were removed/deprecated)
 
-**No barrel export** — `src/components/layout/` has no `index.ts`. Import directly from the component file.
+**Has barrel export** — `src/components/layout/index.ts` exports all layout components.
+
+**DEPRECATED FILES REMOVED:** Sidebar.tsx and TopBar.tsx were removed from the codebase. The VS Code-inspired layout uses ActivityBar for navigation instead.
 
 ---
 
@@ -732,13 +743,21 @@ This ensures cache isolation per project and correct invalidation.
 
 ## 16. Known Issues
 
-### 1. `Sidebar.tsx` and `TopBar.tsx` Are Unused
+### 1. `Sidebar.tsx` and `TopBar.tsx` Were Removed
 
-These layout components exist in `src/components/layout/` but are **not imported by the current `AppShell`**. The current layout uses ActivityBar/Explorer/TitleBar instead. These files may be removed or repurposed.
+These deprecated files have been removed from the codebase. The VS Code-inspired layout uses ActivityBar/Explorer/TitleBar instead.
 
-### 2. Many Features Are Stubs
+### 2. Some Features Are Stubs
 
-`calendar/`, `chat/`, `overview/`, `quest-tree/`, `sprints/` only have `index.ts` files. They need components, hooks, and services.
+`calendar/`, `chat/`, `overview/`, `quest-tree/` only have `index.ts` files. They need components, hooks, and services. `sprints/` has SprintsView but needs hook/service implementation.
+
+### 3. PropertiesPanel Is Missing
+
+The `features/tasks/` feature has TaskView.tsx but PropertiesPanel.tsx is missing. TaskDetailPage.tsx currently shows task details without the properties sidebar.
+
+### 4. `board/` useMoveTask Only
+
+The board feature's `useBoard.ts` only exports `useMoveTask` mutation. There is no `useBoard` query hook — the Board component uses `useTasks` from backlog for data.
 
 ---
 
