@@ -2,7 +2,9 @@
 
 ## Overview
 
-This document describes the complete file structure, purpose, and architectural patterns of the ScrumHub frontend. It is designed to serve as a comprehensive reference for any AI agent or developer joining the project — covering **what each file does**, **why it exists**, and **where to go to extend or fix it**.
+This document describes the complete file structure, purpose, and architectural patterns of the ScrumHub frontend — a **VS Code-inspired** project management application. It is the authoritative reference for any AI agent or developer joining the project.
+
+**Design Philosophy:** "Sober, Structured, Sophisticated" — VS Code's functional elegance applied to project management. Every panel, tab, and interaction mirrors the focused efficiency of a professional IDE.
 
 ---
 
@@ -11,33 +13,43 @@ This document describes the complete file structure, purpose, and architectural 
 1. [Architecture Principles](#1-architecture-principles)
 2. [Directory Structure](#2-directory-structure)
 3. [Entry Points](#3-entry-points)
-4. [Global Services Layer](#4-global-services-layer)
-5. [Global State (Store)](#5-global-state-store)
-6. [Global Hooks](#6-global-hooks)
-7. [Feature Modules](#7-feature-modules)
-8. [Shared UI Components](#8-shared-ui-components)
-9. [Styles & Theming](#9-styles--theming)
-10. [Utils](#10-utils)
-11. [Pages (Route Targets)](#11-pages-route-targets)
-12. [Design System](#12-design-system)
-13. [Adding New Features](#13-adding-new-features)
+4. [TanStack Router — File-Based Routing](#4-tanstack-router--file-based-routing)
+5. [Layout Components — VS Code Pattern](#5-layout-components--vs-code-pattern)
+6. [Global Services Layer](#6-global-services-layer)
+7. [Global State (Store)](#7-global-state-store)
+8. [Global Hooks](#8-global-hooks)
+9. [Feature Modules](#9-feature-modules)
+10. [Shared UI Components](#10-shared-ui-components)
+11. [Styles & Theming](#11-styles--theming)
+12. [Utils](#12-utils)
+13. [Design System](#13-design-system)
 14. [Key Conventions](#14-key-conventions)
-15. [Common Patterns](#15-common-patterns)
+15. [TanStack Router Scalability Guide](#15-tanstack-router-scalability-guide)
+16. [Known Issues](#16-known-issues)
 
 ---
 
 ## 1. Architecture Principles
 
-ScrumHub follows a **Feature-First Architecture** with strict boundaries:
+ScrumHub follows a **Feature-First Architecture** with VS Code-inspired boundaries:
 
 | Rule | Description |
 |------|-------------|
 | **Feature Ownership** | Code belonging to a business domain stays in `src/features/[domain]/` |
-| **Shared Utility** | Cross-cutting code (API client, auth state, layout) lives at `src/` root |
-| **Single Responsibility** | Each file does one thing: services fetch data, hooks manage state, components render |
-| **Dependency Direction** | Pages depend on Hooks depend on Services. Components are leaf nodes |
-| **No UI in Services** | Services return raw data — never import React or write JSX |
+| **Shared UI** | Cross-cutting UI atoms live in `src/components/ui/` |
+| **Layout** | Structural components live in `src/components/layout/` |
+| **Single Responsibility** | Services fetch data, hooks manage state, components render |
+| **No UI in Services** | Services return raw data — no React imports, no JSX |
 | **No State in Components** | Components receive props; state lives in hooks or context |
+| **VS Code Layout** | The shell is a multi-panel IDE-like container, not a sidebar+topbar |
+
+**Three-Tier Component Rule:**
+
+- **Tier 1 — UI Atoms** (`src/components/ui/`): Stateless, props in, JSX out. Zero business logic.
+- **Tier 2 — Feature Components** (`src/features/*/components/`): Own their data via feature hooks. Import Tier 1 atoms freely.
+- **Tier 3 — Pages** (`src/pages/`): Thin orchestrators. Use `useParams()` → call hook → render component. No rendering logic.
+
+**Dependency Direction:** Pages → Hooks → Services. Components are leaf nodes. Features must NOT import from each other's internals.
 
 ---
 
@@ -45,818 +57,515 @@ ScrumHub follows a **Feature-First Architecture** with strict boundaries:
 
 ```
 frontend/src/
-├── App.tsx                          # Root component with routing + providers
-├── main.tsx                         # Entry point — mounts App to #root
-├── components/                      # SHARED UI — used by multiple features
-│   ├── AIAssistantButton.tsx        # Fixed-position AI chat trigger
-│   ├── layout/                      # Structural components (AppShell, Sidebar, TopBar, MobileMenu)
-│   │   ├── AppShell.tsx             # Authenticated layout wrapper (Sidebar + TopBar + Outlet)
-│   │   ├── Sidebar.tsx              # Project navigation tree in sidebar
-│   │   ├── TopBar.tsx               # Top header with search bar
-│   │   └── MobileMenu.tsx           # Full-screen mobile overlay nav
-│   └── ui/                          # Atomic reusable UI elements
-│       ├── EpicBadge.tsx            # Colored epic pill with dynamic theme
-│       ├── SprintPill.tsx           # Colored sprint pill with dynamic theme
-│       ├── StatusBadge.tsx          # Semantic status + priority tags (todo/in_progress/done/etc)
-│       ├── ColorPickerSwatch.tsx    # Color selection swatch grid
-│       └── index.ts                 # Barrel export
-├── features/                        # FEATURE MODULES — each is self-contained
-│   ├── auth/                        # Authentication
-│   ├── backlog/                     # Backlog management (epics + tasks)
-│   ├── board/                       # Kanban board
-│   ├── calendar/                    # Calendar view
-│   ├── chat/                        # Project chat
-│   ├── overview/                    # Project dashboard / stats
-│   ├── projects/                    # Project management
-│   ├── settings/                    # User + project settings
-│   ├── sprints/                     # Sprint management
-│   ├── tasks/                       # Task management
-│   ├── quest-tree/                  # Quest tree view
-│   ├── ai/                          # AI assistant features
-│   └── workspace/                   # Visual workspace canvas
-├── services/                        # GLOBAL API CLIENT only
-│   └── apiClient.ts                 # Central fetch wrapper
-├── hooks/                           # GLOBAL HOOKS (useAuthGuard, useAuthRedirect, useEntityTheme)
-├── store/                           # GLOBAL STATE (AuthContext, ThemeRegistry + their hooks)
-├── styles/                          # GLOBAL STYLES (CSS variables, Tailwind config)
-├── utils/                           # PURE UTILITIES (color math — no React, no side effects)
-└── pages/                           # ROUTE TARGETS — thin wrappers that compose hooks + features
-    ├── LandingPage.tsx              # Public landing page
-    ├── LoginPage.tsx                # Login form
-    ├── RegisterPage.tsx             # Registration form
-    ├── ProjectListPage.tsx          # Projects dashboard
-    ├── ProjectCreatePage.tsx        # New project form
-    ├── ProjectPage.tsx              # Project detail (redirects to overview)
-    ├── BacklogPage.tsx              # Backlog view
-    ├── BoardPage.tsx                # Kanban board page
-    ├── SprintPage.tsx               # Sprint planning
-    ├── CalendarPage.tsx             # Calendar view
-    ├── ChatPage.tsx                 # Chat view
-    ├── WorkspacePage.tsx            # Workspace canvas
-    ├── SettingsPage.tsx             # Settings
-    └── NotFound.tsx                 # 404
+├── client.tsx                      # React hydration entry (mounts StartClient to #root)
+├── router.tsx                       # Router factory: createRouter() + type registration
+├── server.tsx                      # SSR handler for TanStack Start
+├── shim.ts                         # React global shim for SSR compatibility
+├── routeTree.gen.ts                # AUTO-GENERATED by TanStack Router (do NOT edit)
+│
+├── components/
+│   ├── layout/                     # VS Code-style layout components
+│   │   ├── index.ts                # Barrel export (AppShell, ActivityBar, TitleBar, StatusBar)
+│   │   ├── ActivityBar.tsx        # Left icon bar (projects/backlog/sprints/settings)
+│   │   ├── AppShell.tsx            # Main IDE-like container (TitleBar + ActivityBar +
+│   │   │                           #   Explorer + Tabs + Outlet + StatusBar)
+│   │   ├── MobileMenu.tsx          # Mobile overlay nav
+│   │   ├── StatusBar.tsx           # Bottom bar (git branch, notifications, alerts)
+│   │   ├── TitleBar.tsx            # Top bar (window controls, app title, palette trigger)
+│   │   ├── Sidebar.tsx             # (exists but NOT used in current AppShell)
+│   │   └── TopBar.tsx              # (exists but NOT used in current AppShell)
+│   │
+│   └── ui/                         # 45 shared UI atoms (all have JSDoc, all exported via index.ts)
+│       ├── index.ts                 # Barrel export for all 45 atoms
+│       ├── button.tsx, badge.tsx, card.tsx, dialog.tsx, dropdown-menu.tsx
+│       ├── calendar.tsx, chart.tsx, table.tsx, tabs.tsx
+│       ├── form.tsx, input.tsx, textarea.tsx, select.tsx, checkbox.tsx
+│       ├── skeleton.tsx, progress.tsx, spinner.tsx
+│       ├── avatar.tsx, tooltip.tsx, popover.tsx, alert.tsx
+│       ├── sheet.tsx, drawer.tsx, resizable.tsx, collapsible.tsx
+│       └── ... (45 total, see src/components/ui/index.ts)
+│
+├── features/                       # 13 feature modules
+│   ├── auth/                       # authService, useAuthSession, AuthPages component
+│   ├── backlog/                     # useTasks, backlogService (task tree data)
+│   ├── board/                      # Board.tsx, useBoard, boardService (kanban)
+│   ├── calendar/                   # STUB (index.ts only) ← needs implementation
+│   ├── chat/                       # STUB (index.ts only) ← needs implementation
+│   ├── overview/                   # STUB (index.ts only) ← needs implementation
+│   ├── projects/                   # projectQuery, projectService
+│   ├── quest-tree/                 # STUB (index.ts only) ← needs implementation
+│   ├── settings/                   # PermissionsView.tsx + settings services
+│   ├── sprints/                    # STUB (index.ts only) ← needs implementation
+│   ├── tasks/                      # TaskView.tsx + PropertiesPanel (fixed)
+│   ├── workspace/                  # Explorer.tsx, Tabs.tsx, CommandPalette.tsx, utils
+│   └── ai/                         # AINotifications.tsx, useAI, aiService
+│
+├── routes/                         # TanStack Router FILE-BASED routing
+│   ├── __root.tsx                  # Root route: QueryClientProvider + AuthProvider + HTML shell
+│   ├── index.tsx                   # Landing page (/)
+│   ├── login.tsx                   # Login (/login)
+│   ├── register.tsx               # Register (/register)
+│   └── app/
+│       ├── route.tsx               # Auth guard wrapper (beforeLoad)
+│       ├── index.tsx               # Redirect to /app/projects
+│       └── projects/
+│           ├── index.tsx           # Project list (/app/projects)
+│           ├── create.tsx          # Create project (/app/projects/create)
+│           └── $projectId/
+│               ├── route.tsx       # Project layout + project loader
+│               ├── dashboard.tsx
+│               ├── board.tsx
+│               ├── backlog.tsx
+│               ├── calendar.tsx
+│               ├── sprints.tsx
+│               ├── settings.tsx
+│               ├── tasks/$taskId.tsx
+│               ├── epics/$epicId.tsx
+│               └── chat/
+│                   ├── index.tsx
+│                   └── $sessionId.tsx
+│
+├── pages/                          # Route target pages (thin orchestrators)
+│   ├── LandingPage.tsx             # Public landing
+│   ├── DashboardPage.tsx          # Dashboard (used by /app/dashboard)
+│   └── AuthPages.tsx              # Shared Login/Register form (delegated by routes)
+│
+├── store/                          # React Context providers
+│   ├── index.ts                    # Barrel export
+│   ├── AuthContext.tsx             # User session + login/logout (localStorage-backed)
+│   ├── useAuth.ts                 # Hook accessor for AuthContext
+│   ├── ThemeRegistry.tsx           # Memoized cache: entityId → CSS variable set
+│   └── useThemeRegistry.ts        # Hook accessor for ThemeRegistry
+│
+├── hooks/                          # Global hooks
+│   ├── useAuthGuard.ts             # Redirect to /login if not authenticated
+│   ├── useAuthRedirect.ts          # Redirect to /projects if already authenticated
+│   ├── useEntityTheme.ts           # hex → CSS variable set (var(--entity-*))
+│   └── use-mobile.tsx             # Mobile breakpoint detection
+│
+├── services/                       # Global API layer
+│   └── apiClient.ts                # Central fetch wrapper (base URL, JSON, error shape)
+│
+├── utils/                          # Pure utilities
+│   └── themeUtils.ts               # Color math: hexToRgb, buildEntityTheme, etc.
+│
+├── styles/                          # Global styles
+│   └── globals.css                 # oklch CSS variables + Tailwind v4 @theme inline
+│
+├── types/                          # Global TypeScript types
+│   └── index.ts                   # ID, Entity, Task, Project, User, Tab, TaskStatus, Priority
+│
+└── lib/                            # Shared infrastructure
+    ├── utils.ts                    # cn() — clsx + tailwind-merge (shadcn/ui pattern)
+    └── queryClient.ts               # Shared TanStack Query instance (critical for loaders)
 ```
 
 ---
 
 ## 3. Entry Points
 
-### `src/main.tsx`
+### `src/client.tsx` — Browser Entry Point
 
-**Purpose:** The single DOM entry point. Creates a React root and mounts `App`.
+Mounts the React app to the DOM. Uses `StartClient` from TanStack Start which handles both SSR hydration and client-side rendering.
 
 ```tsx
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+import { StartClient } from "@tanstack/react-start/client";
+import { mountRoot, startTransition } from "react";
+// Hydrates or renders <StartClient /> into #root
 ```
-
-**What to change here:** Almost never. Only if you need to add global providers (e.g., ErrorBoundary) that wrap the entire app before anything else renders.
 
 ---
 
-### `src/App.tsx`
+### `src/router.tsx` — Router Factory
 
-**Purpose:** Root React component that declares:
-1. All `Provider` wrappers (AuthProvider, ThemeRegistryProvider)
-2. The complete route tree (public + authenticated)
-3. Which routes are wrapped in `AppShell` (authenticated layout)
+Creates the TanStack Router instance. Exports `getRouter()` which is used by TanStack Start's server rendering. The auto-generated `routeTree.gen.ts` is imported here.
+
+**Key pattern:** The router is created with `createRouter({ routeTree, ... })` and its types are registered via the `Register` module augmentation.
+
+```ts
+export const getRouter = () => {
+  const router = createRouter({
+    routeTree,           // from routeTree.gen.ts (auto-generated)
+    scrollRestoration: true,
+    defaultPreloadStaleTime: 0,
+    defaultErrorComponent: DefaultErrorComponent,  // "Something went wrong" UI
+  });
+  return router;
+};
+
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: ReturnType<typeof getRouter>;
+  }
+}
+```
+
+**Do NOT edit `routeTree.gen.ts`** — it is auto-generated by TanStack Router from the route files in `src/routes/`. Any manual changes will be overwritten.
+
+---
+
+### `src/routes/__root.tsx` — Root Route
+
+The root route defines the HTML shell and global providers. It uses `createRootRoute()` from TanStack Router.
 
 **Provider order (outermost to innermost):**
 ```
-QueryClientProvider → AuthProvider → ThemeRegistryProvider → Router
+QueryClientProvider → AuthProvider → Outlet
 ```
 
-**Route structure:**
+**TanStack Router patterns used:**
+- `head:` — SEO meta tags via `HeadContent` (replaces react-helmet)
+- `shellComponent:` — HTML `<html>/<head>/<body>` wrapper (RootShell)
+- `component:` — App root with providers (RootComponent)
+- `errorComponent:` — Global error boundary
+- `notFoundComponent:` — 404 page
+
+```tsx
+export const Route = createRootRoute({
+  head: () => ({ meta: [...], links: [...] }),
+  shellComponent: RootShell,       // <html><head><body>{children}<Scripts /></body></html>
+  component: RootComponent,         // <QueryClientProvider><AuthProvider><Outlet /></AuthProvider></QueryClientProvider>
+  errorComponent: ({ error }) => <pre>{error.message}</pre>,
+  notFoundComponent: NotFoundComponent,
+});
 ```
-/                       → LandingPage (public)
-/login                  → LoginPage (public)
-/register               → RegisterPage (public)
-
-<AppShell> (authenticated wrapper):
-  /projects             → ProjectListPage
-  /projects/new         → ProjectCreatePage
-  /projects/:projectId  → ProjectPage
-  /projects/:projectId/backlog   → BacklogPage
-  /projects/:projectId/board     → BoardPage
-  /projects/:projectId/sprints   → SprintPage
-  /projects/:projectId/calendar  → CalendarPage
-  /projects/:projectId/chat      → ChatPage
-  /projects/:projectId/workspace → WorkspacePage
-  /projects/:projectId/settings  → SettingsPage
-  /settings              → SettingsPage (user settings, no project)
-
-*                      → NotFound
-```
-
-**What to change here:**
-- Adding a new route
-- Adding/removing providers
-- Restructuring which routes use AppShell
 
 ---
 
-## 4. Global Services Layer
+## 4. TanStack Router — File-Based Routing
+
+TanStack Router uses a **file-based routing** approach where each file in `src/routes/` automatically becomes a route. The framework generates `routeTree.gen.ts` from the file structure.
+
+### How It Works
+
+1. Each file exports a route using `createFileRoute(path)` or `createRootRoute()`
+2. The file's **directory path** determines the URL path
+3. TanStack Router auto-generates `routeTree.gen.ts` with all route types
+4. `router.tsx` imports the generated `routeTree` and creates the router
+
+### Route File Conventions
+
+```tsx
+// src/routes/login.tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/login")({
+  component: LoginComponent,
+});
+// Maps to URL: /login
+```
+
+```tsx
+// src/routes/app/dashboard.tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/app/dashboard")({
+  component: DashboardComponent,
+});
+// Maps to URL: /app/dashboard
+// Parent is automatically inferred as /app → app.tsx
+```
+
+### Parent/Child Route Relationships
+
+Routes in subdirectories automatically become children of parent routes:
+
+```
+src/routes/__root.tsx        → /
+src/routes/index.tsx         → / (alternative, or use __root.tsx's index)
+src/routes/login.tsx         → /login
+src/routes/app.tsx           → /app
+src/routes/app/dashboard.tsx → /app/dashboard  (child of /app)
+```
+
+The generated `routeTree.gen.ts` enforces this hierarchy via `getParentRoute()`.
+
+### TanStack Router Types
+
+All route types are auto-generated in `routeTree.gen.ts` and registered in `router.tsx`:
+
+```ts
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: ReturnType<typeof getRouter>;
+  }
+}
+```
+
+This enables type-safe navigation with `useNavigate()` and `router.navigate()`.
+
+---
+
+## 5. Layout Components — VS Code Pattern
+
+The layout is **NOT** the traditional sidebar + topbar pattern. It is a **VS Code-inspired multi-panel IDE layout**:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  TitleBar  (window controls + "ScrumHub" + Ctrl+Shift+P)            │
+├─────┬──────────────────────────────┬────────────────────────────────┤
+│     │  Explorer (file-tree style)  │                                │
+│  A  │  ┌─ Project/ ────────────┐   │   Tab1 │ Tab2 │ Tab3 │         │
+│  c  │  ├─ Epics/               │   ├────────────────────────────────┤
+│  t  │  │  ├─ Tasks             │   │                                │
+│  i  │  │  ├─ User Stories      │   │   <Outlet /> (Dashboard)       │
+│  v  │  │  └─ Sprints           │   │   OR                           │
+│  i  │  └───────────────────────┘   │   <EpicsView />                │
+│  t  │                              │   OR                           │
+│  y  │                              │   <TaskView taskId="..." />    │
+│     │                              │                                │
+│  B  ├──────────────────────────────┤  ┌──────────────────────┐      │
+│  a  │                              │  │  PropertiesPanel     │      │
+│  r  │                              │  │  (task detail)       │      │
+│     │                              │  └──────────────────────┘      │
+├─────┴──────────────────────────────┴────────────────────────────────┤
+│  StatusBar  (main ● | 3 alerts | notifications)                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### `AppShell.tsx` — Main Layout Container
+
+**Purpose:** The central VS Code-like shell. It composes TitleBar, ActivityBar, Explorer, Tabs, and StatusBar around a `<Outlet />` for route content.
+
+**Realized behavior (post-migration):**
+- `AppShell` is a **pure layout wrapper** — it renders `<Outlet />` and nothing else
+- Views are determined by the route tree, not by local state
+- `AppShell` only renders inside `/app/projects/$projectId/*` via the layout route
+- ActivityBar uses `useNavigate` for route-driven navigation
+
+### `TitleBar.tsx` — Top Bar
+
+Custom window title bar with app branding and command palette trigger (Ctrl+Shift+P).
+
+### `ActivityBar.tsx` — Left Icon Rail
+
+Vertical icon bar for switching between major views:
+- **Projects** (default) — opens Explorer in project/task tree mode
+- **Backlog** — opens Explorer in backlog mode
+- **Sprints** — opens Explorer in sprints mode
+- **Epics** — directly opens EpicsView tab
+- **Permissions** — directly opens PermissionsView tab
+- **Notifications** (bell icon) — opens AINotifications panel
+- **Export** (download icon) — exports sprint report as PDF
+
+### `Explorer.tsx` — Left Panel (File Tree Style)
+
+A tree-view panel that mirrors VS Code's Explorer. Shows project structure, task hierarchy, etc. Changes content based on the selected `ActivityView`.
+
+### `Tabs.tsx` — Editor Tab Bar
+
+IDE-style tabs (like VS Code tabs). Each tab represents an open item:
+- Dashboard (fixed default tab)
+- Task tabs (opened when user clicks a task in Explorer)
+- Custom tabs
+
+### `StatusBar.tsx` — Bottom Bar
+
+Git branch indicator, alert count, notification trigger. Mirrors VS Code's status bar.
+
+---
+
+## 6. Global Services Layer
 
 ### `src/services/apiClient.ts`
 
-**Purpose:** The **single fetch wrapper** used by ALL feature services. All API calls go through here — no raw `fetch()` anywhere else in the codebase.
+The **single fetch wrapper** for all API calls. All network requests go through here.
 
-**Responsibilities:**
-- Base URL from `import.meta.env.VITE_API_URL` (defaults to `http://localhost:3000/api`)
-- JSON serialization/deserialization
-- Consistent error shape: `Error` with `{ message, status, data }`
-- HTTP methods: `get`, `post`, `patch`, `put`, `delete`
-
-**Why this matters:** If you need to switch from `fetch` to `axios` (or add interceptors, retries, etc), you change only this file. Every service file is unaffected.
-
-**How to use:**
 ```ts
+// Usage
 import { apiClient } from '@/services/apiClient';
 const user = await apiClient.get('/auth/me');
 const project = await apiClient.post('/projects', { name: 'My Project', color: '#6B5CFF' });
 ```
 
-**What to change here:**
-- Switching HTTP library
-- Adding auth token injection (already handled via `credentials: 'include'`)
-- Adding retry logic
-- Adding request/response logging
+**Features:** Base URL from `VITE_API_URL` env var, JSON serialization, consistent error shape `{ message, status, data }`, methods: `get`, `post`, `patch`, `put`, `delete`.
 
 ---
 
-## 5. Global State (Store)
+## 7. Global State (Store)
 
 ### `src/store/AuthContext.tsx`
 
-**Purpose:** Provides authenticated user state and auth actions app-wide. Restores session on mount by calling `authService.getCurrentUser()`.
+Provides authenticated user state app-wide. localStorage-backed (token + user JSON).
 
-**Exposes:** `{ user, login, logout, authLoading }`
-
-**Behavior:**
-- On mount: fetches current user, stores in state
-- On 401 error: clears user
-- `login()`: calls `authService.login()`, stores result
-- `logout()`: calls `authService.logout()`, clears localStorage token and state
-
-**What to change here:**
-- Changing how tokens are stored (currently `localStorage` + `credentials: 'include'`)
-- Adding refresh token logic
-- Adding role/permission checks
-
----
+**Exposes:** `{ user, isAuthenticated, isLoading, login, logout }`
 
 ### `src/store/useAuth.ts`
 
-**Purpose:** Hook to access `AuthContext`. Throws if used outside `<AuthProvider>`.
-
-```ts
-const { user, login, logout, authLoading } = useAuth();
-```
-
----
+Hook accessor for `AuthContext`. Throws if used outside `<AuthProvider>`.
 
 ### `src/store/ThemeRegistry.tsx` + `src/store/useThemeRegistry.ts`
 
-**Purpose:** A global memoized cache that maps `entityId → computed CSS variable set`.
+Memoized cache: `entityId → computed CSS variable set`. Prevents redundant color math recalculation across many simultaneous renders.
 
-**Why it exists:** The same epic/project color renders in the sidebar nav, backlog table, kanban cards, sprint headers, and multiple task cards simultaneously. Without a registry, each component independently recalculates the color math on every render.
+### Auth Pattern — Note on `useAuthSession`
 
-**How it works:**
-1. Feature hooks call `registerEntities([{ id, color }])` after fetching data from the API
-2. `ThemeRegistry` computes and caches the full CSS variable set (`--entity-bg`, `--entity-fg`, `--entity-border`, `--entity-solid`) per entityId
-3. Any component can call `getTheme(entityId)` to get the ready-to-spread style object
-
-**What to change here:**
-- Adding new CSS variable outputs from color math
-- Adjusting the color algorithm (see `src/utils/themeUtils.ts`)
-
----
-
-## 6. Global Hooks
-
-### `src/hooks/useAuthGuard.ts`
-
-**Purpose:** Redirects unauthenticated users to `/login`. Used in `AppShell` and any protected route wrapper.
+Authentication state is accessed via `useAuthSession()` from `src/features/auth/hooks/useAuthSession.ts` (NOT `useAuth()` from store). This is a thin wrapper around `AuthContext`:
 
 ```ts
-useAuthGuard(); // defaults to redirecting to /login
-useAuthGuard('/custom-redirect');
-```
-
-**Behavior:** Navigates after `authLoading` completes and `user` is null.
-
----
-
-### `src/hooks/useAuthRedirect.ts`
-
-**Purpose:** Redirects **authenticated** users away from public pages (Landing, Login, Register) to `/projects`.
-
-```ts
-useAuthRedirect(); // defaults to /projects
-useAuthRedirect('/some-other-path');
-```
-
----
-
-### `src/hooks/useEntityTheme.ts`
-
-**Purpose:** Converts a runtime hex color (from an epic, sprint, or project) into a scoped inline `style` object with CSS variables.
-
-**Input:** A hex color string (e.g., `"#3B6D11"`) or `null`/`undefined`
-
-**Output:** A `React.CSSProperties` object:
-```ts
-{
-  '--entity-bg': 'rgba(59, 109, 17, 0.12)',
-  '--entity-fg': '#ffffff',
-  '--entity-border': 'rgba(59, 109, 17, 0.45)',
-  '--entity-solid': '#3B6D11'
+// features/auth/hooks/useAuthSession.ts
+export function useAuthSession() {
+  const context = useContext(AuthContext);
+  return context;  // { user, isAuthenticated, isLoading, login, logout }
 }
 ```
 
-**How components use it:**
-```tsx
-function EpicBadge({ epic }: { epic: Epic }) {
-  const theme = useEntityTheme(epic?.color); // compute once
-  return <span className="entity-badge" style={theme}>{epic.name}</span>;
-}
+This hook is used by the `AuthGuard` component in `src/routes/app.tsx` for route protection.
+
+---
+
+## 8. Global Hooks
+
+| Hook | Purpose |
+|------|---------|
+| `useAuthGuard` | Redirects unauthenticated users to `/login` |
+| `useAuthRedirect` | Redirects authenticated users away from public pages |
+| `useEntityTheme(hex)` | Converts entity color to CSS variable set |
+| `use-mobile.tsx` | Detects mobile breakpoint |
+
+---
+
+## 9. Feature Modules
+
+Each feature follows the feature-first pattern:
+
+```
+features/<name>/
+├── components/    Feature-specific UI
+├── hooks/         Data fetching + state
+├── services/      API calls
+├── types/         Feature-specific types (optional)
+├── utils/         Feature-specific utilities (optional)
+└── index.ts       Barrel export (re-export everything)
 ```
 
-**Architecture note:** This hook is the **only** place that knows about the hex → CSS variable mapping. UI components are completely color-agnostic — they only reference `var(--entity-*)` in CSS.
+### Feature Completeness Status
 
-**What to change here:** You likely won't need to. The CSS variable names and the color math algorithm are in `src/utils/themeUtils.ts`.
+| Feature | Status | Files | Notes |
+|---------|--------|-------|-------|
+| `workspace/` | ✅ Complete | 6 | Explorer, Tabs, CommandPalette, utils |
+| `board/` | ✅ Complete | 4 | Board.tsx, useBoard, boardService |
+| `tasks/` | ✅ Complete | 2 | TaskView, PropertiesPanel (both working) |
+| `ai/` | ✅ Complete | 4 | AINotifications, useAI, aiService |
+| `auth/` | ✅ Complete | 4 | authService, useAuthSession, AuthPages |
+| `projects/` | ✅ Complete | 3 | projectQuery, projectService, projectService |
+| `settings/` | ✅ Partial | 2 | PermissionsView; needs general/user settings panels |
+| `backlog/` | ✅ Complete | 3 | useTasks (hierarchical keys), backlogService (project-scoped API) |
+| `calendar/` | ❌ Stub | 1 | index.ts only |
+| `chat/` | ❌ Stub | 1 | index.ts only |
+| `overview/` | ❌ Stub | 1 | index.ts only |
+| `quest-tree/` | ❌ Stub | 1 | index.ts only |
+| `sprints/` | ❌ Stub | 1 | index.ts only |
 
----
+### Key Feature Patterns
 
-## 7. Feature Modules
+**`features/tasks/`** — Task Detail View
+- `components/TaskView.tsx`: Renders a task's full detail (title, status, assignee, description, comments)
+- `components/TaskView.tsx` also exports `PropertiesPanel`: Renders task properties sidebar (assignee, reporter, sprint, points, due date, labels)
+- **`src/pages/TaskDetailPage.tsx`**: Thin orchestrator that composes both components in a side-by-side flex layout (`<div className="flex h-full">`) — `TaskView` takes `flex-1 min-w-0` (left), `PropertiesPanel` takes `~288px` fixed sidebar (right)
+- `PropertiesPanel` is conditional — only renders when `task` data is loaded (`if (isLoading || !task) return null`)
 
-Each feature follows an identical internal structure:
-```
-features/[feature-name]/
-├── components/          # Feature-specific UI (NOT shared outside this feature)
-│   ├── *.tsx
-│   └── index.ts         # Optional barrel export
-├── hooks/               # Feature-specific state + side effects
-│   ├── *.ts
-│   └── index.ts         # Optional barrel export
-├── services/            # Feature-specific API calls
-│   ├── *.ts
-│   └── index.ts         # Optional barrel export
-├── types/               # Feature-specific TypeScript types
-│   └── *.ts
-├── utils/               # Feature-specific utilities
-│   └── *.ts
-├── styles/              # Feature-specific styles
-│   └── *.css
-└── index.ts             # Optional — re-exports for cleaner imports
-```
+**`features/workspace/`** — VS Code Explorer Pattern
+- `components/Explorer.tsx`: File-tree style project explorer
+- `components/Tabs.tsx`: Editor-style tab bar
+- `components/CommandPalette.tsx`: Ctrl+Shift+P command palette
+- Barrel export in `index.ts` — all three components re-exported
 
----
-
-### `features/auth/`
-
-**Files:**
-- `services/authService.ts`
-
-**What it does:** API calls for authentication: `login`, `register`, `logout`, `getCurrentUser`.
-
-**Response shape:**
-```ts
-User: { id, name, email, avatarUrl?, role? }
-```
-
-**Missing:** No `components/`, `hooks/`, or `pages/` — auth pages (Login, Register) currently live at `src/pages/`. This is a deviation from the feature-first principle.
-
-**To improve:** Move LoginPage/RegisterPage into `features/auth/pages/`.
+**`features/auth/`** — Authentication
+- `components/AuthPages.tsx`: Shared Login/Register form (delegated by routes)
+- `hooks/useAuthSession.ts`: Auth state accessor
+- `services/authService.ts`: API calls
 
 ---
 
-### `features/backlog/`
+## 10. Shared UI Components
 
-**Files:**
-- `components/BacklogTable.tsx` — Renders epics as expandable rows with tasks
-- `hooks/useBacklog.ts` — Fetches epics with tasks, registers epic colors to ThemeRegistry
-- `services/backlogService.ts` — API: `getEpicsWithTasks`, `createEpic`, `updateEpic`, `createTask`, `updateTask`
-- `types/backlogTypes.ts` — TypeScript types for backlog entities
-- `index.ts` — Re-exports
+### `src/components/ui/` — 45 UI Atoms
 
-**Hook contract:**
-```ts
-const { epics, loading, error, is404, refetch } = useBacklog(projectId);
-```
+All reusable, stateless UI components. Every component:
+- Has JSDoc `@component` documentation
+- Uses only CSS variables (no hardcoded hex)
+- Is exported via `src/components/ui/index.ts` barrel
 
-**Service contract:**
-```ts
-Epic: { id, name, color, status, startDate, endDate, tasks[] }
-Task: { id, title, status, priority, assignee, dueDate, epicId, sprintId }
-```
+### `src/components/layout/` — 7 Layout Components
 
-**Missing:** No `pages/` — the page lives at `src/pages/BacklogPage.tsx`.
+**Currently used by AppShell:** ActivityBar, AppShell, Explorer (from workspace feature), StatusBar, TitleBar
+
+**Exist but unused:** Sidebar, TopBar, MobileMenu
+
+**No barrel export** — `src/components/layout/` has no `index.ts`. Import directly from the component file.
 
 ---
 
-### `features/board/`
-
-**Files:**
-- `components/BoardView.tsx` — Kanban board with drag-and-drop columns
-- `components/ManageBoardsModal.tsx` — Modal for managing custom board columns
-- `hooks/useBoard.ts` — Fetches tasks, groups by status, handles moveTask optimistic updates
-- `services/boardService.ts` — API: `getTasksByProject`, `updateTaskStatus`, `createTask`
-
-**Hook contract:**
-```ts
-const { columns, loading, error, moveTask, refetch, allTasks } = useBoard(projectId, {
-  sprintId,     // filter by sprint
-  userIds,      // filter by assignees
-  customBoards  // custom column definitions
-});
-```
-
-**Columns shape:** `{ [status]: Task[] }` where status is one of `todo | in_progress | in_review | done | blocked`.
-
-**Design note:** Task cards show an epic color bar at the top using `useEntityTheme` for the epic color.
-
----
-
-### `features/calendar/`
-
-**Files:**
-- `components/CalendarView.tsx` — Monthly calendar grid
-- `hooks/useCalendar.ts` — Fetches tasks, indexes by `dueDate` (YYYY-MM-DD)
-- `services/calendarService.ts` — API: `getTasksForCalendar`, `createTask`
-
-**Hook contract:**
-```ts
-const { tasksByDate, year, month, prevMonth, nextMonth, loading, error, refetch } = useCalendar(projectId);
-// tasksByDate: { '2025-04-15': [task, task], ... }
-```
-
-**Current limitation:** Backend doesn't support `?month=&year=` filtering — all tasks fetched and filtered client-side.
-
----
-
-### `features/chat/`
-
-**Files:**
-- `components/ChatLayout.tsx` — Full-width chat with sliding members sidebar
-- `hooks/useChat.ts` — Chat state and messaging logic
-- `services/chatService.ts` — API calls for messages and channels
-
-**Status:** Uses mock data for messages and members. Basic API integration in progress.
-
-**What it does:**
-- Dark-themed chat UI (matches sidebar aesthetic)
-- Sliding "Online Members" panel from the right
-- Mock AI message (ScrumHub AI)
-- Message input (non-functional — no WebSocket or API)
-
-**To improve:** Complete `useChat.ts` and `chatService.ts`, implement WebSocket for real-time messaging.
-
----
-
-### `features/overview/`
-
-**Files:**
-- `components/OverviewView.tsx` — Project dashboard with stats, velocity chart, workload
-- `hooks/useOverview.ts` — Fetches 9 data points in parallel via `Promise.all`
-- `services/overviewService.ts` — API + extensive mock data fallback
-
-**Hook contract:**
-```ts
-const {
-  loading, error, stats, velocityData, teamWorkload, overdueTasks,
-  upcomingDeadlines, recentActivity, chatNotifications, nextDaily,
-  userTasks, projectDescription, updateDescription, refetch
-} = useOverview(projectId);
-```
-
-**Service pattern:** Every method wraps the API call in try/catch and returns mock data on failure. This ensures the UI always renders even when the backend hasn't implemented an endpoint yet.
-
----
-
-### `features/projects/`
-
-**Files:**
-- `components/EpicRow.tsx` — Single epic row in project stats
-- `components/ProjectCreateModal.tsx` — Create project form
-- `components/ProjectStatsView.tsx` — Stats display (tasks, completion, members)
-- `components/StatCard.tsx` — Single stat metric card
-- `components/StatsSkeleton.tsx` — Loading skeleton for stats
-- `hooks/useProjects.ts` — Fetches all projects, registers colors to ThemeRegistry
-- `hooks/useCreateProject.ts` — Handles project creation form submission
-- `services/projectService.ts` — API: `getAll`, `getById`, `create`, `update`, `remove`, `addMember`
-
-**Hook contract:**
-```ts
-const { projects, loading, error, refetch } = useProjects();
-```
-
-**Color registration:** All projects register their colors so the sidebar can render colored dots without re-fetching.
-
----
-
-### `features/settings/`
-
-**Files:**
-- `components/AISettings.tsx` — AI model, skills, agent, permission toggles
-- `components/GeneralSettings.tsx` — User profile form (name, email, timezone, avatar)
-- `components/SettingsLayout.tsx` — Two-column settings shell (nav + content)
-- `components/UserProfileSettings.tsx` — User profile settings tab
-- `hooks/useSettings.ts` — Wrapper hook for settings data
-- `services/settingsService.ts` — API: user profile, preferences, AI settings (all with mock fallback)
-- `hooks/index.ts`, `services/index.ts` — Barrel exports
-
-**Status:** All methods use mock data. The service layer has try/catch that silently falls back to mock values.
-
----
-
-### `features/sprints/`
-
-**Files:**
-- `components/SprintCreateModal.tsx` — Create sprint form
-- `components/SprintRetrospective.tsx` — Sprint retrospective view
-- `components/SprintTreeView.tsx` — Hierarchical sprint overview
-- `components/SprintView.tsx` — Sprint detail view
-- `hooks/useSprints.ts` — Fetches sprints with 8s timeout handling
-- `services/sprintService.ts` — API: `getByProject`, `create`, `update`, `assignTasks`
-
-**Hook contract:**
-```ts
-const { sprints, loading, error, is404, refetch } = useSprints(projectId);
-```
-
-**Note:** `FETCH_TIMEOUT = 8000ms` wraps all requests. If the request times out or returns 404, returns empty sprints with `is404: true`. This gracefully handles the backend not yet implementing sprint endpoints.
-
----
-
-### `features/workspace/`
-
-**Files:**
-- `components/CanvasElement.tsx` — Individual draggable/resizable canvas element (sticky, text, shape)
-- `components/WorkspaceToolbar.tsx` — Canvas toolbar (add sticky, add text, zoom, save)
-- `components/WorkspaceView.tsx` — Main canvas with pan/zoom, grid background
-- `hooks/useWorkspace.ts` — Fetches workspace data
-- `hooks/useCanvasElements.ts` — Manages element CRUD, drag/resize state, undo
-- `services/workspaceService.ts` — API: `getByProject`, `saveElements` (both use mock fallback)
-- `hooks/index.ts`, `services/index.ts`, `components/index.ts` — Barrel exports
-
-**Design aesthetic:** "Sober, Structured, Sophisticated" — 1px borders, max 4px radius, 150ms transitions.
-
-**Current limitation:** Backend doesn't implement workspace storage — all operations log to console and use mock data.
-
----
-
-## 8. Shared UI Components
-
-Located at `src/components/`, these are **reuseable across features** — unlike feature-specific components which live inside each feature folder.
-
-### Layout Components (`src/components/layout/`)
-
-#### `AppShell.tsx`
-
-**Purpose:** The authenticated layout wrapper. Renders `Sidebar + TopBar` around a `<Outlet />` (child route).
-
-**Key behaviors:**
-- Auth guard: redirects to `/login` if not authenticated (after loading)
-- Sidebar collapsed state (shared between Sidebar and TopBar)
-- Mobile menu toggle (hides sidebar on mobile, shows full-screen overlay)
-- Loading spinner while auth is resolving
-- Renders `<AIAssistantButton />`
-
-**Usage:** All authenticated routes are wrapped in `<Route element={<AppShell />}` in the router config.
-
----
-
-#### `Sidebar.tsx`
-
-**Purpose:** Primary project navigation. Shows a list of projects (from `useProjects`) that expand to show views.
-
-**Key behaviors:**
-- Project list from global `useProjects()` hook
-- Collapsible sidebar (wide ↔ icon-only)
-- Project sub-nav with views: Overview, Backlog, Board, Sprints, Calendar, Workspace, Chat
-- Active project highlighting via `useEntityTheme` for color
-- User avatar + name at bottom, logout button
-
-**Usage:** Consumed only by `AppShell`.
-
----
-
-#### `TopBar.tsx`
-
-**Purpose:** Fixed top header with a search bar (centered) and notification bell placeholder.
-
-**Usage:** Consumed only by `AppShell`.
-
----
-
-#### `MobileMenu.tsx`
-
-**Purpose:** Full-screen overlay navigation for mobile (<768px). Mirrors the sidebar's project list.
-
-**Usage:** Rendered inside `AppShell`, toggled by `mobileMenuOpen` state.
-
----
-
-### UI Components (`src/components/ui/`)
-
-#### `EpicBadge.tsx`
-
-**Purpose:** Displays an epic's name as a colored pill. Color comes entirely from `useEntityTheme(epic.color)`.
-
-**Props:** `{ epic, pill, dot, className, onClick }`
-
-**Special behavior:** Renders nothing if `epic` is null/undefined. Safe to use in optional slots.
-
----
-
-#### `SprintPill.tsx`
-
-**Purpose:** Displays a sprint name as a colored pill. Same color contract as `EpicBadge`.
-
-**Props:** `{ sprint, showStatus, className }`
-
-**Status dot:** If `showStatus` is true, shows a colored dot (green=active, amber=planned, gray=done).
-
----
-
-#### `StatusBadge.tsx` + `PriorityTag.tsx`
-
-**Purpose:** Semantic (not user-defined) status and priority labels. Uses hardcoded Tailwind color classes — correct because these are fixed enums, not user-customizable colors.
-
-**Status values:** `todo`, `in_progress`, `in_review`, `done`, `blocked`
-
-**Priority values:** `low`, `medium`, `high`, `critical`
-
----
-
-#### `ColorPickerSwatch.tsx`
-
-**Purpose:** A grid of selectable color swatches. Used in `ProjectCreateModal`, `ManageBoardsModal`, and sprint/epic create forms.
-
-**Props:** `{ colors, value, onChange, size? }`
-
----
-
-### Standalone Component
-
-#### `AIAssistantButton.tsx`
-
-**Purpose:** Fixed-position floating action button (bottom-left) that opens the AI assistant. Visible on all views.
-
-**Note:** Currently non-functional (no onClick handler). Placeholder for AI integration.
-
----
-
-## 9. Styles & Theming
+## 11. Styles & Theming
 
 ### `src/styles/globals.css`
 
-**Purpose:** All CSS custom properties (design tokens). This is the **single source of truth** for colors, spacing, typography, shadows, and radius. Uses oklch for perceptual uniformity.
+**Tailwind v4 with oklch CSS variables.** Uses `@tailwindcss/vite` plugin (not `@lovable.dev/vite-tanstack-config`).
 
-**Sections:**
-- Typography: `--font-sans`, `--font-mono`
-- VS Code dark palette: `--editor`, `--sidebar-bg`, `--sidebar-fg`, `--activity-bar`, etc.
-- Brand palette: `--color-brand-*` (violet)
-- Semantic: `--color-success`, `--color-warning`, `--color-danger`, `--color-info`
-- Entity color system: `--entity-bg`, `--entity-fg`, `--entity-border`, `--entity-solid`
-- Layout: `--sidebar-width`, `--sidebar-width-sm`, `--topbar-height`
+**Key patterns:**
+- VS Code semantic tokens: `--editor`, `--sidebar-bg`, `--activity-bar`, `--status-bar`, `--tab-active`, etc.
+- oklch color definitions (perceptual uniformity, no hardcoded hex)
+- `@theme inline` block maps CSS variables to Tailwind classes (e.g., `bg-editor`, `text-sidebar-fg`)
 
-**Rule:** Never hardcode hex values in components. Use these tokens. Entity colors (user-defined project/epic/sprint colors) come from `useEntityTheme` at runtime and are NOT in this file.
+**Color system:**
+- Brand (violet): `--color-primary-*`
+- Semantic: `--color-success`, `--color-warning`, `--color-danger`
+- Entity: `--entity-bg`, `--entity-fg`, `--entity-border`, `--entity-solid` (computed at runtime by `themeUtils.ts`)
 
-**Import order (via Vite):**
-1. CSS variables and base styles in `globals.css`
-2. Tailwind CSS loaded via `@tailwindcss/vite` plugin
+**Rule:** Never hardcode hex in components. Use CSS variables. Entity colors come from `useEntityTheme()` at runtime.
 
 ---
 
-## 10. Utils
+## 12. Utils
 
 ### `src/utils/themeUtils.ts`
 
-**Purpose:** Pure color math utilities — no React, no side effects. These are plain TS functions safe to use in hooks, services, and even tests.
+Pure color math. No React, no side effects.
 
-**Functions:**
-
-| Function | Purpose |
-|----------|---------|
-| `hexToRgb(hex)` | Parse hex string → `{ r, g, b }` (handles shorthand `#abc`) |
-| `rgbToHex(r, g, b)` | Convert back to hex string |
-| `hexToRgba(hex, alpha)` | Add alpha channel → `rgba()` CSS string |
-| `getLuminance(hex)` | WCAG luminance formula (0=black to 1=white) |
-| `getContrastColor(hex)` | Decide dark or light text for readability on bg |
-| `lighten(hex, amount)` | Mix color toward white |
-| `darken(hex, amount)` | Mix color toward black |
-| `buildEntityTheme(hex)` | **Main function** — computes full CSS variable set for an entity |
-
-**`buildEntityTheme(hex)` output:**
-```ts
-{
-  '--entity-bg': 'rgba(59, 109, 17, 0.12)',      // soft fill
-  '--entity-fg': '#ffffff',                       // readable text
-  '--entity-border': 'rgba(59, 109, 17, 0.45)',  // medium accent
-  '--entity-solid': '#3B6D11'                     // full-opacity
-}
-```
-
-**Architecture:** This module is the **only** place that knows how entity hex colors map to CSS variables. `useEntityTheme` (in `src/hooks/`) calls this. UI components consume the CSS variables only.
+| Function | Output |
+|----------|--------|
+| `hexToRgb(hex)` | `{ r, g, b }` |
+| `rgbToHex(r, g, b)` | hex string |
+| `hexToRgba(hex, alpha)` | `rgba()` string |
+| `getLuminance(hex)` | 0–1 |
+| `getContrastColor(hex)` | `'dark'` or `'light'` |
+| `lighten(hex, amount)` | oklch string |
+| `darken(hex, amount)` | oklch string |
+| `buildEntityTheme(hex)` | `{ '--entity-bg', '--entity-fg', '--entity-border', '--entity-solid' }` |
 
 ---
 
-## 11. Pages (Route Targets)
+## 13. Design System
 
-Pages live in `src/pages/` (flat structure). Per TRUTH.md, they are thin wrappers that:
-1. Extract URL params via `useParams()`
-2. Call feature hooks
-3. Render feature components
-4. Handle global state (loading skeletons, error states, redirecting)
+### Color Palette (oklch CSS variables)
 
-Pages **should not** contain business logic — that belongs in hooks.
+**VS Code Dark Theme tokens:** `--editor`, `--sidebar-bg`, `--activity-bar`, `--status-bar`, etc.
 
-### Key Pages
+**Brand (Violet):** `#6B5CFF` as `--color-primary`
 
-| Page | Route | Uses Hook | Key Component |
-|------|-------|-----------|---------------|
-| `LandingPage.tsx` | `/` | — | Public marketing page |
-| `LoginPage.tsx` | `/login` | `useAuthRedirect()` | Auth form |
-| `RegisterPage.tsx` | `/register` | `useAuthRedirect()` | Registration form |
-| `ProjectListPage.tsx` | `/projects` | `useProjects()` | Project cards grid |
-| `ProjectCreatePage.tsx` | `/projects/new` | `useCreateProject()` | Project creation form |
-| `ProjectPage.tsx` | `/projects/:projectId` | — | Redirects to `/projects/:projectId/overview` |
-| `BacklogPage.tsx` | `/projects/:projectId/backlog` | `useBacklog(projectId)` | `BacklogTable` |
-| `BoardPage.tsx` | `/projects/:projectId/board` | `useBoard(projectId)` | `BoardView` + `ManageBoardsModal` |
-| `SprintPage.tsx` | `/projects/:projectId/sprints` | `useSprints(projectId)` | `SprintView` + `SprintCreateModal` |
-| `CalendarPage.tsx` | `/projects/:projectId/calendar` | `useCalendar(projectId)` | `CalendarView` |
-| `ChatPage.tsx` | `/projects/:projectId/chat` | `useChat(projectId)` | `ChatLayout` |
-| `WorkspacePage.tsx` | `/projects/:projectId/workspace` | `useWorkspace(projectId)` | `WorkspaceView` + `WorkspaceToolbar` |
-| `SettingsPage.tsx` | `/projects/:projectId/settings` or `/settings` | `useSettings()` | `SettingsLayout` + settings panels |
-| `NotFound.tsx` | `*` | — | 404 page |
-
----
-
-## 12. Design System
-
-### Color Palette
-
-**Brand (Violet):** `#6B5CFF` (primary action color)
-- Light variants: `50`, `100` (backgrounds)
-- Dark variants: `400`, `600`, `700`, `900`
-
-**Dark Navigation (Sidebar/TopBar):** `#181e4b` / `#171E4A`
-
-**Entity Colors:** User-defined at runtime (project/epic/sprint colors). These are stored as hex in the API and converted to CSS variables via `useEntityTheme`. They are **never hardcoded**.
-
-**Semantic Colors:**
-- Success: `#22c55e` (green)
-- Warning: `#f59e0b` (amber)
-- Danger: `#ef4444` (red)
-- Info: `#0ea5e9` (blue)
+**Semantic:** green (success), amber (warning), red (danger), blue (info)
 
 ### Typography
 
-- **Sans:** `'DM Sans', system-ui, sans-serif`
-- **Mono:** `'JetBrains Mono', monospace`
+- Sans: `'DM Sans', system-ui, sans-serif`
+- Mono: `'JetBrains Mono', monospace`
 
 ### Spatial System
 
-- Sidebar: 240px (expanded) / 60px (collapsed)
-- TopBar: 56px height
-- Panel: 380px (detail panels)
+- ActivityBar: 48px wide (icons only)
+- Explorer: ~280px wide (resizable)
+- Tabs: 36px height
+- StatusBar: 24px height
+- PropertiesPanel: ~360px wide
 
 ### Border Radius
 
-- `xs`: 3px (workspace canvas — "sober" aesthetic)
-- `sm`: 5px
-- `md`: 8px (default)
-- `lg`: 12px
-- `xl`: 18px (auth card)
-
-### Shadows
-
-Minimal use — "1px borders instead of shadows" per SKILL.md.
+Minimal — follows VS Code: `3px` (workspace), `5px` (default), `8px` (auth card)
 
 ### Transitions
 
-- Fast: 120ms
-- Base: 200ms
-- Slow: 350ms
-
----
-
-## 13. Adding New Features
-
-### Step 1: Create the feature folder
-
-```
-src/features/[new-feature]/
-├── components/
-├── hooks/
-├── services/
-├── types/
-├── utils/
-├── styles/
-└── index.ts
-```
-
-### Step 2: Define the types
-
-```ts
-// features/newFeature/types/newFeatureTypes.ts
-export interface NewFeatureItem {
-  id: string;
-  name: string;
-  color: string;
-}
-```
-
-### Step 3: Define the service
-
-```ts
-// features/newFeature/services/newFeatureService.ts
-import { apiClient } from '@/services/apiClient';
-
-export const newFeatureService = {
-  async getAll() {
-    return apiClient.get('/new-feature');
-  },
-  async create(data: Partial<NewFeatureItem>) {
-    return apiClient.post('/new-feature', data);
-  },
-};
-```
-
-### Step 4: Define the hook
-
-```ts
-// features/newFeature/hooks/useNewFeature.ts
-import { useState, useEffect, useCallback } from 'react';
-import { newFeatureService } from '../services/newFeatureService';
-
-export function useNewFeature(projectId: string) {
-  const [items, setItems] = useState<NewFeatureItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetch = useCallback(async () => {
-    if (!projectId) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await newFeatureService.getAll(projectId);
-      setItems(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load');
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId]);
-
-  useEffect(() => { fetch(); }, [fetch]);
-
-  return { items, loading, error, refetch: fetch };
-}
-```
-
-### Step 5: Create the component
-
-```tsx
-// features/newFeature/components/NewFeatureView.tsx
-interface NewFeatureViewProps {
-  items: NewFeatureItem[];
-  loading: boolean;
-}
-
-export function NewFeatureView({ items, loading }: NewFeatureViewProps) {
-  if (loading) return <div className="placeholder-glow">...</div>;
-  return (
-    <div className="new-feature-wrapper">
-      {items.map(item => <NewFeatureCard key={item.id} item={item} />)}
-    </div>
-  );
-}
-```
-
-### Step 6: Wire up the page
-
-```tsx
-// src/pages/NewFeaturePage.tsx
-import { useParams } from 'react-router-dom';
-import { useNewFeature } from '@/features/newFeature/hooks/useNewFeature';
-import { NewFeatureView } from '@/features/newFeature/components/NewFeatureView';
-
-export default function NewFeaturePage() {
-  const { projectId } = useParams<{ projectId: string }>();
-  const { items, loading, error } = useNewFeature(projectId!);
-  return <NewFeatureView items={items} loading={loading} />;
-}
-```
-
-### Step 7: Add the route
-
-Add the route to the TanStack Router configuration file.
+Fast: 120ms | Base: 200ms | Slow: 350ms
 
 ---
 
@@ -864,57 +573,26 @@ Add the route to the TanStack Router configuration file.
 
 ### Imports
 
-- Use `@/` path alias for all imports (configured in `vite.config.ts`)
-- Services: `import { apiClient } from '@/services/apiClient'`
-- Features: `import { useBacklog } from '@/features/backlog/hooks/useBacklog'`
-- Components: `import { EpicBadge } from '@/components/ui/EpicBadge'`
-- Global hooks: `import { useAuth } from '@/store/useAuth'`
+- `@/` → `src/` (configured in `vite.config.ts`)
+- Always import from barrel exports: `import { button } from '@/components/ui'`
+- Never import across features' internals
 
-### File Naming
+### Naming
 
-- Components: `PascalCase.tsx` (e.g., `EpicBadge.tsx`)
-- Hooks: `camelCase.ts` (e.g., `useBacklog.ts`)
-- Services: `camelCase.ts` (e.g., `backlogService.ts`)
-- Utils: `camelCase.ts` (e.g., `themeUtils.ts`)
-- Types: `camelCase.ts` (e.g., `backlogTypes.ts`)
-- Pages: `PascalCase + Page.tsx` (e.g., `BacklogPage.tsx`)
-- Context providers: `PascalCase.tsx` (e.g., `ThemeRegistry.tsx`)
-
-### JSDoc Comments
-
-All files have JSDoc comments with:
-- `@component` / `@hook` / `@service` / `@module` tags
-- `@description` of purpose
-- `@example` usage
-- Parameter and return type documentation
-
-### Error Handling Pattern
-
-```ts
-try {
-  const data = await someService.getData();
-  setData(Array.isArray(data) ? data : []);
-} catch (err) {
-  if (err.status === 401) {
-    setError('Session expired. Please log in again.');
-  } else if (err.status === 404) {
-    setIs404(true);
-    setError(null);
-  } else {
-    setError(err instanceof Error ? err.message : 'Failed to load');
-  }
-}
-```
+- Components: `PascalCase.tsx`
+- Hooks: `camelCase.ts`
+- Services: `camelCase.ts`
+- Pages: `PascalCasePage.tsx`
+- Route files: `kebab-case.tsx`
 
 ### Color System
 
 - Entity colors (project/epic/sprint) → `useEntityTheme(color)` → CSS variables
-- Semantic colors (status/priority) → Hardcoded Tailwind classes (fixed enums, not user-defined)
-- Design tokens → CSS custom properties from `globals.css`
+- Semantic status colors → Hardcoded Tailwind classes (fixed enums)
 
 ### Mock Data Pattern
 
-Services that don't have backend implementation use mock data as fallback:
+Services use mock data fallback when API calls fail:
 
 ```ts
 async getData() {
@@ -928,78 +606,205 @@ async getData() {
 
 ---
 
-## 15. Common Patterns
+## 15. TanStack Router Scalability — Realized Structure
 
-### Optimistic Updates
+### Realized Route Architecture
 
-Used in `useBoard` for drag-and-drop:
+The migration to route-driven layout is complete. The application now follows the `$projectId` layout pattern:
 
-```ts
-const moveTask = useCallback(async (taskId: string, newStatus: string) => {
-  // 1. Optimistically update UI immediately
-  setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
-  try {
-    // 2. Send to server
-    await boardService.updateTaskStatus(taskId, { status: newStatus });
-  } catch {
-    // 3. Revert on failure
-    fetchBoard();
+```
+/app                          → Auth guard (beforeLoad redirect)
+/app/projects                 → Workspace context (no AppShell)
+/app/projects/create           → Create project (no AppShell)
+/app/projects/$projectId/*    → Project workspace (AppShell + Outlet)
+```
+
+### Project Layout Route
+
+**`src/routes/app/projects/$projectId/route.tsx`** is the single source of truth for the project layout:
+
+```tsx
+export const Route = createFileRoute("/app/projects/$projectId")({
+  loader: async ({ params, context: { queryClient } }) => {
+    return queryClient.ensureQueryData(projectQuery(params.projectId));
+  },
+  component: ProjectLayout,
+});
+
+function ProjectLayout() {
+  return (
+    <AppShell>
+      <Outlet />
+    </AppShell>
+  );
+}
+```
+
+**Key rules:**
+- `AppShell` renders ONLY in this file — nowhere else in the route tree
+- The `loader` pre-fetches the project before any child renders
+- Child routes access project from TanStack Query cache, not from props
+
+### Critical: QueryClient Context Injection
+
+**Loaders run OUTSIDE the React component tree** and cannot access `QueryClientProvider`. They must receive `queryClient` directly from the router context.
+
+**The shared QueryClient is defined in `src/lib/queryClient.ts`** and wired in two places:
+
+```tsx
+// src/lib/queryClient.ts — SINGLETON instance
+import { QueryClient } from "@tanstack/react-query";
+export const queryClient = new QueryClient({ ... });
+```
+
+```tsx
+// src/router.tsx — Inject into router context for loaders
+import { queryClient } from "./lib/queryClient";
+export const getRouter = () => {
+  const router = createRouter({
+    routeTree,
+    context: { queryClient },  // ← MUST be passed here
+    ...
+  });
+};
+```
+
+```tsx
+// src/routes/__root.tsx — Use same instance in QueryClientProvider
+import { queryClient } from "@/lib/queryClient";
+function RootComponent() {
+  return (
+    <QueryClientProvider client={queryClient}>  // ← Same instance
+      <AuthProvider><Outlet /></AuthProvider>
+    </QueryClientProvider>
+  );
+}
+```
+
+**Why this matters:** Without this wiring, `loader` functions throw `Cannot read properties of undefined (reading 'ensureQueryData')` because `context.queryClient` is `undefined`.
+
+### Child Route Pattern
+
+Each view under a project is a thin route + page:
+
+```tsx
+// Route file: src/routes/app/projects/$projectId/board.tsx
+export const Route = createFileRoute("/app/projects/$projectId/board")({
+  component: BoardPage,
+});
+
+// Page file: src/pages/BoardPage.tsx
+export function BoardPage() {
+  const { projectId } = useParams({ from: "/app/projects/$projectId/board" });
+  const { columns, tasks, isLoading } = useBoard(projectId);
+  return <BoardView columns={columns} tasks={tasks} isLoading={isLoading} />;
+}
+```
+
+### Auth Guard Pattern
+
+Auth protection uses `beforeLoad` in the root route (not a render-then-redirect component):
+
+```tsx
+// routes/__root.tsx
+beforeLoad: ({ location }) => {
+  const { isAuthenticated } = RootBeforeLoad(); // reads localStorage
+  if (!isAuthenticated && location.pathname.startsWith('/app')) {
+    throw redirect({ to: '/login', search: { redirect: location.href } });
   }
-}, [fetchBoard]);
+},
 ```
 
-### Parallel Data Fetching
+### Query Key Hierarchical Structure
 
-Used in `useOverview` to fetch multiple data points concurrently:
+All project-scoped queries use hierarchical keys:
 
-```ts
-const [stats, velocity, workload, ...] = await Promise.all([
-  overviewService.getProjectStats(projectId),
-  overviewService.getVelocityData(projectId),
-  overviewService.getTeamWorkload(projectId),
-  ...
-]);
-```
+| Hook | Query Key |
+|------|-----------|
+| `useTasks(projectId)` | `['project', projectId, 'tasks']` |
+| `useTask(projectId, taskId)` | `['project', projectId, 'tasks', taskId]` |
+| `useSprints(projectId)` | `['project', projectId, 'sprints']` |
+| `useBoard(projectId)` | `['project', projectId, 'board']` |
 
-### Theme Registration Pattern
-
-After fetching entity data, immediately register colors:
-
-```ts
-const { registerEntities } = useThemeRegistry();
-
-const data = await backlogService.getEpicsWithTasks(projectId);
-setEpics(data);
-// Register colors so any component can use getTheme(epicId) instantly
-registerEntities(data.map(epic => ({ id: epic.id, color: epic.color })));
-```
-
-### Entity-Theme-Agnostic Components
-
-Components like `EpicBadge`, `SprintPill`, and `Sidebar` receive entity data and compute styling externally. They only ever access `var(--entity-*)` CSS variables or receive a pre-computed `style={theme}` prop. This means they never need to change when the color algorithm changes.
+This ensures cache isolation per project and correct invalidation.
 
 ---
 
-## Deviation Notes
+## 16. Known Issues
 
-These deviations from TRUTH.md's target structure exist in the current codebase and should be addressed during the migration to feature-first architecture:
+### 1. `Sidebar.tsx` and `TopBar.tsx` Are Unused
 
-### 1. Pages live in `src/pages/` (flat) instead of `features/[feature]/pages/`
+These layout components exist in `src/components/layout/` but are **not imported by the current `AppShell`**. The current layout uses ActivityBar/Explorer/TitleBar instead. These files may be removed or repurposed.
 
-Per TRUTH.md, pages should be `features/[feature]/pages/`. Currently all 14 pages are in a flat `src/pages/` directory.
+### 2. Many Features Are Stubs
 
-### 2. Auth feature is incomplete
-
-`features/auth/` only has `services/authService.ts`. Missing `components/`, `hooks/`, `pages/`. The Login and Register pages should ideally live here.
-
-### 3. Chat feature is incomplete
-
-`features/chat/` only has `components/ChatLayout.tsx`. Missing `hooks/` and `services/`. The chat feature is the least developed.
-
-### 4. Some features lack `types/` and `utils/` directories
-
-Per TRUTH.md, each feature should have `types/` and `utils/` directories for feature-specific types and utilities.
+`calendar/`, `chat/`, `overview/`, `quest-tree/`, `sprints/` only have `index.ts` files. They need components, hooks, and services.
 
 ---
 
-*Last updated: 2026-05-04*
+## 17. Entity Color System
+
+The entity color system provides dynamic, perceptual color variants for entities with user-defined colors (Project, Epic, Sprint, Status).
+
+### Color Chain
+
+```
+API response: { color: "#3B6D11", id: "1", ... }
+        ↓
+Feature hook calls useEntityTheme(entityId, color)
+        ↓
+EntityThemeRegistry.getTheme() checks cache (O(1) lookup after first compute)
+        ↓
+Cache miss → generateEntityTheme(hex) from themeUtils.ts
+        ↓
+CSS variables --entity-solid/bg/border/fg are computed via OKLCH math
+        ↓
+Feature component spreads style={theme} on container element
+        ↓
+Children access var(--entity-solid), var(--entity-bg), etc.
+```
+
+### CSS Variable Definitions
+
+| Variable | Value | Usage |
+|----------|-------|-------|
+| `--entity-solid` | Full hex | Icon backgrounds, color dots |
+| `--entity-bg` | Low-lightness OKLCH | Badge fills, row tints |
+| `--entity-border` | Medium-lightness OKLCH | Accent borders |
+| `--entity-fg` | High-lightness OKLCH | Text on colored backgrounds |
+
+### Provider Order (Critical)
+
+Providers in `__root.tsx` must be ordered as follows (outermost to innermost):
+
+```tsx
+<QueryClientProvider>
+  <EntityThemeRegistryProvider>   {/* O(1) theme cache */}
+    <ThemeRegistryProvider>      {/* UI theme (dark/light) */}
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
+    </ThemeRegistryProvider>
+  </EntityThemeRegistryProvider>
+</QueryClientProvider>
+```
+
+### Color Math (`src/utils/themeUtils.ts`)
+
+| Function | Purpose |
+|---------|---------|
+| `hexToRgb(hex)` | Parse hex → `{ r, g, b }` |
+| `hexToOklch(hex)` | Parse hex → `{ l, c, h }` (OKLCH color space) |
+| `generateEntityTheme(hex)` | Compute 4 variants → `React.CSSProperties` |
+
+### "Sober" Aesthetic
+
+The system uses muted, desaturated variants while preserving hue identity. This ensures:
+- No jarring saturated colors in the UI
+- All entity-colored elements stay on-brand
+- High contrast for accessibility (--entity-fg ensures readability)
+
+---
+
+*Last reviewed: 2026-05-07*
+*Last updated: Route-driven migration completed — AppShell decoupled, $projectId layout, hierarchical query keys. Added QueryClient context injection documentation. Added Section 17: Entity Color System with OKLCH math and ThemeRegistry provider.*

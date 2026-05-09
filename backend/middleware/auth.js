@@ -5,13 +5,17 @@ function isAuthenticated(req, res, next) {
     res.status(401).json({ success: false, message: 'No autenticado' });
 }
 
-function isAdmin(req, res, next) {
+async function isAdmin(req, res, next) {
+  try {
     const User = require('../models/User');
-    const user = User.findById(req.session.userId);
+    const user = await User.findById(req.session.userId);
     if (user && user.role === 'admin') {
-        return next();
+      return next();
     }
     res.status(403).json({ success: false, message: 'Acceso denegado' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error checking admin status' });
+  }
 }
 
 module.exports = { isAuthenticated, isAdmin };

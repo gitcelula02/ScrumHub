@@ -454,55 +454,121 @@ Settings:
 - When AI makes a decision, it resolves settings in priority order: user_project_override → user → project → general
 - API keys follow: user key → project shared key → plan credits
 
-## Structure
-### Frontend
-- `src/`
-    - `App.tsx`:
-        - Main component, responsible for the application structure.
-    - `main.tsx`:
-        - Entry point of the application, responsible for rendering the main component.
-    - `services/`:
-        - API calls to backend (Express).
-    - `store/`:
-        - Application state management.
-    - `components/`:
-        - Reusable dumb UI components (Across multiple features).
-        - `layout/`:
-            - Layout components. (Navigation bar, sidebar, footer, etc.)
-        - `ui/`:
-            - Generic UI components. (Buttons, inputs, etc.)
-    - `hooks/`:
-        - Reusable hooks (Across multiple features).
-    - `utils/`:
-        - Utility functions (Across multiple features).
-    - `pages/`:
-        - Pages components. (Using components, hooks, utils, etc. from other directories)
-    - `routes/`:
-        - Routes configuration. (Using pages directory, only routing logic here, no UI components)
-    - `styles/`:
-        - Global styles, tailwind custom config, etc.
-    - `types/`:
-        - Global TypeScript types definitions.
-    - `features/`:
-        - Feature-specific components, logic and styles.
-            - `feature-name/`
-                - `components/`:
-                    - Feature-specific components.
-                - `services/`:
-                    - Feature-specific API calls.
-                - `store/`:
-                    - Feature-specific state management.
-                - `types/`:
-                    - Feature-specific TypeScript types definitions.
-                - `hooks/`:
-                    - Feature-specific hooks.
-                - `utils/`:
-                    - Feature-specific utility functions.
-                - `styles/`:
-                    - Feature-specific styles.
-- `index.html`: Entry point of the application.
-- `package.json`: Project dependencies and scripts.
-- `tsconfig.json`: TypeScript configuration.
-- `tailwind.config.ts`: Tailwind CSS configuration.
-- `vite.config.ts`: Vite configuration.
+## Architecture Migration Status
+The frontend architecture migration was completed on **May 7, 2026**.
+The application is fully migrated to the target architecture:
+- **Route-driven layout**: AppShell is decoupled from view state, uses `<Outlet />` for child routes.
+- **Project-scoped routing**: All project views live under `/app/projects/$projectId/`.
+- **Workspace context**: `/app/projects` and `/app/projects/create` use lightweight layout (no AppShell).
+- **Feature-first organization**: All features are isolated in `src/features/` with proper barrel exports.
+- **Hierarchical query keys**: All TanStack Query keys follow `['project', projectId, ...]` pattern for cache isolation.
+- **Global Structure**: Shared services, hooks, types, and UI components (`src/components/ui/`) are implemented.
+- **Tooling**: Built with Vite (native configuration), React, TypeScript, TanStack Router, and TanStack Query.
+- **Styling**: Enforced strict adherence to `FRONTEND_STYLING.md` using Tailwind CSS v4 and oklch CSS variables.
 
+*Any future changes to the architecture must be reflected in this document.*
+
+## Structure
+### Frontend (TanStack Router File-Based Routing)
+
+The frontend uses **TanStack Router** with file-based routing. Route files live in `src/routes/` and map directly to URL paths.
+
+```
+frontend/src/
+├── routeTree.gen.ts      # Auto-generated route tree (do not edit manually)
+├── router.tsx            # Router instance factory
+├── routes/
+│   ├── __root.tsx        # Root route — sets up providers, HTML shell
+│   ├── index.tsx         # Landing page (/)
+│   ├── login.tsx         # Login page (/login)
+│   ├── register.tsx      # Register page (/register)
+│   ├── app/
+│   │   ├── route.tsx     # Auth guard wrapper
+│   │   ├── index.tsx     # Redirects to /app/projects
+│   │   └── projects/
+│   │       ├── index.tsx           # Project list (/app/projects)
+│   │       ├── create.tsx          # Create project (/app/projects/create)
+│   │       └── $projectId/
+│   │           ├── route.tsx       # Project layout (AppShell + loader)
+│   │           ├── dashboard.tsx    # /app/projects/$projectId/dashboard
+│   │           ├── board.tsx       # /app/projects/$projectId/board
+│   │           ├── backlog.tsx     # /app/projects/$projectId/backlog
+│   │           ├── calendar.tsx    # /app/projects/$projectId/calendar
+│   │           ├── sprints.tsx      # /app/projects/$projectId/sprints
+│   │           ├── settings.tsx    # /app/projects/$projectId/settings
+│   │           ├── tasks/
+│   │           │   └── $taskId.tsx # /app/projects/$projectId/tasks/$taskId
+│   │           ├── epics/
+│   │           │   └── $epicId.tsx # /app/projects/$projectId/epics/$epicId
+│   │           └── chat/
+│   │               ├── index.tsx   # /app/projects/$projectId/chat
+│   │               └── $sessionId.tsx
+├── pages/                # Page components (thin orchestrators)
+│   ├── *.tsx             # Delegated from routes/ when needed
+├── components/            # Shared UI components
+│   ├── layout/           # AppShell, ActivityBar, TitleBar, StatusBar (barrel export: index.ts)
+│   └── ui/               # UI atoms (buttons, badges, etc.)
+├── features/              # Feature modules (self-contained)
+│   └── [feature]/         # See feature structure below
+├── services/              # Global API client (apiClient.ts)
+├── store/                 # Global state (AuthContext, ThemeRegistry)
+├── hooks/                 # Global hooks (useEntityTheme)
+├── styles/                # Global CSS (globals.css with oklch vars)
+├── types/                 # Global TypeScript types
+└── utils/                 # Pure utilities (themeUtils.ts)
+```
+
+### Entry Points
+
+| File | Purpose |
+|------|---------|
+| `routes/__root.tsx` | Root route — replaces `main.tsx` + `App.tsx`. Sets up `QueryClientProvider`, `AuthProvider`, HTML shell, and `HeadContent`. |
+| `routes/app/route.tsx` | Authenticated layout route — redirects to `/app/projects`. |
+| `routes/app/projects/$projectId/route.tsx` | Project layout route — wraps AppShell + Outlet. Pre-loads project via `projectQuery.ensureQueryData()`. |
+
+### Route Pattern
+
+- **`src/routes/*.tsx`** files map to URL paths via TanStack Router file-based routing
+- Route files can contain inline components OR delegate to `src/pages/*.tsx`
+- `createFileRoute('/path')` creates a route with that URL path
+- Route tree is auto-generated in `routeTree.gen.ts`
+
+### Project Layout Pattern
+
+**`src/routes/app/projects/$projectId/route.tsx`** is the mandatory project layout:
+- Loader pre-fetches project via `queryClient.ensureQueryData(projectQuery(projectId))`
+- Component renders `<AppShell><Outlet /></AppShell>` — AppShell NEVER appears elsewhere
+- Child routes under `$projectId/` all share the AppShell via the layout route
+
+### Page Pattern
+
+Pages in `src/pages/` are **thin orchestrators** that:
+1. Extract URL params via `useParams()`
+2. Call feature hooks
+3. Render feature components
+
+Pages should contain **no business logic**.
+
+### Feature Module Structure
+
+```
+features/<name>/
+├── components/     # Feature-specific components
+├── hooks/          # Feature hooks
+├── services/       # Feature API calls
+├── types/          # Feature TypeScript types
+├── utils/          # Feature utilities
+├── styles/         # Feature styles
+└── index.ts        # Barrel export
+```
+
+### Components Structure
+
+```
+components/
+├── layout/         # Layout components (AppShell, Sidebar, TopBar, etc.)
+│   └── *.tsx
+└── ui/             # UI atoms (Button, Badge, Card, etc.)
+    ├── *.tsx
+    └── index.ts    # Barrel export
+```
