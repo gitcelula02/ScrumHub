@@ -36,8 +36,11 @@ ScrumHub is a SCRUM project management tool that replaces tools like Jira and Gi
 
 **Project Management**
 - Create and manage multiple Scrum projects
-- Each project has: name, description (markdown), color, status, members, custom sections
+- Each project has: name, description (markdown), goal, icon, color, status, members, custom sections
 - Project members have SCRUM roles and admin permissions
+- **Workspace Explorer**: VS Code-inspired file explorer for project navigation
+- **Project Templates**: Pre-built templates for common project types
+- **AI Project Creation**: Natural language project creation
 
 **Task Management (Epic, User Story, Task, Subtask)**
 - Single unified entity with `type` field distinguishing them
@@ -154,6 +157,25 @@ ScrumHub is a SCRUM project management tool that replaces tools like Jira and Gi
 ---
 
 ## Feature Details
+
+### Workspace Explorer
+- VS Code-inspired file explorer paradigm
+- Hierarchical folder structure for project organization
+- Folders are per-user (personal organization, not shared)
+- Projects as file-like entries with icons and color indicators
+- Pinned projects section for quick access
+- Search with filtering (hides non-matching items)
+- View size options: Compact, Medium, Big
+- Context menus for folder and project actions
+- AI integration in search bar for natural language project creation
+- Explorer state persisted in localStorage
+
+### Project Templates
+- Pre-built templates for common project types (Sprint Planning, Research, Bug Tracker, Continuous Improvement)
+- Custom user-created templates
+- Templates include: backlogs with statuses, sample tasks, suggested sprints
+- AI-assisted project creation from natural language
+- Template usage tracking for popularity sorting
 
 ### Boards
 - Custom boards per project representing task states

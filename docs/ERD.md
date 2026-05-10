@@ -77,6 +77,8 @@ This document defines the pure data structure and relationships. No technology s
 | id | INT | Primary Key |
 | name | String | Project name |
 | description | String | Markdown description |
+| goal | String | Markdown describing what the project aims to achieve |
+| icon | String | Emoji or icon identifier for the project |
 | color | String | User-defined hex color for entity theme |
 | status | String | "active" / "archived" / "completed" |
 | created_by_user_id | INT | Foreign Key → User (project creator = first admin) |
@@ -89,6 +91,8 @@ This document defines the pure data structure and relationships. No technology s
 - One Project has many Sprints (one-to-many)
 - One Project has one Chatroom (one-to-one)
 - One Project has many Settings (one-to-many, polymorphic)
+- One Project has many ProjectCustomSections (one-to-many)
+- One Project has many UserFolderProjects (one-to-many)
 
 **JSON Example:**
 ```json
@@ -96,6 +100,8 @@ This document defines the pure data structure and relationships. No technology s
   "id": 1,
   "name": "ScrumHub Frontend",
   "description": "# Project Overview\n\nBuilding the React frontend...",
+  "goal": "Deliver a modern, AI-powered project management experience",
+  "icon": "📘",
   "color": "#3B6D11",
   "status": "active",
   "created_by_user_id": 1,
@@ -103,6 +109,164 @@ This document defines the pure data structure and relationships. No technology s
   "updated_at": "2024-06-20T14:22:00Z"
 }
 ```
+
+---
+
+### UserFolder
+
+**Purpose:** Personal folder organization per user. Each user has their own folder structure, independent of other users.
+
+**Attributes:**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | INT | Primary Key |
+| user_id | INT | Foreign Key → User |
+| parent_id | INT | Foreign Key → UserFolder (null for root folders) |
+| name | String | Folder name (unique within same parent per user) |
+| order_index | INT | Sorting order |
+| created_at | DateTime | Creation timestamp |
+| updated_at | DateTime | Last update timestamp |
+
+**Constraints:**
+- Maximum nesting depth: 5 levels
+- Folder names unique within same parent per user
+
+**Relationships:**
+- One User belongs to one User (many-to-one)
+- One UserFolder has many UserFolders (one-to-many, children)
+- One UserFolder has many UserFolderProjects (one-to-many)
+
+**JSON Example:**
+```json
+{
+  "id": 1,
+  "user_id": 5,
+  "parent_id": null,
+  "name": "AI Projects",
+  "order_index": 0,
+  "created_at": "2024-01-15T10:30:00Z",
+  "updated_at": "2024-06-20T14:22:00Z"
+}
+```
+
+---
+
+### ProjectCustomSection
+
+**Purpose:** User-defined custom sections for project (vision, mission, goals, etc.). Feeds into project RAG context.
+
+**Attributes:**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | INT | Primary Key |
+| project_id | INT | Foreign Key → Project |
+| user_id | INT | Foreign Key → User (who created) |
+| key | String | Section key (e.g., "vision", "mission", "goal") |
+| value | Text | Markdown content |
+| order_index | INT | Display order |
+| created_at | DateTime | Creation timestamp |
+| updated_at | DateTime | Last update timestamp |
+
+**Relationships:**
+- One Project has many ProjectCustomSections (one-to-many)
+- One User created many ProjectCustomSections (one-to-many)
+
+**JSON Example:**
+```json
+{
+  "id": 1,
+  "project_id": 1,
+  "user_id": 5,
+  "key": "vision",
+  "value": "Our vision is to create the most intuitive project management experience...",
+  "order_index": 0,
+  "created_at": "2024-01-15T10:30:00Z",
+  "updated_at": "2024-06-20T14:22:00Z"
+}
+```
+
+---
+
+### UserFolderProject
+
+**Purpose:** Many-to-many relationship between UserFolders and Projects for folder membership. Allows each user to organize projects in their own folder structure.
+
+**Attributes:**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | INT | Primary Key |
+| user_id | INT | Foreign Key → User |
+| folder_id | INT | Foreign Key → UserFolder (nullable - null means root level) |
+| project_id | INT | Foreign Key → Project |
+| order_index | INT | Sorting within folder |
+| is_pinned | Boolean | Appears in Pinned section |
+| created_at | DateTime | Creation timestamp |
+
+**Relationships:**
+- One User has many UserFolderProjects (one-to-many)
+- One UserFolder has many UserFolderProjects (one-to-many)
+- One Project has many UserFolderProjects (one-to-many)
+
+**JSON Example:**
+```json
+{
+  "id": 1,
+  "user_id": 5,
+  "folder_id": 1,
+  "project_id": 42,
+  "order_index": 0,
+  "is_pinned": false,
+  "created_at": "2024-02-01T09:00:00Z"
+}
+```
+
+---
+
+### ProjectTemplate
+
+**Purpose:** Pre-defined project templates for common use cases.
+
+**Attributes:**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | INT | Primary Key |
+| name | String | Template name |
+| description | String | Template description |
+| icon | String | Emoji icon |
+| category | String | "sprint_planning" / "research" / "bug_tracker" / "continuous" / "custom" |
+| is_system | Boolean | True for built-in templates |
+| created_by_user_id | INT | Foreign Key → User (null for system templates) |
+| config | JSON | Template configuration (backlogs, statuses, sample tasks) |
+| usage_count | INT | Usage counter for sorting/popularity |
+| created_at | DateTime | Creation timestamp |
+| updated_at | DateTime | Last update timestamp |
+
+**Relationships:**
+- One User has many ProjectTemplates (one-to-many, for custom templates)
+- System templates have no user (created_by_user_id = null)
+
+**JSON Example:**
+```json
+{
+  "id": 1,
+  "name": "Sprint Planning Starter",
+  "description": "Perfect for feature development with sprint-based delivery",
+  "icon": "🏃",
+  "category": "sprint_planning",
+  "is_system": true,
+  "created_by_user_id": null,
+  "config": {
+    "backlogs": [...],
+    "sample_tasks": [...],
+    "suggested_sprints": [...]
+  },
+  "usage_count": 156,
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z"
+}
+```
+
+---
 
 ---
 
@@ -922,7 +1086,11 @@ User
 ├── NotificationPreference (1→many)
 ├── AIChatSession (1→many)
 │   └── AIChatMessage (1→many)
-└── AITranscription (1→many)
+├── AITranscription (1→many)
+├── UserFolder (1→many)
+│   └── UserFolderProject (1→many)
+├── ProjectTemplate (1→many, for custom templates)
+└── ProjectCustomSection (1→many)
 
 Project
 ├── ProjectMember (1→many)
@@ -937,7 +1105,13 @@ Project
 │   │       └── AITranscription (1→many)
 │   └── DailyStandup (1→1)
 ├── Settings (1→many, polymorphic)
+├── ProjectCustomSection (1→many)
+├── UserFolderProject (1→many)
 └── AITranscription (1→many)
+
+UserFolder
+├── UserFolder (1→many, children)
+└── UserFolderProject (1→many)
 
 Sprint
 ├── Task (1→many)

@@ -16,7 +16,16 @@ For detailed feature documentation, see **[FEATURES.md](./FEATURES.md)** and **[
 
 **Project Management**
 - Multiple Scrum projects per user
-- Each project has: name, description, color, status, members, custom sections
+- Each project has: name, description, goal, icon, color, status, members, custom sections
+- **Workspace Explorer**: VS Code-inspired file explorer for navigation (see [features/PROJECT_EXPLORER.md](./features/PROJECT_EXPLORER.md))
+- **Project Templates**: Pre-built starting points (see [features/PROJECT_TEMPLATES.md](./features/PROJECT_TEMPLATES.md))
+- **AI Project Creation**: Create projects via natural language
+
+**Folder Organization**
+- Personal per-user folder structure (not shared between users)
+- Hierarchical folders containing projects
+- Projects can be pinned for quick access
+- Explorer state persisted locally
 
 **Backlog Model**
 - **Multi-Backlog Orchestration**: Projects support multiple specialized backlogs (Development, QA/Testing, Strategic Planning)
