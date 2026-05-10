@@ -10,565 +10,311 @@ If there are incongruences among the documentation files, this document is the t
 - Name: ScrumHub
 - Description: A project management tool for teams using Scrum methodology.
 
-### Features
+## Core Features (Summary)
+
+For detailed feature documentation, see **[FEATURES.md](./FEATURES.md)** and **[features/](./features/)** folder.
 
 **Project Management**
-- Create and manage Multiple Scrum Projects
-- Each project has: name, description (markdown), color, status, members, custom sections
+- Multiple Scrum projects per user
+- Each project has: name, description, color, status, members, custom sections
 
-**Work Views**
-- Scrum, Kanban, and Hybrid work views
-- Quest Tree view (game-like dynamic tree with notifications and progress bars)
-- Calendar view showing sprints, tasks, epics, stories, subtasks per sprint
-- List/Board view switchable per project
+**Backlog Model**
+- **Multi-Backlog Orchestration**: Projects support multiple specialized backlogs (Development, QA/Testing, Strategic Planning)
+- Each backlog contains all tasks within that workflow context
+- Tasks can exist outside sprints (backlog-only)
+- See **[features/MULTI_BACKLOG.md](./features/MULTI_BACKLOG.md)**
 
-**Backlog**
-- Complete backlog contains all tasks regardless of sprint
-- Tasks can exist outside sprints (visible in "Complete backlog" view with filter)
-- Sprint view shows tasks grouped by sprint
+**Sprint Model**
+- **Simultaneous Sprints**: Multiple sprints can run in parallel within the same project
+- Each task belongs to exactly one sprint
+- **Mini-Sprints**: Short-duration (1-3 days) tactical sprints for hotfixes, research, or polish
+- See **[features/SIMULTANEOUS_SPRINTS.md](./features/SIMULTANEOUS_SPRINTS.md)** and **[features/MINI_SPRINTS.md](./features/MINI_SPRINTS.md)**
 
-**Sprints**
-- Group tasks and manage workflow
-- Have their own views: Kanban boards, Calendar, Retrospectives
-- Default view is current sprint, changeable via header filter to specific sprint or complete backlog
-- Sprint creation: description (markdown), start date, due date, assignable tasks/epics/stories/subtasks
-
-**Daily Standups**
-- Daily standup scheduling with notifications
-- Occurs in dedicated "Daily" channel (default, cannot be deleted)
-- "Daily" channel has both voice and text chat
-- Part of Calendar view integration
-- **Always transcribed**: All Daily standups are automatically transcribed, stored, and used by AI agent in retrospectives and reports
-
-**Tasks, Stories, Epics, Subtasks**
-- Same entity with type property (epic, story, task)
-- Subtask is a task nested inside another task (recursive, no limit)
-- All have: title, description, type, priority, status, assignees (multiple), due date, create/update dates, comments, attachments, acceptance criteria, dependencies
-
-**Kanban Boards**
-- Boards represent status columns
-- Filters by user, role, due date, sprint, status, priority
-- See UI & UX section for detailed board behavior
-
-**Retrospectives (Per Sprint)**
-- Date, description (markdown), title
-- Customizable sections (What went wrong, good, improved, changed)
-- AI-assisted via Retrospective skills
-- See Task Hierarchy section for structure details
-
-**Chatroom (Per Project)**
-- Discord-like UI with text and voice channels
-- Message history, markdown support
-- WebRTC voice, AI transcription on-demand
-- "Transcribe & Create Task" feature
-- "Daily" channel (default) for daily standups
-
-**AI Assistant**
-- Backlog Assistant, Chat Assistant
-- Customizable prompts, personality, tone
-- Per-project and general settings
-- See Settings Architecture section for full detail
-
-**AI Data Storage (RAG)**
-- AI context and data stored as Retrieval-Augmented Generation (RAG) with vectorized databases
-- Enables semantic search over chat history, transcriptions, task context
-- Used by AI agent for context-aware responses in retrospectives, reports, and assistance
-
-**Analytics & Reports**
-- Per project: close tasks, due, completed, pending, overdue counts
-- Pie charts, percentage completion bars
-- Project overview with charts and statistics
-
-**Project Overview**
-- Current sprint status, task counts
-- Customizable sections (project info, features, purpose)
-- Default view is current sprint, filterable to specific sprint or complete backlog
-
-**Quest Tree**
-- Game-like dynamic quest tree with progress bars
-- Priority (border color), state (background color), user shadow on incomplete tasks
-- See UI & UX section for detailed behavior
-
-**Settings**
-- General and Per Project (customizable by project admin)
-- Roles-based options, theme, colors, notifications, AI settings
-- See Settings Architecture section for full detail
-
-**Integrations**
-- GitHub: issues, pull requests
-- Web Services: Moodle, Canvas LMS
-- Notifications: Email, Push, In-App
-
-### User Roles & Permissions
-
-#### SCRUM Roles (Per Project)
-SCRUM roles define the user's UI/UX experience within the project, not task visibility. All users see all tasks, but their role customizes how they interact with and view the project.
-- **Product Owner** — Backlog-centric view, priority management, acceptance criteria interface
-- **Scrum Master** — Sprint facilitation tools, retrospective views, blocker management
-- **Quality Assurance (QA)** — Acceptance criteria focus, testing workflow views
-- **Developer** — Task execution view, coding-centric interface, may be specialized (Frontend, Backend, Database, AI, React, Node, etc.)
-- **Tester** — Testing workflow view, test case management interface
-- **DevOps** — CI/CD pipeline view, deployment status, GitHub integration focus
-- **Tech Lead** — Overview dashboards, architecture views, code review tools
-
-#### Admin Role (Per Project)
-- Unrelated to SCRUM roles
-- Created automatically when a user creates a project
-- Permissions: Delete project, manage member permissions, invite users, manage project settings
-- Can delegate admin rights to other project members
-
-#### Role Separation Principle
-- **SCRUM roles** affect: UI views, AI assistant responses, default filters, and interaction patterns
-- **Admin role** affects: project configuration, member management, and deletion rights (separate from SCRUM roles)
-
-### Task Hierarchy
-All items (Epic, User Story, Task) share the same backend entity with a `type` property distinguishing them:
-- **Epic** — `type: "epic"`. Top-level container. Groups multiple items. Marked complete only when all contained items are done.
+**Task Hierarchy**
+All items (Epic, User Story, Task, Subtask) share the same entity with `type` property:
+- **Epic** — `type: "epic"`. Top-level container. Marked complete only when all contained items are done.
 - **User Story** — `type: "story"`. Mid-level item. May contain tasks. Has acceptance criteria.
-- **Task** — `type: "task"`. Work item associated to an Epic (optionally to a User Story). Has acceptance criteria.
-- **Subtask** — Not a separate type. A task nested inside another task via parent-child relationship. Can nest recursively without limit.
+- **Task** — `type: "task"`. Work item associated to an Epic or User Story. Has acceptance criteria.
+- **Subtask** — A task nested inside another task via parent-child relationship. Recursive, no limit.
 
 **Index System:**
-- Each task has an `index` field (INT, 16-byte) representing its hierarchy level (1 to max)
+- Each task has an `index` field (INT) representing hierarchy level
 - Higher index = more tasks above it in the hierarchy
-- Index is used with ID relationships to determine parent-child traversal
-- This enables NoSQL-like hierarchical queries on a SQL database
+- Enables NoSQL-like hierarchical queries on SQL database
 
-**Acceptance Criteria:**
-- Elements associated to a task, managed by QA or assigned users
-- Two states: Marked or Unmarked
-- All criteria must be Marked for the task to transition to Done
+**Task Properties:**
+- title, description, type, priority, status, assignees (multiple), due date
+- comments, attachments, acceptance criteria, dependencies
+- Cascade Rule: Parent assignees cascade to subtasks by default (can be overridden)
 
-**Cascade Rule:**
-- By default, if a user is assigned to a parent task, they are implicitly assigned to all subtasks
-- This can be overridden per subtask
+### Work Views
+- Scrum, Kanban, and Hybrid views
+- Quest Tree (game-like dynamic tree)
+- Calendar (sprints, tasks, standups)
+- List/Board switchable per project
 
-**Task Dependencies:**
-- Tasks can have dependencies on other tasks
-- A task with a dependency cannot be started until the dependency task is started/completed
-- Dependencies are directional (Task A depends on Task B)
+### Collaboration
+- **Chatroom**: Per-project Discord-like UI with text/voice channels
+- **Daily Standups**: Scheduled in dedicated "Daily" channel, always transcribed
+- **AI Integration**: Event-driven monitoring, Inter-Backlog Automation
 
-### Kanban Boards
-Boards are visual representations of **Status** entities. All tasks with a given status appear on that board.
+### AI as Virtual Team Member
+- AI acts as proactive Backlog Refiner
+- Event-driven: user conversations, task status changes, GitHub updates
+- Manages Inter-Backlog triggers (automatic task creation across backlogs)
+- See **[features/INTER_BACKLOG_AUTOMATION.md](./features/INTER_BACKLOG_AUTOMATION.md)**
 
-**Board Entity:**
-```
-Board:
-├── id
-├── project_id
-├── name
-├── statuses: Status[]
-├── filters_default: { user_id, role, due_date, sprint, priority }
-└── is_collapsed: boolean (per user preference)
-```
+### Reports
+- **Report Hub**: Persistent project-wide reports (QA Audits, Tech Debt, Product Feedback)
+- **Sprint Reports**: Bound to sprint lifecycle (Retrospectives, Summaries)
+- Reports can spawn backlog items
+- See **[features/REPORT_HUB.md](./features/REPORT_HUB.md)**
 
-**Status Entity:**
-```
-Status:
-├── id
-├── project_id
-├── name (e.g., "To Do", "In Progress", "Testing", "Done")
-├── color
-├── associated_role: SCRUM role that "owns" this status (e.g., "Testing" → QA)
-├── order: number (for column ordering)
-└── is_active: boolean
-```
+### Free Board (Visual Roadmap)
+- Visual canvas bidirectionally linked to backlog items
+- Elements change color when linked items change state
+- See **[features/FREE_BOARD.md](./features/FREE_BOARD.md)**
 
-**Task Entity Relationship:**
-- Each task has a `status_id` field linking to Status
-- Board queries all tasks where `status_id` matches its status
+---
 
-**Board Item Display:**
-Each card on the board shows:
-- Title
-- Priority (color-coded icon)
-- Assignee(s) (avatar(s))
-- Due date
-- Item is collapsible to show/hide subtasks
+## User Roles & Permissions
 
-**Drag & Drop Behavior:**
-- Any item (Epic, User Story, Task, Subtask) can be dragged between boards
-- When a parent task is dragged to a new board, **all its subtasks inherit that board's status**
-- This ensures hierarchical state consistency
+### SCRUM Roles (Per Project)
+SCRUM roles define the user's UI/UX experience, not task visibility. All users see all tasks.
+
+| Role | Description |
+|------|-------------|
+| **Product Owner** | Backlog-centric view, priority management, acceptance criteria |
+| **Scrum Master** | Sprint facilitation, retrospective views, blocker management, AI-augmented |
+| **Developer** | Task execution view; specializes in Frontend, Backend, AI, or Feature development |
+| **QA** | Merged role (QA + Tester). Acceptance criteria focus, testing workflow |
+| **DevOps** | CI/CD pipeline, deployment status, GitHub integration |
+| **Tech Lead** | Overview dashboards, architecture views, code review |
+
+### Admin Role (Per Project)
+- Unrelated to SCRUM roles
+- Created when a user creates a project
+- Permissions: Delete project, manage members, invite users, manage settings
+
+### Role Separation Principle
+- **SCRUM roles**: Affect UI views, AI responses, default filters, interaction patterns
+- **Admin role**: Affects project configuration, member management, deletion rights
+
+---
+
+## Kanban Boards
+
+**Core Behavior:**
+- Boards represent Status entities. All tasks with a given status appear on that board.
+- Any item (Epic, Story, Task, Subtask) can be dragged between boards
+- When parent task moves, all subtasks inherit that board's status
 
 **Phantom Parent Pattern:**
-When a subtask's status differs from its parent:
-- **Single subtask differs**: Subtask appears as its own card on the appropriate board
-- **Multiple subtasks differ**: Subtasks are nested under a "phantom" version of the parent card
-  - Phantom parent is visually distinct (e.g., dashed border, muted colors)
-  - Labeled as "[Parent] (state: X)" to indicate the actual parent is in a different status
-  - Shows all subtasks that belong to a different status than the parent
+When a subtask's status differs from parent:
+- Single subtask differs: Appears as its own card
+- Multiple subtasks differ: Nested under "phantom" parent (dashed border, muted colors)
 
-### Chatroom
-Per-project Discord-like chat interface with voice and text channels.
+**Board Item Display:** Title, priority icon, assignee avatars, due date, collapsible subtasks
 
-**Chatroom Entity:**
-```
-Chatroom:
-├── id
-├── project_id
-├── name
-├── channels: Channel[]
-└── created_at
-```
+---
 
-**Channel Entity:**
-```
-Channel:
-├── id
-├── chatroom_id
-├── type: "text" | "voice"
-├── name
-├── order: number
-└── is_active: boolean
-```
+## AI & RAG
 
-**Text Channel Features:**
-- Message history with timestamps
-- Messages support markdown
-- AI transcription on demand (not automatic) — if user requests, AI transcribes relevant messages and can create/update tasks from them
+**AI Context Storage:**
+- AI data stored as Retrieval-Augmented Generation (RAG) with vectorized databases
+- Semantic search over: chat history, transcriptions, task context
+- Enables context-aware AI responses
 
-**Voice Channel Features:**
-- WebRTC-based real-time voice communication
-- Optional AI transcription (on-demand, triggered by user)
-- Transcribed content can be used to auto-create or update tasks
+**AI Event Triggers:**
+- User conversations in chat
+- Task status changes
+- GitHub repository updates
+- Trigger actions across backlogs automatically
 
-**AI Integration:**
-- "Transcribe & Create Task" button available in text/voice channels
-- When triggered, AI analyzes messages and proposes task changes or creations
-- User confirms before any task modification
-
-### Subscription Plans & API Credits
-
-| Plan | Price | Included Credits | API Access | Notes |
-|------|-------|-----------------|------------|-------|
-| **Free** | $0/month | $5/month (DeepSeek) | ScrumHub shared key only | Limited features, single user |
-| **Starter** | $9/month | $20/month | Own API keys + fallback | 3 projects max |
-| **Pro** | $29/month | $50/month | Own API keys + all models | Unlimited projects |
-| **Enterprise** | Custom | Unlimited | All models + dedicated resources | SSO, SLA, priority support |
-
-**Credit System:**
-- Credits refresh monthly; unused credits do not roll over (except on Pro annual)
-- Consumption beyond included credits is billed at provider rates
-- Premium plans include first $20 of credits; beyond that is pay-as-you-go
-
-**Subscription Entity:**
-```
-Subscription:
-├── id
-├── user_id
-├── plan: "free" | "starter" | "pro" | "enterprise"
-├── status: "active" | "cancelled" | "past_due"
-├── current_period_start
-├── current_period_end
-├── credits_remaining: decimal
-└── billing_cycle: "monthly" | "annual"
-```
+---
 
 ## UI & UX
-- Visual Studio Code UI (sidebar, header, file structure, etc.)
 
-### Global Sidebar (Leftmost, Never Disappears)
-- Composed only of icons with hover tooltips on mouse over
-- Icons for global views: Home (Overview), Backlog, Epics, Quest Tree, Chat, Reports, Settings (cogwheel)
-- Views: Home, Backlog, Epics, Quest Tree, Chat, Reports, Settings
+### Global Layout
+- **Visual Studio Code-inspired UI**
+- **Global Sidebar** (leftmost, never disappears): Icons for Home, Backlog, Epics, Quest Tree, Chat, Reports, Settings
+- **Header**: Project selector, Search (command palette), Notifications, Settings, User profile
+- **Tabs**: Project views, task detail tabs. Can be closed, reordered, pinned
 
-### Specific View Sidebar
-- Located on the right side of the global sidebar, part of certain views only
-- Can be hidden (collapsible)
-- Examples:
-    - **Settings view**: Navigation sidebar with sections (General Settings, Profile, Theme, Notifications, AI Assistant, Project Settings link)
-    - **Backlog view**: Collapsible list of all sprints and sprint tasks
-
-### Header
-- **Options section** (left to right):
-    - **Project selector dropdown**: Shows project name, redirects to overview on click, cards view if none selected, option to create new project
-    - **Search bar** (centered): Input field with magnifying glass icon on right. On click, expands to show search suggestions and "Ask the AI" option. Acts as command palette (typing `>theme` opens theme settings). Searches project results inside project view, global results outside.
-    - **Notifications button**: Expands to show notifications interface
-    - **Settings button**: Always opens General Settings (header button, separate from sidebar cogwheel)
-    - **User Profile dropdown**: Opens profile interface with profile settings and logout option
-- **Tabs section**:
-    - Tabs to change between project views or show list of projects
-    - Tabs can be closed, reordered (drag and drop), pinned (pinned tabs stay left)
-    - Task/story/epic/subtask detail views open as tabs
-
-### View-Specific UI Elements
+### View-Specific UI
 
 **Task Detail Tab:**
-- Title (editable), Description (editable, markdown), Type selector (Task, User Story, Epic)
+- Title, description (markdown), type selector
 - Acceptance criteria checklist
-- Parent relationship shown as breadcrumbs (e.g., Epic > User Story > Task)
-- Assigned users (multi-select)
-- Due date
-- Dependencies (tasks that must be started/completed first)
-- Subtasks list with quick-add capability
-- Comments section with comment input
-- AI Help button: Opens modal with text input to ask AI to edit task, create subtasks, explain, etc.
+- Parent relationship breadcrumbs
+- Assignees, due date, dependencies
+- Subtasks with quick-add
+- Comments section
+- AI Help button
 
-**Task Creation Overlay:**
-- Same layout as Task Detail, minus comments section
-- Subtask section allows quick task creation with name only
+**Sprint Creation:**
+- Description (markdown), start/end dates
+- Task selector for assignment
 
-**Sprint Creation Overlay:**
-- Sprint description (markdown)
-- Start date, Due date
-- Task selector: Assign tasks, epics, user stories, or subtasks to sprint
-
-**Board Editing Modal:**
-- Board name, Status management (add/edit/delete statuses)
-- Status color picker (predetermined colors + custom)
-- SCRUM role association per status
+**Board Editing:**
+- Name, status management (add/edit/delete)
+- Status color picker, SCRUM role association
 
 **Quest Tree View:**
-- Icon in global sidebar with red dot notification (urgency indicator)
-- Shows hierarchical tree of tasks
-- Priority represented by border color, State represented by background color
-- User's incomplete tasks have visible shadow
-- On task click: Opens modal with task description, due date, state, acceptance criteria (comments hidden)
-- "See more details" button opens full tab view
+- Hierarchical tree with priority (border) and state (background) colors
+- User's incomplete tasks have shadow
+- Click opens modal with details
 
 **Empty States:**
-- **No projects**: Shows "No projects" + "Create project" button + AI input placeholder "Help me create a project..."
-- **Empty boards**: Boards displayed with no tasks
-- **No sprints (Backlog)**: Sidebar shows "No current sprints", view shows "Create an Epic" + "Ask the AI to start creating your first Sprint" suggestion
-- **Tasks outside sprints**: Visible in complete backlog view with filter option
-- **Home (no activity)**: Shows "Nothing to see, start creating sprints or epics"
+- No projects: "Create project" + AI input
+- Empty boards: Show columns
+- No sprints: "Create Epic" + AI suggestion
+- No activity: "Nothing to see, start creating"
 
-## Instructions
+---
 
-- The application must be built with:
-    - Frontend: React with Vite (TypeScript), Tailwind CSS and TANSTACK Router and Query.
-    - Backend Mock: json server, used as mock for database management. (Only for Frontend Development and testing)
-    - Backend: Express (TypeScript), PostgreSQL, Supabase (PostgreSQL) and pg Admin for database management.
-    - AI: DeepSeek API for AI features.
+## Technical Stack
 
-### Multi-Assignee Model
-- **Tasks**: Many-to-many relationship with users. A task can have multiple assignees, regardless of type.
-- **Projects**: Many-to-many relationship with users. A user can belong to multiple projects. (Practical limit: ~1000 members per project)
-- **User Profile**: Contains SCRUM role preferences (one-to-many, e.g., a user can be both Developer and QA)
-- **Cascade Override**: Parent task assignees cascade to subtasks by default, but can be overridden per subtask
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 18, TypeScript, Vite, Tailwind CSS, TanStack Router & Query |
+| Backend Mock | JSON Server (for frontend development/testing) |
+| Backend | Express (TypeScript), PostgreSQL, Supabase, pgAdmin |
+| AI | DeepSeek API |
+| Real-time | WebSocket for chat and voice |
 
-### Secure API Key Management
-API keys are sensitive credentials that must be protected from unauthorized use.
+---
 
-**ApiKeyVault Entity:**
-```
-ApiKeyVault:
-├── id
-├── provider: "deepseek" | "openai" | "anthropic" | ...
-├── encrypted_value: string (encrypted at rest, never stored in plaintext)
-├── public_alias: string (user-defined name, shown in UI)
-├── created_by_user_id
-├── is_shared: boolean
-├── allow_project_share: boolean (can project members use this key?)
-├── max_credit_per_user: decimal (max credits a single user can expend when using shared key)
-├── created_at
-└── updated_at
-```
+## Multi-Assignee Model
+
+- **Tasks ↔ Users**: Many-to-many. A task can have multiple assignees.
+- **Projects ↔ Users**: Many-to-many via ProjectMember (~1000 members/project limit)
+- **User Profile**: Contains SCRUM role preferences (one-to-many per user)
+- **Cascade Override**: Parent assignees cascade to subtasks by default, can be overridden
+
+---
+
+## Secure API Key Management
 
 **Security Principles:**
-- **Encrypted at rest**: Keys are encrypted using a master key known only to the backend
-- **Private key isolation**: The raw API key value never leaves the backend, never exposed to frontend
-- **Frontend sees only aliases**: UI displays `public_alias`, not the actual key
-- **Decryption happens server-side only**: When calling the AI API, backend decrypts the key internally
+- Keys encrypted at rest using master key
+- Raw key never leaves backend
+- Frontend sees only aliases (public_alias)
+- Decryption happens server-side only
 
 **Access Control:**
-- **Per-user keys**: Created by individual users, only they can use them
-- **Project-shareable keys**: Project admin can enable `allow_project_share`
-- **Project API sharing with credit limits**: Project admin can share project's API key with project members. Admin configures `max_credit_per_user` limit to prevent any single user from consuming all credits
-- **Key priority**: User key → Project shared key → ScrumHub plan credits (first available is used)
+- User key → Project shared key → Plan credits (first available used)
+- Project admin can enable `allow_project_share`
+- `max_credit_per_user` prevents single user consuming all shared credits
 
-### Settings Architecture
-Settings are stored as a polymorphic entity, enabling flexible override chains across different scopes.
+---
 
-**Settings Entity:**
-```
-Settings:
-├── id
-├── type: "general" | "project" | "user" | "user_project_override"
-├── scope_id: integer | null (project_id or user_id, null for general)
-├── name: string
-├── config: JSON
-└── created_at, updated_at
-```
+## Settings Architecture
 
-**Config Structure (JSON):**
-```json
-{
-  "general": {
-    "theme": "dark" | "light",
-    "language": "en" | "es" | ...,
-    "notifications": {
-      "email": boolean,
-      "push": boolean,
-      "in_app": boolean
-    }
-  },
-  "ai": {
-    "default_model": "deepseek-chat",
-    "models_per_capability": {
-      "chat": "deepseek-chat",
-      "code": "deepseek-coder",
-      "analysis": "deepseek-chat"
-    },
-    "temperature": 0.7,
-    "tone": "professional" | "casual" | "technical",
-    "system_prompt": "...",
-    "language": "en",
-    "skills": ["retrospective", "backlog-optimization", "code-review"],
-    "tools": ["web-search", "file-operations"],
-    "permissions": {
-      "can_delete_tasks": boolean,
-      "can_manage_members": boolean,
-      "can_export_data": boolean
-    }
-  },
-  "agents": {
-    "backlog-assistant": {
-      "enabled": boolean,
-      "system_prompt": "...",
-      "model": "deepseek-chat",
-      "temperature": 0.7,
-      "skills": ["backlog-optimization"],
-      "tools": ["web-search"]
-    },
-    "chat-assistant": { ... },
-    "retrospective-agent": { ... }
-  }
-}
-```
+Settings are polymorphic with override hierarchy (lowest to highest priority):
 
-**Override Hierarchy (lowest to highest priority):**
-1. **General Settings** (`type: "general"`, `scope_id: null`) — Defaults for all users and projects
-2. **Project Settings** (`type: "project"`, `scope_id: project_id`) — Overrides general for all project members
-3. **User Settings** (`type: "user"`, `scope_id: user_id`) — Overrides general for this user across all projects
-4. **User-Project Override** (`type: "user_project_override"`, `scope_id: {user_id, project_id}`) — User's project-specific preferences
+1. **General Settings** — Defaults for all users/projects
+2. **Project Settings** — Overrides general for project members
+3. **User Settings** — Overrides general for user across all projects
+4. **User-Project Override** — User's project-specific preferences
 
-**Relationship Model:**
-- **General Settings** ↔ **Projects**: Many-to-many (one general settings can apply to multiple projects if not overridden)
-- **Project Settings** ↔ **Projects**: One-to-one (each project has one settings entity)
-- **User Settings** ↔ **Users**: One-to-one (each user has one personal settings entity)
-- **User-Project Override** ↔ **(User, Project)**: One-to-one per user per project
+**AI Settings Resolution:**
+- user_project_override → user → project → general
+- API keys: user key → project shared key → plan credits
 
-**AI Settings Override Chain:**
-- When AI makes a decision, it resolves settings in priority order: user_project_override → user → project → general
-- API keys follow: user key → project shared key → plan credits
+---
 
 ## Architecture Migration Status
-The frontend architecture migration was completed on **May 7, 2026**.
-The application is fully migrated to the target architecture:
-- **Route-driven layout**: AppShell is decoupled from view state, uses `<Outlet />` for child routes.
-- **Project-scoped routing**: All project views live under `/app/projects/$projectId/`.
-- **Workspace context**: `/app/projects` and `/app/projects/create` use lightweight layout (no AppShell).
-- **Feature-first organization**: All features are isolated in `src/features/` with proper barrel exports.
-- **Hierarchical query keys**: All TanStack Query keys follow `['project', projectId, ...]` pattern for cache isolation.
-- **Global Structure**: Shared services, hooks, types, and UI components (`src/components/ui/`) are implemented.
-- **Tooling**: Built with Vite (native configuration), React, TypeScript, TanStack Router, and TanStack Query.
-- **Styling**: Enforced strict adherence to `FRONTEND_STYLING.md` using Tailwind CSS v4 and oklch CSS variables.
 
-*Any future changes to the architecture must be reflected in this document.*
+Completed **May 7, 2026**:
+- Route-driven layout with AppShell decoupled via `<Outlet />`
+- Project-scoped routing under `/app/projects/$projectId/`
+- Feature-first organization in `src/features/`
+- Hierarchical TanStack Query keys: `['project', projectId, ...]`
 
-## Structure
-### Frontend (TanStack Router File-Based Routing)
+*Any future architecture changes must be reflected here.*
 
-The frontend uses **TanStack Router** with file-based routing. Route files live in `src/routes/` and map directly to URL paths.
+---
+
+## Frontend Structure (TanStack Router)
 
 ```
-frontend/src/
-├── routeTree.gen.ts      # Auto-generated route tree (do not edit manually)
-├── router.tsx            # Router instance factory
+src/
+├── routeTree.gen.ts      # Auto-generated
+├── router.tsx            # Router instance
 ├── routes/
-│   ├── __root.tsx        # Root route — sets up providers, HTML shell
-│   ├── index.tsx         # Landing page (/)
-│   ├── login.tsx         # Login page (/login)
-│   ├── register.tsx      # Register page (/register)
-│   ├── app/
-│   │   ├── route.tsx     # Auth guard wrapper
-│   │   ├── index.tsx     # Redirects to /app/projects
-│   │   └── projects/
-│   │       ├── index.tsx           # Project list (/app/projects)
-│   │       ├── create.tsx          # Create project (/app/projects/create)
-│   │       └── $projectId/
-│   │           ├── route.tsx       # Project layout (AppShell + loader)
-│   │           ├── dashboard.tsx    # /app/projects/$projectId/dashboard
-│   │           ├── board.tsx       # /app/projects/$projectId/board
-│   │           ├── backlog.tsx     # /app/projects/$projectId/backlog
-│   │           ├── calendar.tsx    # /app/projects/$projectId/calendar
-│   │           ├── sprints.tsx      # /app/projects/$projectId/sprints
-│   │           ├── settings.tsx    # /app/projects/$projectId/settings
-│   │           ├── tasks/
-│   │           │   └── $taskId.tsx # /app/projects/$projectId/tasks/$taskId
-│   │           ├── epics/
-│   │           │   └── $epicId.tsx # /app/projects/$projectId/epics/$epicId
-│   │           └── chat/
-│   │               ├── index.tsx   # /app/projects/$projectId/chat
-│   │               └── $sessionId.tsx
-├── pages/                # Page components (thin orchestrators)
-│   ├── *.tsx             # Delegated from routes/ when needed
-├── components/            # Shared UI components
-│   ├── layout/           # AppShell, ActivityBar, TitleBar, StatusBar (barrel export: index.ts)
-│   └── ui/               # UI atoms (buttons, badges, etc.)
-├── features/              # Feature modules (self-contained)
-│   └── [feature]/         # See feature structure below
-├── services/              # Global API client (apiClient.ts)
-├── store/                 # Global state (AuthContext, ThemeRegistry)
-├── hooks/                 # Global hooks (useEntityTheme)
-├── styles/                # Global CSS (globals.css with oklch vars)
-├── types/                 # Global TypeScript types
-└── utils/                 # Pure utilities (themeUtils.ts)
+│   ├── __root.tsx        # Root route
+│   ├── index.tsx         # Landing (/)
+│   ├── login.tsx         # /login
+│   ├── register.tsx      # /register
+│   └── app/
+│       ├── route.tsx     # Auth guard
+│       └── projects/
+│           ├── index.tsx           # /app/projects
+│           ├── create.tsx          # /app/projects/create
+│           └── $projectId/
+│               ├── route.tsx       # Project layout (AppShell + loader)
+│               ├── dashboard.tsx    # /app/projects/$projectId/dashboard
+│               ├── board.tsx       # /app/projects/$projectId/board
+│               ├── backlog.tsx     # /app/projects/$projectId/backlog
+│               ├── calendar.tsx    # /app/projects/$projectId/calendar
+│               ├── sprints.tsx     # /app/projects/$projectId/sprints
+│               ├── settings.tsx    # /app/projects/$projectId/settings
+│               ├── tasks/$taskId.tsx
+│               ├── epics/$epicId.tsx
+│               └── chat/
+│                   ├── index.tsx
+│                   └── $sessionId.tsx
+├── pages/                # Thin orchestrators
+├── components/
+│   ├── layout/           # AppShell, Sidebar, TopBar
+│   └── ui/               # UI atoms
+├── features/             # Feature modules (self-contained)
+├── services/             # apiClient
+├── store/                # AuthContext, ThemeRegistry
+├── hooks/                # useEntityTheme, etc.
+├── styles/               # globals.css
+├── types/                # Global TypeScript types
+└── utils/                # Pure utilities
 ```
 
 ### Entry Points
 
 | File | Purpose |
 |------|---------|
-| `routes/__root.tsx` | Root route — replaces `main.tsx` + `App.tsx`. Sets up `QueryClientProvider`, `AuthProvider`, HTML shell, and `HeadContent`. |
-| `routes/app/route.tsx` | Authenticated layout route — redirects to `/app/projects`. |
-| `routes/app/projects/$projectId/route.tsx` | Project layout route — wraps AppShell + Outlet. Pre-loads project via `projectQuery.ensureQueryData()`. |
-
-### Route Pattern
-
-- **`src/routes/*.tsx`** files map to URL paths via TanStack Router file-based routing
-- Route files can contain inline components OR delegate to `src/pages/*.tsx`
-- `createFileRoute('/path')` creates a route with that URL path
-- Route tree is auto-generated in `routeTree.gen.ts`
+| `routes/__root.tsx` | Root route, providers, HTML shell |
+| `routes/app/route.tsx` | Authenticated layout, redirects to /app/projects |
+| `routes/app/projects/$projectId/route.tsx` | Project layout, wraps AppShell + Outlet |
 
 ### Project Layout Pattern
 
-**`src/routes/app/projects/$projectId/route.tsx`** is the mandatory project layout:
-- Loader pre-fetches project via `queryClient.ensureQueryData(projectQuery(projectId))`
-- Component renders `<AppShell><Outlet /></AppShell>` — AppShell NEVER appears elsewhere
-- Child routes under `$projectId/` all share the AppShell via the layout route
-
-### Page Pattern
-
-Pages in `src/pages/` are **thin orchestrators** that:
-1. Extract URL params via `useParams()`
-2. Call feature hooks
-3. Render feature components
-
-Pages should contain **no business logic**.
+`$projectId/route.tsx`:
+- Loader pre-fetches project via `projectQuery.ensureQueryData()`
+- Renders `<AppShell><Outlet /></AppShell>`
+- All child routes share AppShell
 
 ### Feature Module Structure
 
 ```
 features/<name>/
 ├── components/     # Feature-specific components
-├── hooks/          # Feature hooks
-├── services/       # Feature API calls
-├── types/          # Feature TypeScript types
-├── utils/          # Feature utilities
-├── styles/         # Feature styles
+├── hooks/          # use<Name>.ts
+├── services/       # <name>Service.ts
+├── types/          # <name>Types.ts
+├── utils/          # <name>Utils.ts
+├── styles/         # <name>.module.css
 └── index.ts        # Barrel export
 ```
 
-### Components Structure
+---
 
-```
-components/
-├── layout/         # Layout components (AppShell, Sidebar, TopBar, etc.)
-│   └── *.tsx
-└── ui/             # UI atoms (Button, Badge, Card, etc.)
-    ├── *.tsx
-    └── index.ts    # Barrel export
-```
+## Instructions
+
+All implementations must follow:
+- **Frontend**: React + Vite (TypeScript), Tailwind CSS, TanStack Router and Query
+- **Backend**: Express (TypeScript), PostgreSQL, Supabase
+- **AI**: DeepSeek API
+
+For entity schemas and JSON examples, see **[ERD.md](./ERD.md)**.
+For API endpoints, see **[ENDPOINTS.md](./ENDPOINTS.md)**.
+For feature details, see **[features/](./features/)** folder.

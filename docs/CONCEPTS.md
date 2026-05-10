@@ -1,76 +1,143 @@
 # ScrumHub Concepts
-This document discuses key concepts used inside ScrumHub, that are vital for the project development.
+This document defines key concepts and terminology used in ScrumHub. For technical implementation details, see **[TRUTH.md](./TRUTH.md)**.
 
-## Definitions
-**SCRUM**: A framework for developing, delivering, and sustaining complex products.  
-Consists of key roles: **Product Owner**, **Scrum Master**, **Developers** and **QA**.  
-The workflow is divided between **epics**, **User Stories** and **acceptance criteria**.  
+---
 
-**Product Owner**: Responsible for maximizing the value of the product resulting from the work of the Development Team.  
-It's in charge of knowing what the product must do, and not how.  
+## SCRUM Framework Concepts
 
-**Scrum Master**: Responsible for promoting and supporting Scrum as defined in the Scrum Guide.  
-It's the bridge between the Product Owner and the Developers.  
+**SCRUM**: A framework for developing, delivering, and sustaining complex products.
+Consists of key roles: **Product Owner**, **Scrum Master**, **Developers** and **QA**.
 
-**Developers**: Responsible for developing the product.  
-They create and modify the code, selecting the architecture and technologies used.  
+### Roles
 
-**QA**: Responsible for testing the product and making sure the product fulfills the users requirements.  
+**Product Owner**: Maximizes product value. Knows *what* the product must do, not *how*.
 
-**Epics**: Large bodies of work that can be broken down into smaller stories.  
-Contain the bulk of a feature or multiple related features.  
+**Scrum Master**: Promotes and supports Scrum. Bridge between Product Owner and Developers. AI-augmented for facilitation.
 
-**User Stories**: Small bodies of work that can be broken down into small features or simple tasks.  
-They are the main building blocks of the backlog.  
+**Developers**: Develop the product. Create and modify code, select architecture and technologies. May specialize in Frontend, Backend, AI, or Feature development.
 
-**Acceptance Criteria**: Conditions that a software product must satisfy to be accepted by a user, customer, or other stakeholder.  
-They are in natural language and do not contemplate technical details.  
+**QA (Quality Assurance)**: Tests the product and ensures it fulfills user requirements. (Note: QA and Tester roles are merged in ScrumHub)
 
-**Sprint**: A sprint is a time-boxed period during which a development team works to complete a set amount of work.  
+**DevOps**: CI/CD pipeline, deployment status, GitHub integration focus.
 
-**Sprint retrospective**: An organized report where the team can reflect on the sprint and identify areas for improvement.  
-What went well, what could be better, and what can be done to improve in the next sprint.  
+**Tech Lead**: Overview dashboards, architecture views, code review tools.
 
-## ScrumHub Concepts
+### Work Items
 
-**Folders**: Containers for organizing projects, backlogs, and boards.  
-A folder contents are deliberately selected by the user, and can contain group chats, boards and complete projects in accordance with the user's needs.  
+**Epics**: Large bodies of work containing multiple features. Can be broken down into user stories.
 
-**Categories**: Categories are used to group related items within a folder.  
-They can be used to create contextual relationships between projects, boards, workspaces and/or chats, useful to interact with the AI and organize the information.  
+**User Stories**: Small bodies of work that translate to features or tasks. Main building blocks of the backlog.
 
-**Tags**: Tags are used to label and categorize items within a folder.  
-They are more specific than categories and can be used to create more granular relationships between items.  
+**Acceptance Criteria**: Conditions a product must satisfy to be accepted. In natural language, no technical details.
 
-**Teams**: Teams are groups of users that can be assigned to projects, boards, and chats.  
+**Sprint**: Time-boxed period (typically 1-4 weeks) for completing a set amount of work.
 
-**Project**: A project is a container for organizing related items within a folder.  
-It contains a backlog, a board, a workspace and a chat.  
-A project chat can be a group chat or a direct message between users.  
-It also can be a foreign chat used for multiple projects.  
+**Mini-Sprint**: Short-duration (1-3 days) tactical sprint for hotfixes, research, or last-minute polish.
 
-**Backlog**: A backlog is a container for organizing related items within a folder.  
-It contains all epics, user stories and acceptance criteria without granular division like sprints.
+**Sprint Retrospective**: Team reflection at sprint end. What went well, what could improve, action items.
 
-**Board**: A board is a container for organizing related items within a folder.  
-It's in accordance with the current working sprint.  
+---
 
-**Workspace**: It's a shared space where the user can generate code or review it based on the project context.  
-Has an interface similar to Antigravity and can be used with git.  
-All changes to a working branch are shared among all users, as the files are stored in cloud (Imagine as if all users are using the same computer but different monitors)
+## ScrumHub-Specific Concepts
 
-**Chat**: It's a shared space where the user can communicate with other users and the AI.  
-The chat can be used as a terminal for AI instructions, where the AI can generate reports, review code and test.  
-It also can be used to generate voice and video calls, and screen sharing.  
-All of it can be done with the context of the project, and the AI can interpret and extract information from the voice chat (Only if allowed by the user) and create tasks or generate reports based on the conversation.  
+### Backlog Model
 
-**AI**: It's an AI assistant that can be used to generate reports, review code and test.  
-It can generate complete backlogs and assign tasks based on the team members capacities and profile.  
-Can be customized and assign different roles and permissions.  
-The AI can be personal or project shared.  
+**Backlog**: Container for organizing work items. In ScrumHub, a project can have **multiple backlogs**:
+- **Development Backlog**: Feature development tasks
+- **QA/Testing Backlog**: Testing and quality tasks
+- **Strategic Planning Backlog**: Long-term planning items
+- **Custom Backlogs**: User-defined specialized backlogs
 
-**Roles**: Roles are used to define the permissions of users within a project.  
-Similar to discord, they can represent the user's role in the project, and can be used to create contextual relationships between items.  
+Each backlog maintains its own workflow zones (Dev Zone, QA Zone, PO Zone).
 
-**Permissions**: Permissions are used to define the permissions of users and AI within a project.  
+### Multi-Backlog Orchestration
 
+Managing multiple backlogs within a single project. Allows different sub-teams to work within their own context while maintaining project-wide visibility.
+
+### Inter-Backlog Automation
+
+AI-driven triggers linking backlogs. When specific events occur in one backlog (e.g., task moves to "Testing"), AI automatically creates linked tasks in another backlog (e.g., QA Backlog).
+
+### Simultaneous Sprints
+
+Multiple independent sprints running in parallel within the same project. Different sub-teams work on separate modules without interference.
+
+### Report Hub
+
+Unified reporting system with two report types:
+
+**Sprint Reports**: Created during a sprint, conclude when the sprint ends:
+- Sprint Retrospective: Process-focused reflection
+- Sprint Summary: Product-focused metrics
+
+**Project Reports**: Persistent across the project lifecycle:
+- QA Audits: Testing coverage, defect density
+- Tech Debt Reviews: Code quality, debt items
+- Product Feedback: User feedback aggregation
+
+Project Reports can directly influence the Product Backlog by spawning tasks.
+
+### Free Board (Visual Roadmap)
+
+Visual canvas for diagrams and schemes. Bidirectionally linked to backlog items — elements change appearance when linked items change state (e.g., turns green when User Story is marked "Done").
+
+### Workspace
+
+Shared space where users generate and review code based on project context. All changes to a working branch are shared among users (cloud-based shared computer metaphor).
+
+### AI as Virtual Team Member
+
+AI acts as proactive Backlog Refiner:
+- Monitors work across backlogs
+- Event-driven: triggered by user conversations, task changes, GitHub updates
+- Manages inter-backlog automation triggers
+- Can generate reports and suggest backlog improvements
+
+### Chat
+
+Shared space for communication with users and AI. Acts as terminal for AI instructions. Supports voice/video calls with AI transcription. Creates tasks or reports from conversations.
+
+### Folders, Categories, Tags
+
+**Folders**: Containers for organizing projects, backlogs, and boards. User-curated.
+
+**Categories**: Group related items for AI context and organization.
+
+**Tags**: Granular labels for item relationships within folders.
+
+### Teams
+
+Groups of users assigned to projects, boards, and chats.
+
+### Roles & Permissions
+
+**Roles**: Define user permissions within a project. Similar to Discord roles.
+
+**Permissions**: Define what users and AI can do within a project.
+
+---
+
+## Relationships
+
+| Concept | Relationship |
+|---------|--------------|
+| Project | Contains: backlogs, boards, sprints, chat, workspace |
+| Backlog | Contains: tasks, has a type (development, qa, strategic) |
+| Sprint | Groups: tasks, has duration, status (planning/active/completed) |
+| Task | Belongs to: project, sprint (optional), backlog, status |
+| Board | Represents: status columns, displays tasks by status |
+
+---
+
+## Document Hierarchy
+
+| Document | Purpose |
+|----------|---------|
+| **TRUTH.md** | Source of truth. Architecture, entities, patterns. Start here. |
+| **ERD.md** | Entity relationships and database schema |
+| **ENDPOINTS.md** | API specification |
+| **FEATURES.md** | Feature overview and descriptions |
+| **features/** | Detailed implementation specs per feature |
+| **AGENTS.md** | AI coding guide, conventions |
+| **UX.md** | User experience specifications |
+| **CONCEPTS.md** | This file - terminology and concepts |
