@@ -51,7 +51,7 @@ function ExplorerSidebarComponent({ onProjectSelect }: ExplorerSidebarProps) {
   };
 
   return (
-    <aside className="w-[280px] bg-sidebar-bg border-r border-panel-border flex flex-col select-none shrink-0">
+    <aside className="h-full w-full bg-sidebar-bg border-r border-panel-border flex flex-col select-none shrink-0 flex-1">
       {/* Header */}
       <div className="h-9 px-4 flex items-center justify-between border-b border-panel-border shrink-0">
         <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
