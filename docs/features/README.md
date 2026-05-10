@@ -10,6 +10,7 @@ This folder contains detailed documentation for each major feature of ScrumHub.
 |---------|------|--------|
 | **Workspace Explorer** | [PROJECT_EXPLORER.md](./PROJECT_EXPLORER.md) | Planned |
 | **Project Templates** | [PROJECT_TEMPLATES.md](./PROJECT_TEMPLATES.md) | Planned |
+| **Project Overview** | [PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md) | Planned |
 | Multi-Backlog Orchestration | [MULTI_BACKLOG.md](./MULTI_BACKLOG.md) | Planned |
 | Inter-Backlog Automation | [INTER_BACKLOG_AUTOMATION.md](./INTER_BACKLOG_AUTOMATION.md) | Planned |
 | Simultaneous Sprints | [SIMULTANEOUS_SPRINTS.md](./SIMULTANEOUS_SPRINTS.md) | Planned |
@@ -26,6 +27,9 @@ VS Code-inspired file explorer paradigm for project navigation. Replaces card-ba
 
 ### Project Templates
 Pre-built starting points for new projects. Includes Sprint Planning, Research, Bug Tracker, and Continuous Improvement templates. Supports custom user templates and AI-assisted project creation from natural language descriptions.
+
+### Project Overview
+IDE-inspired workspace document landing view when opening a project. Features include: editable project header (icon, name, description), metadata pills (branch, sprints, AI cost in dollars), summary metrics grid, members section with editable roles, custom sections system, and add-new-section area with widget selector.
 
 ### Multi-Backlog Orchestration
 Allows projects to contain multiple specialized backlogs (Development, QA/Testing, Strategic Planning) that can be switched between.

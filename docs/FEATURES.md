@@ -177,6 +177,16 @@ ScrumHub is a SCRUM project management tool that replaces tools like Jira and Gi
 - AI-assisted project creation from natural language
 - Template usage tracking for popularity sorting
 
+### Project Overview
+- IDE-inspired workspace document landing view
+- Modular sections: reorderable, collapsible, removable, addable
+- Editable project header: icon, name, description
+- Metadata pills: branch, active sprints, AI cost (in dollars)
+- Summary metrics grid: backlogs count, tasks total, completion %, unread messages, reports, members
+- Members section with editable role dropdowns
+- Custom sections system with markdown content
+- Add new section area with widget selector (AI Insights, Sprint Health, Activity Feed, etc.)
+
 ### Boards
 - Custom boards per project representing task states
 - Status columns: custom name, color, SCRUM role association

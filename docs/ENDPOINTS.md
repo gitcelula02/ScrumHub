@@ -249,7 +249,66 @@ Query params: `?include=members,stats`
     "in_progress_tasks": 10,
     "pending_tasks": 12,
     "overdue_tasks": 5,
-    "completion_percentage": 35.7
+    "completion_percentage": 35.7,
+    "total_backlogs": 3,
+    "active_sprints": 1,
+    "total_members": 8,
+    "unread_messages": 12
+  }
+}
+```
+
+### GET /api/projects/:projectId/sections
+Get all custom sections for project.
+**Response:** `200`
+```json
+{
+  "data": [
+    { "id": "section-uuid-1", "key": "vision", "value": "Our vision...", "order_index": 0, "created_at": "...", "updated_at": "..." },
+    { "id": "section-uuid-2", "key": "goals", "value": "## Goals\n- Goal 1", "order_index": 1, "created_at": "...", "updated_at": "..." }
+  ]
+}
+```
+
+### POST /api/projects/:projectId/sections
+Create a new custom section.
+**Request:**
+```json
+{ "key": "vision", "value": "Our vision is to...", "order_index": 0 }
+```
+**Response:** `201`
+```json
+{
+  "data": { "id": "new-section-uuid", "key": "vision", "value": "Our vision is to...", "order_index": 0, "created_at": "...", "updated_at": "..." }
+}
+```
+
+### PATCH /api/projects/:projectId/sections/:sectionId
+Update section content or order.
+**Request:** `{ "key": "mission", "value": "Updated mission...", "order_index": 1 }`
+**Response:** `200`
+
+### DELETE /api/projects/:projectId/sections/:sectionId
+**Response:** `204`
+
+### PATCH /api/projects/:projectId/sections/reorder
+Reorder sections by providing ordered array of section IDs.
+**Request:** `{ "section_ids": ["section-2", "section-1", "section-3"] }`
+**Response:** `200`
+
+### GET /api/projects/:projectId/ai-usage
+Get project AI spending aggregated by API provider.
+**Response:** `200`
+```json
+{
+  "data": {
+    "providers": [
+      { "provider": "deepseek", "cost": 2.45, "model": "deepseek-chat" },
+      { "provider": "openai", "cost": 0.85, "model": "gpt-4o-mini" }
+    ],
+    "total_cost": 3.30,
+    "credits_remaining": 42.50,
+    "credits_depleted": false
   }
 }
 ```
