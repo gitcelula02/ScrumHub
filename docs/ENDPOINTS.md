@@ -10,20 +10,28 @@ This document defines all API endpoints for the ScrumHub backend. Based on the E
 2. [Authentication](#authentication)
 3. [Users](#users)
 4. [Projects](#projects)
-5. [Tasks (Epic, Story, Task, Subtask)](#tasks-epic-story-task-subtask)
-6. [Sprints](#sprints)
-7. [Status (Kanban)](#status-kanban)
-8. [Chatroom & Channels](#chatroom--channels)
-9. [Messages](#messages)
-10. [Voice Sessions](#voice-sessions)
-11. [Daily Standups](#daily-standups)
-12. [Retrospectives](#retrospectives)
-13. [Settings (Polymorphic)](#settings-polymorphic)
-14. [AI Chat & RAG](#ai-chat--rag)
-15. [Subscriptions & Credits](#subscriptions--credits)
-16. [API Keys (Vault)](#api-keys-vault)
-17. [Notifications](#notifications)
-18. [Priority Order](#priority-order-for-implementation)
+5. [Backlogs (Multi-Backlog)](#backlogs-multi-backlog)
+6. [Tasks (Epic, Story, Task, Subtask)](#tasks-epic-story-task-subtask)
+7. [Sprints (Simultaneous)](#sprints-simultaneous)
+8. [Mini-Sprints](#mini-sprints)
+9. [Sprint Groups](#sprint-groups)
+10. [Status (Kanban)](#status-kanban)
+11. [Chatroom & Channels](#chatroom--channels)
+12. [Messages](#messages)
+13. [Voice Sessions](#voice-sessions)
+14. [Daily Standups](#daily-standups)
+15. [Reports (Report Hub)](#reports-report-hub)
+16. [Retrospectives (Legacy)](#retrospectives-legacy)
+17. [Triggers (Inter-Backlog Automation)](#triggers-inter-backlog-automation)
+18. [Task Links](#task-links)
+19. [Canvases (Free Board)](#canvases-free-board)
+20. [Project Templates](#project-templates)
+21. [Settings (Polymorphic)](#settings-polymorphic)
+22. [AI Chat & RAG](#ai-chat--rag)
+23. [Subscriptions & Credits](#subscriptions--credits)
+24. [API Keys (Vault)](#api-keys-vault)
+25. [Notifications](#notifications)
+26. [Priority Order](#priority-order-for-implementation)
 
 ---
 
@@ -109,10 +117,7 @@ This document defines all API endpoints for the ScrumHub backend. Based on the E
 ## Authentication
 
 ### POST /api/auth/login
-**Request:**
-```json
-{ "email": "user@example.com", "password": "plaintext" }
-```
+**Request:** `{ "email": "user@example.com", "password": "plaintext" }`
 **Response:** `200`
 ```json
 {
@@ -122,16 +127,16 @@ This document defines all API endpoints for the ScrumHub backend. Based on the E
   }
 }
 ```
+**is_implemented:** true
 
 ### POST /api/auth/register
-**Request:**
-```json
-{ "username": "john", "email": "user@example.com", "password": "plaintext" }
-```
+**Request:** `{ "username": "john", "email": "user@example.com", "password": "plaintext" }`
 **Response:** `201`
+**is_implemented:** true
 
 ### POST /api/auth/logout
 **Response:** `204`
+**is_implemented:** true
 
 ### GET /api/auth/me
 **Response:** `200`
@@ -143,6 +148,7 @@ This document defines all API endpoints for the ScrumHub backend. Based on the E
   }
 }
 ```
+**is_implemented:** true
 
 ---
 
@@ -157,15 +163,15 @@ Query params: `?search=john&limit=20&offset=0`
   "meta": { "total": 50, "limit": 20, "offset": 0 }
 }
 ```
+**is_implemented:** true
 
 ### GET /api/users/:id
 **Response:** `200`
+**is_implemented:** true
 
 ### PUT /api/users/:id
-**Request:**
-```json
-{ "username": "john Updated", "avatar_url": "...", "default_language": "es" }
-```
+**Request:** `{ "username": "john Updated", "avatar_url": "...", "default_language": "es" }`
+**is_implemented:** true
 
 ### GET /api/users/:id/scrum-roles
 **Response:** `200`
@@ -175,14 +181,14 @@ Query params: `?search=john&limit=20&offset=0`
   { "id": 2, "role_type": "qa", "is_primary": false }
 ]}
 ```
+**is_implemented:** true
 
 ### POST /api/users/:id/scrum-roles
-**Request:**
-```json
-{ "role_type": "developer", "specialization": "react", "is_primary": true }
-```
+**Request:** `{ "role_type": "developer", "specialization": "react", "is_primary": true }`
+**is_implemented:** true
 
 ### DELETE /api/users/:id/scrum-roles/:roleId
+**is_implemented:** true
 
 ---
 
@@ -197,22 +203,24 @@ Query params: `?search=john&limit=20&offset=0`
   ]
 }
 ```
+**is_implemented:** true
 
 ### GET /api/projects/:id
 Query params: `?include=members,stats`
 **Response:** `200`
+**is_implemented:** true
 
 ### POST /api/projects
-**Request:**
-```json
-{ "name": "New Project", "description": "...", "color": "#8B5CF6" }
-```
+**Request:** `{ "name": "New Project", "description": "...", "color": "#8B5CF6" }`
+**is_implemented:** true
 
 ### PUT /api/projects/:id
 **Request:** Same as POST
+**is_implemented:** true
 
 ### DELETE /api/projects/:id
 **Response:** `204`
+**is_implemented:** true
 
 ### GET /api/projects/:id/members
 **Response:** `200`
@@ -223,21 +231,19 @@ Query params: `?include=members,stats`
   ]
 }
 ```
+**is_implemented:** true
 
 ### POST /api/projects/:id/members
-**Request:**
-```json
-{ "user_id": 5, "scrum_role": "developer", "is_admin": false }
-```
+**Request:** `{ "user_id": 5, "scrum_role": "developer", "is_admin": false }`
+**is_implemented:** true
 
 ### PUT /api/projects/:id/members/:userId
-**Request:**
-```json
-{ "scrum_role": "qa", "is_admin": true }
-```
+**Request:** `{ "scrum_role": "qa", "is_admin": true }`
+**is_implemented:** true
 
 ### DELETE /api/projects/:id/members/:userId
 **Response:** `204`
+**is_implemented:** true
 
 ### GET /api/projects/:id/stats
 **Response:** `200`
@@ -257,6 +263,7 @@ Query params: `?include=members,stats`
   }
 }
 ```
+**is_implemented:** true
 
 ### GET /api/projects/:projectId/sections
 Get all custom sections for project.
@@ -269,6 +276,7 @@ Get all custom sections for project.
   ]
 }
 ```
+**is_implemented:** true
 
 ### POST /api/projects/:projectId/sections
 Create a new custom section.
@@ -282,19 +290,23 @@ Create a new custom section.
   "data": { "id": "new-section-uuid", "key": "vision", "value": "Our vision is to...", "order_index": 0, "created_at": "...", "updated_at": "..." }
 }
 ```
+**is_implemented:** true
 
 ### PATCH /api/projects/:projectId/sections/:sectionId
 Update section content or order.
 **Request:** `{ "key": "mission", "value": "Updated mission...", "order_index": 1 }`
 **Response:** `200`
+**is_implemented:** true
 
 ### DELETE /api/projects/:projectId/sections/:sectionId
 **Response:** `204`
+**is_implemented:** true
 
 ### PATCH /api/projects/:projectId/sections/reorder
 Reorder sections by providing ordered array of section IDs.
 **Request:** `{ "section_ids": ["section-2", "section-1", "section-3"] }`
 **Response:** `200`
+**is_implemented:** true
 
 ### GET /api/projects/:projectId/ai-usage
 Get project AI spending aggregated by API provider.
@@ -315,6 +327,57 @@ Get project AI spending aggregated by API provider.
 
 ---
 
+## Backlogs (Multi-Backlog)
+
+### GET /api/projects/:projectId/backlogs
+Get all backlogs for a project.
+**Response:** `200`
+```json
+{
+  "data": [
+    { "id": 1, "name": "Development", "type": "development", "color": "#3B82F6", "order_index": 0, "is_default": true },
+    { "id": 2, "name": "QA/Testing", "type": "qa_testing", "color": "#10B981", "order_index": 1, "is_default": false }
+  ]
+}
+```
+**is_implemented:** false
+
+### POST /api/projects/:projectId/backlogs
+Create a new backlog.
+**Request:** `{ "name": "Development Backlog", "type": "development", "description": "...", "color": "#3B82F6" }`
+**is_implemented:** false
+
+### GET /api/backlogs/:backlogId
+Get backlog details.
+**is_implemented:** false
+
+### PATCH /api/backlogs/:backlogId
+Update backlog.
+**Request:** `{ "name": "...", "color": "...", "order_index": 2 }`
+**is_implemented:** false
+
+### DELETE /api/backlogs/:backlogId
+Soft delete backlog.
+**Response:** `204`
+**is_implemented:** false
+
+### PATCH /api/backlogs/:backlogId/reorder
+Reorder backlog position.
+**Request:** `{ "order_index": 0 }`
+**is_implemented:** false
+
+### GET /api/backlogs/:backlogId/tasks
+Get tasks in backlog.
+**Response:** `200`
+**is_implemented:** false
+
+### GET /api/backlogs/:backlogId/boards
+Get boards linked to backlog.
+**Response:** `200`
+**is_implemented:** false
+
+---
+
 ## Tasks (Epic, Story, Task, Subtask)
 
 All task types use the same endpoint — `type` field distinguishes them.
@@ -329,6 +392,7 @@ Query params: `?project_id=1&sprint_id=3&status_id=5&priority=high&type=epic&ass
     {
       "id": 42,
       "project_id": 1,
+      "backlog_id": 1,
       "parent_id": null,
       "sprint_id": 3,
       "type": "epic",
@@ -349,19 +413,23 @@ Query params: `?project_id=1&sprint_id=3&status_id=5&priority=high&type=epic&ass
   "meta": { "total": 150, "limit": 50, "offset": 0 }
 }
 ```
+**is_implemented:** true
 
 ### GET /api/tasks/my-tasks
 Returns tasks where current user is assignee. Query params: `?project_id=1`
+**is_implemented:** true
 
 ### GET /api/tasks/:id
-Query params: `?include=assignees,comments,acceptance_criteria,attachments,dependencies,parent,subtasks`
+Query params: `?include=assignees,comments,acceptance_criteria,attachments,dependencies,parent,subtasks,backlog`
 **Response:** `200`
+**is_implemented:** true
 
 ### POST /api/tasks
 **Request:**
 ```json
 {
   "project_id": 1,
+  "backlog_id": 1,
   "parent_id": null,
   "sprint_id": 3,
   "type": "epic",
@@ -372,20 +440,25 @@ Query params: `?include=assignees,comments,acceptance_criteria,attachments,depen
   "due_date": "2024-07-15"
 }
 ```
+**is_implemented:** true
 
 ### PUT /api/tasks/:id
 Full update — all fields required.
+**is_implemented:** true
 
 ### PATCH /api/tasks/:id
 Partial update — only changed fields.
+**is_implemented:** true
 
 ### PATCH /api/tasks/:id/status
 Optimized for drag-drop. Debounce client-side 300ms.
 **Request:** `{ "status_id": 5 }`
 **Response:** `200` — returns updated task with subtasks updated if parent moved.
+**is_implemented:** true
 
 ### DELETE /api/tasks/:id
 **Response:** `204`
+**is_implemented:** true
 
 ### GET /api/tasks/:id/subtasks
 Recursive tree of all nested subtasks.
@@ -403,22 +476,29 @@ Recursive tree of all nested subtasks.
   ]
 }
 ```
+**is_implemented:** true
 
 ### POST /api/tasks/:id/assignees
 **Request:** `{ "user_id": 5 }`
+**is_implemented:** true
 
 ### DELETE /api/tasks/:id/assignees/:userId
+**is_implemented:** true
 
 ### POST /api/tasks/:id/dependencies
 **Request:** `{ "depends_on_task_id": 42, "dependency_type": "blocks_start" }`
+**is_implemented:** true
 
 ### DELETE /api/tasks/:id/dependencies/:depId
+**is_implemented:** true
 
 ### POST /api/tasks/:id/comments
 **Request:** `{ "content": "Working on this now..." }`
+**is_implemented:** true
 
 ### GET /api/tasks/:id/comments
 Query params: `?limit=20&offset=0`
+**is_implemented:** true
 
 ### POST /api/tasks/:id/attachments
 Multipart form — file upload.
@@ -427,29 +507,36 @@ Multipart form — file upload.
 ```json
 { "data": { "id": 4, "filename": "wireframe.png", "url": "...", "mime_type": "image/png", "size_bytes": 245632 } }
 ```
+**is_implemented:** true
 
 ### GET /api/tasks/:id/acceptance-criteria
 **Response:** `200`
+**is_implemented:** true
 
 ### POST /api/tasks/:id/acceptance-criteria
 **Request:** `{ "description": "OAuth flow completes" }`
+**is_implemented:** true
 
 ### PATCH /api/tasks/:id/acceptance-criteria/:acId
 **Request:** `{ "is_marked": true }`
+**is_implemented:** true
 
 ### DELETE /api/tasks/:id/acceptance-criteria/:acId
+**is_implemented:** true
 
 ---
 
-## Sprints
+## Sprints (Simultaneous)
 
 ### GET /api/projects/:projectId/sprints
 Query params: `?include=tasks,stats`
 **Response:** `200`
+**is_implemented:** true
 
 ### GET /api/sprints/:id
 Query params: `?include=tasks`
 **Response:** `200`
+**is_implemented:** true
 
 ### POST /api/projects/:projectId/sprints
 **Request:**
@@ -457,29 +544,160 @@ Query params: `?include=tasks`
 {
   "name": "Sprint 5",
   "description": "Focus on API integration",
+  "goal": "Complete API integration for v2",
   "color": "#8B5CF6",
   "start_date": "2024-06-17",
-  "end_date": "2024-06-28"
+  "end_date": "2024-06-28",
+  "is_parallel": true,
+  "team_tag": "backend"
 }
 ```
+**is_implemented:** true
 
 ### PUT /api/sprints/:id
 **Request:** Same as POST
+**is_implemented:** true
 
 ### DELETE /api/sprints/:id
 **Response:** `204`
+**is_implemented:** true
+
+### POST /api/sprints/:id/activate
+Start the sprint.
+**is_implemented:** false
+
+### POST /api/sprints/:id/complete
+Complete the sprint.
+**is_implemented:** false
+
+### POST /api/sprints/:id/cancel
+Cancel the sprint.
+**is_implemented:** false
 
 ### POST /api/sprints/:id/tasks
 Assign tasks to sprint.
 **Request:** `{ "task_ids": [42, 55, 60] }`
+**is_implemented:** true
 
 ### DELETE /api/sprints/:id/tasks/:taskId
+Remove task from sprint.
+**is_implemented:** true
+
+### GET /api/projects/:projectId/sprints/active
+Get all active sprints.
+**Response:** `200`
+**is_implemented:** false
+
+### GET /api/projects/:projectId/sprints/grouped
+Get sprints grouped by team_tag.
+**Response:** `200`
+**is_implemented:** false
 
 ### GET /api/sprints/:id/retrospective
 **Response:** `200` or `404` if not exists.
+**is_implemented:** true
 
 ### POST /api/sprints/:id/retrospective
 **Request:** `{ "title": "Sprint 4 Retro", "description": "...", "sections": [...] }`
+**is_implemented:** true
+
+---
+
+## Mini-Sprints
+
+### GET /api/projects/:projectId/mini-sprints
+List all mini-sprints for a project.
+**Response:** `200`
+**is_implemented:** false
+
+### POST /api/projects/:projectId/mini-sprints
+Create a new mini-sprint.
+**Request:**
+```json
+{
+  "name": "Hotfix Sprint",
+  "goal": "Fix critical login bug",
+  "type": "hotfix",
+  "start_date": "2024-06-17",
+  "end_date": "2024-06-18",
+  "priority": "critical",
+  "parent_sprint_id": 5
+}
+```
+**is_implemented:** false
+
+### GET /api/mini-sprints/:miniSprintId
+Get mini-sprint details.
+**is_implemented:** false
+
+### PATCH /api/mini-sprints/:miniSprintId
+Update mini-sprint.
+**is_implemented:** false
+
+### DELETE /api/mini-sprints/:miniSprintId
+Delete mini-sprint.
+**Response:** `204`
+**is_implemented:** false
+
+### POST /api/mini-sprints/:miniSprintId/activate
+Start the mini-sprint.
+**is_implemented:** false
+
+### POST /api/mini-sprints/:miniSprintId/complete
+Complete the mini-sprint.
+**is_implemented:** false
+
+### POST /api/mini-sprints/:miniSprintId/cancel
+Cancel the mini-sprint.
+**is_implemented:** false
+
+### GET /api/mini-sprints/:miniSprintId/tasks
+Get tasks in mini-sprint.
+**is_implemented:** false
+
+### POST /api/mini-sprints/:miniSprintId/tasks
+Add task(s) to mini-sprint.
+**Request:** `{ "task_id": 42, "source": "moved_from_backlog", "notes": "..." }`
+**is_implemented:** false
+
+### DELETE /api/mini-sprints/:miniSprintId/tasks/:taskId
+Remove task from mini-sprint.
+**is_implemented:** false
+
+### GET /api/projects/:projectId/mini-sprints/active
+Get active mini-sprints.
+**is_implemented:** false
+
+### GET /api/projects/:projectId/quick-capture
+Get quick capture backlog.
+**is_implemented:** false
+
+### POST /api/projects/:projectId/quick-capture/tasks
+Add task directly to quick capture.
+**is_implemented:** false
+
+---
+
+## Sprint Groups
+
+### GET /api/projects/:projectId/sprint-groups
+List sprint groups.
+**Response:** `200`
+**is_implemented:** false
+
+### POST /api/projects/:projectId/sprint-groups
+Create sprint group.
+**Request:** `{ "name": "Frontend Sprints", "description": "All UI-related sprints" }`
+**is_implemented:** false
+
+### POST /api/sprint-groups/:groupId/sprints
+Add sprint to group.
+**Request:** `{ "sprint_id": 5 }`
+**is_implemented:** false
+
+### DELETE /api/sprint-groups/:groupId/sprints/:sprintId
+Remove sprint from group.
+**is_implemented:** false
 
 ---
 
@@ -488,22 +706,24 @@ Assign tasks to sprint.
 ### GET /api/projects/:projectId/statuses
 Returns all active statuses ordered by `order`.
 **Response:** `200`
+**is_implemented:** true
 
 ### POST /api/projects/:projectId/statuses
-**Request:**
-```json
-{ "name": "In Review", "color": "#F59E0B", "associated_role": "qa", "order": 3 }
-```
+**Request:** `{ "name": "In Review", "color": "#F59E0B", "associated_role": "qa", "order": 3 }`
+**is_implemented:** true
 
 ### PUT /api/projects/:projectId/statuses/:id
 **Request:** Same as POST
+**is_implemented:** true
 
 ### DELETE /api/projects/:projectId/statuses/:id
 Soft delete — `is_active: false`. Returns `204`.
+**is_implemented:** true
 
 ### PUT /api/projects/:projectId/statuses/reorder
 Reorder statuses.
 **Request:** `{ "status_ids": [1, 3, 2, 4] }` (ordered array)
+**is_implemented:** true
 
 ### GET /api/projects/:projectId/boards
 Returns board view with statuses and task counts.
@@ -516,6 +736,7 @@ Returns board view with statuses and task counts.
   ]
 }
 ```
+**is_implemented:** true
 
 ---
 
@@ -534,6 +755,7 @@ Returns or creates chatroom for project. One-to-one relationship.
   }
 }
 ```
+**is_implemented:** true
 
 ### GET /api/chatrooms/:id/channels
 **Response:** `200`
@@ -545,15 +767,19 @@ Returns or creates chatroom for project. One-to-one relationship.
   ]
 }
 ```
+**is_implemented:** true
 
 ### POST /api/chatrooms/:id/channels
 **Request:** `{ "type": "text", "name": "backend-discuss", "order": 5 }`
+**is_implemented:** true
 
 ### PUT /api/channels/:id
 **Request:** `{ "name": "new-name", "order": 3 }`
+**is_implemented:** true
 
 ### DELETE /api/channels/:id
 Only non-default channels can be deleted. Returns `204`.
+**is_implemented:** true
 
 ---
 
@@ -570,12 +796,15 @@ Query params: `?cursor=abc123&limit=50` (cursor-based pagination)
   "meta": { "next_cursor": "xyz789", "has_more": true }
 }
 ```
+**is_implemented:** true
 
 ### POST /api/channels/:channelId/messages
 **Request:** `{ "content": "Hello team!" }`
+**is_implemented:** true
 
 ### DELETE /api/messages/:id
 Only message author or admin can delete. Returns `204`.
+**is_implemented:** true
 
 ---
 
@@ -589,24 +818,29 @@ Start a voice session (when user joins voice channel).
   "data": { "id": 7, "channel_id": 5, "status": "active", "started_at": "..." }
 }
 ```
+**is_implemented:** true
 
 ### PUT /api/voice-sessions/:id/end
 End the voice session.
 **Response:** `200`
+**is_implemented:** true
 
 ### POST /api/voice-sessions/:id/join
 User joins an active voice session.
 **Request:** `{ "user_id": 5 }`
 **Response:** `200`
+**is_implemented:** true
 
 ### PUT /api/voice-sessions/:id/leave
 User leaves the voice session.
 **Response:** `200`
+**is_implemented:** true
 
 ### POST /api/voice-sessions/:id/transcribe
 Trigger transcription explicitly.
 **Request:** `{ "user_id": 5 }`
 **Response:** `202` — async operation.
+**is_implemented:** true
 
 ---
 
@@ -615,6 +849,7 @@ Trigger transcription explicitly.
 ### GET /api/projects/:projectId/daily-standups
 Query params: `?from=YYYY-MM-DD&to=YYYY-MM-DD`
 **Response:** `200`
+**is_implemented:** true
 
 ### GET /api/daily-standups/:id
 **Response:** `200`
@@ -633,49 +868,111 @@ Query params: `?from=YYYY-MM-DD&to=YYYY-MM-DD`
   }
 }
 ```
+**is_implemented:** true
 
 ### POST /api/projects/:projectId/daily-standups
-**Request:**
-```json
-{
-  "channel_id": 5,
-  "scheduled_at": "2024-06-19T09:00:00Z"
-}
-```
+**Request:** `{ "channel_id": 5, "scheduled_at": "2024-06-19T09:00:00Z" }`
+**is_implemented:** true
 
 ### PUT /api/daily-standups/:id
 **Request:** `{ "scheduled_at": "2024-06-20T09:00:00Z", "notes": "Updated notes" }`
+**is_implemented:** true
 
 ### DELETE /api/daily-standups/:id
 **Response:** `204`
+**is_implemented:** true
 
 ### POST /api/daily-standups/:id/transcribe
 Explicitly trigger transcription for this standup.
 **Response:** `202`
+**is_implemented:** true
 
 ---
 
-## Retrospectives
+## Reports (Report Hub)
+
+### GET /api/projects/:projectId/reports
+List all reports for project. Query params: `?type=sprint_retrospective&sprint_id=5&status=published&from=YYYY-MM-DD&to=YYYY-MM-DD`
+**Response:** `200`
+**is_implemented:** false
+
+### POST /api/projects/:projectId/reports
+Create a new report.
+**Request:**
+```json
+{
+  "title": "Sprint 12 QA Audit",
+  "type": "qa_audit",
+  "sprint_id": 5
+}
+```
+**is_implemented:** false
+
+### POST /api/projects/:projectId/reports/qa-audit
+Generate QA Audit report.
+**Request:** `{ "scope": "sprint", "scope_id": 5, "title": "Q2 QA Audit" }`
+**is_implemented:** false
+
+### POST /api/projects/:projectId/reports/tech-debt
+Generate Tech Debt review.
+**Request:** `{ "scope": "project" }`
+**is_implemented:** false
+
+### POST /api/projects/:projectId/reports/product-feedback
+Generate Product Feedback report.
+**Request:** `{ "feedback_sources": ["github_issues", "user_feedback"] }`
+**is_implemented:** false
+
+### GET /api/reports/:reportId
+Get report details with content.
+**Response:** `200`
+**is_implemented:** false
+
+### PATCH /api/reports/:reportId
+Update report.
+**is_implemented:** false
+
+### DELETE /api/reports/:reportId
+Soft delete report.
+**Response:** `204`
+**is_implemented:** false
+
+### POST /api/reports/:reportId/publish
+Publish draft report.
+**is_implemented:** false
+
+### POST /api/reports/:reportId/convert-to-task
+Convert suggestion to actual task.
+**Request:** `{ "item_id": 10, "create_as": "story", "assign_to_backlog": 1 }`
+**is_implemented:** false
+
+### GET /api/reports/:reportId/items
+Get suggested backlog items from report.
+**Response:** `200`
+**is_implemented:** false
+
+### POST /api/reports/:reportId/items
+Add manual suggestion.
+**Request:** `{ "suggested_title": "...", "suggested_type": "story", "priority": "high" }`
+**is_implemented:** false
+
+### PATCH /api/reports/:reportId/items/:itemId
+Update suggestion status.
+**Request:** `{ "status": "approved" }`
+**is_implemented:** false
+
+### POST /api/reports/:reportId/items/:itemId/approve
+Approve and create task from suggestion.
+**Request:** `{ "create_as": "task", "assign_to_backlog": 1 }`
+**is_implemented:** false
+
+---
+
+## Retrospectives (Legacy - use Reports)
 
 ### GET /api/sprints/:sprintId/retrospective
 **Response:** `200` or `404`
-```json
-{
-  "data": {
-    "id": 1,
-    "sprint_id": 3,
-    "title": "Sprint 3 Retro",
-    "description": "...",
-    "sections": [
-      { "type": "what_went_wrong", "content": "...", "order": 1 },
-      { "type": "what_went_good", "content": "...", "order": 2 }
-    ],
-    "created_by_user_id": 1,
-    "created_at": "...",
-    "updated_at": "..."
-  }
-}
-```
+**is_implemented:** true
 
 ### POST /api/sprints/:sprintId/retrospective
 **Request:**
@@ -691,14 +988,215 @@ Explicitly trigger transcription for this standup.
   ]
 }
 ```
+**is_implemented:** true
 
 ### PUT /api/retrospectives/:id
 Update entire retrospective including sections array.
 **Request:** Same as POST
+**is_implemented:** true
 
 ### PATCH /api/retrospectives/:id/sections
 Update only sections array.
 **Request:** `{ "sections": [...] }`
+**is_implemented:** true
+
+---
+
+## Triggers (Inter-Backlog Automation)
+
+### GET /api/projects/:projectId/triggers
+List all triggers for project.
+**Response:** `200`
+**is_implemented:** false
+
+### POST /api/projects/:projectId/triggers
+Create a new trigger.
+**Request:**
+```json
+{
+  "name": "Dev to QA Handoff",
+  "source_backlog_id": 1,
+  "target_backlog_id": 2,
+  "event_type": "status_change",
+  "conditions": { "to_status_id": 5 },
+  "action_type": "create_task",
+  "action_config": {
+    "template": {
+      "title": "Test: {{task.title}}",
+      "type": "task",
+      "backlog_id": 2
+    }
+  }
+}
+```
+**is_implemented:** false
+
+### GET /api/triggers/:triggerId
+Get trigger details.
+**is_implemented:** false
+
+### PATCH /api/triggers/:triggerId
+Update trigger.
+**is_implemented:** false
+
+### DELETE /api/triggers/:triggerId
+Delete trigger.
+**Response:** `204`
+**is_implemented:** false
+
+### POST /api/triggers/:triggerId/test
+Test trigger with sample event.
+**is_implemented:** false
+
+### POST /api/triggers/:triggerId/toggle
+Enable/disable trigger.
+**Request:** `{ "is_active": false }`
+**is_implemented:** false
+
+---
+
+## Task Links
+
+### GET /api/tasks/:taskId/links
+Get all links for a task.
+**Response:** `200`
+**is_implemented:** false
+
+### POST /api/tasks/:taskId/links
+Create manual link.
+**Request:** `{ "target_task_id": 55, "link_type": "dependency" }`
+**is_implemented:** false
+
+### DELETE /api/links/:linkId
+Remove task link.
+**Response:** `204`
+**is_implemented:** false
+
+---
+
+## Canvases (Free Board / Visual Roadmap)
+
+### GET /api/projects/:projectId/canvases
+List all canvases in project.
+**Response:** `200`
+**is_implemented:** false
+
+### POST /api/projects/:projectId/canvases
+Create new canvas.
+**Request:** `{ "name": "Q3 Roadmap", "description": "...", "settings": { "grid_enabled": true } }`
+**is_implemented:** false
+
+### GET /api/canvases/:canvasId
+Get canvas with elements.
+**is_implemented:** false
+
+### PATCH /api/canvases/:canvasId
+Update canvas settings.
+**is_implemented:** false
+
+### DELETE /api/canvases/:canvasId
+Delete canvas.
+**Response:** `204`
+**is_implemented:** false
+
+### PATCH /api/canvases/:canvasId/viewport
+Update viewport position/zoom.
+**Request:** `{ "x": 100, "y": 200, "zoom": 1.5 }`
+**is_implemented:** false
+
+### GET /api/canvases/:canvasId/elements
+Get all elements.
+**is_implemented:** false
+
+### POST /api/canvases/:canvasId/elements
+Create element.
+**Request:**
+```json
+{
+  "type": "rectangle",
+  "position": { "x": 100, "y": 200 },
+  "size": { "width": 200, "height": 100 },
+  "style": { "fill_color": "#3B82F6" },
+  "content": "Module A"
+}
+```
+**is_implemented:** false
+
+### PATCH /api/canvases/:canvasId/elements/:elementId
+Update element.
+**is_implemented:** false
+
+### DELETE /api/canvases/:canvasId/elements/:elementId
+Delete element.
+**is_implemented:** false
+
+### POST /api/canvases/:canvasId/elements/bulk
+Create multiple elements.
+**Request:** `{ "elements": [...] }`
+**is_implemented:** false
+
+### PATCH /api/canvases/:canvasId/elements/reorder
+Update z-index order.
+**Request:** `{ "element_ids": [3, 1, 2] }`
+**is_implemented:** false
+
+### POST /api/canvases/:canvasId/elements/:elementId/link
+Link element to task.
+**Request:** `{ "task_id": 42, "link_type": "visual_state", "state_binding": { "sync_direction": "task_to_canvas" } }`
+**is_implemented:** false
+
+### DELETE /api/canvases/:canvasId/elements/:elementId/link
+Unlink element from task.
+**is_implemented:** false
+
+### GET /api/canvases/:canvasId/task-links
+Get all task links for canvas.
+**is_implemented:** false
+
+### GET /api/tasks/:taskId/canvas-links
+Get canvas elements linked to task.
+**is_implemented:** false
+
+---
+
+## Project Templates
+
+### GET /templates
+Get all available templates (system + user).
+**Response:** `200`
+**is_implemented:** false
+
+### GET /templates/:templateId
+Get template details.
+**is_implemented:** false
+
+### POST /templates
+Create custom template.
+**Request:** `{ "name": "...", "description": "...", "config": {...} }`
+**is_implemented:** false
+
+### PATCH /templates/:templateId
+Update template.
+**is_implemented:** false
+
+### DELETE /templates/:templateId
+Delete custom template.
+**Response:** `204`
+**is_implemented:** false
+
+### GET /templates/categories
+Get template categories.
+**is_implemented:** false
+
+### POST /templates/:templateId/create-project
+Create project from template.
+**Request:** `{ "name": "New Project", "goal": "...", "folder_id": 1, "sprints_count": 3 }`
+**is_implemented:** false
+
+### POST /projects/ai-create
+Create project using AI.
+**Request:** `{ "message": "Create a project for user authentication" }`
+**is_implemented:** false
 
 ---
 
@@ -725,17 +1223,17 @@ Query params required:
   }
 }
 ```
+**is_implemented:** true
 
 ### PUT /api/settings/:id
 **Request:** `{ "config": { "ai": { "temperature": 0.7 } } }`
 Partial update — merges with existing config.
+**is_implemented:** true
 
 ### POST /api/settings
 Create new settings entry.
-**Request:**
-```json
-{ "type": "project", "scope_id": 1, "name": "Project Settings", "config": {...} }
-```
+**Request:** `{ "type": "project", "scope_id": 1, "name": "Project Settings", "config": {...} }`
+**is_implemented:** true
 
 ---
 
@@ -768,14 +1266,17 @@ Create AI chat session and get response.
 }
 ```
 **Side effects:** Creates AIChatSession and AIChatMessage records for RAG.
+**is_implemented:** true
 
 ### GET /ai/sessions
 Query params: `?project_id=1&agent_type=backlog-assistant&limit=20&offset=0`
 **Response:** `200`
+**is_implemented:** true
 
 ### GET /ai/sessions/:id/messages
 Query params: `?limit=50&offset=0`
 **Response:** `200`
+**is_implemented:** true
 
 ### POST /ai/transcribe
 Transcribe audio to text.
@@ -790,6 +1291,7 @@ Transcribe audio to text.
   }
 }
 ```
+**is_implemented:** true
 
 ### GET /ai/search
 Semantic search over RAG data.
@@ -803,6 +1305,7 @@ Semantic search over RAG data.
   ]
 }
 ```
+**is_implemented:** true
 
 ---
 
@@ -825,10 +1328,12 @@ Get current user's subscription.
   }
 }
 ```
+**is_implemented:** true
 
 ### PUT /subscription
 Upgrade, downgrade, or change billing cycle.
 **Request:** `{ "plan": "enterprise", "billing_cycle": "annual" }`
+**is_implemented:** true
 
 ### GET /subscription/credits
 **Response:** `200`
@@ -841,6 +1346,7 @@ Upgrade, downgrade, or change billing cycle.
   }
 }
 ```
+**is_implemented:** true
 
 ---
 
@@ -857,6 +1363,7 @@ List user's API keys (no secret values).
   ]
 }
 ```
+**is_implemented:** true
 
 ### POST /api-keys
 Create new API key. Backend stores encrypted value, returns only alias.
@@ -867,13 +1374,16 @@ Create new API key. Backend stores encrypted value, returns only alias.
   "data": { "id": 3, "provider": "deepseek", "public_alias": "My DeepSeek", "is_shared": false }
 }
 ```
+**is_implemented:** true
 
 ### PUT /api-keys/:id
 Update alias or sharing settings. Cannot update the actual key.
 **Request:** `{ "public_alias": "Updated Name", "allow_project_share": true, "max_credit_per_user": 15.00 }`
+**is_implemented:** true
 
 ### DELETE /api-keys/:id
 **Response:** `204`
+**is_implemented:** true
 
 ---
 
@@ -882,14 +1392,17 @@ Update alias or sharing settings. Cannot update the actual key.
 ### GET /notifications
 Query params: `?read=false&limit=20&offset=0`
 **Response:** `200`
+**is_implemented:** true
 
 ### PUT /notifications/:id/read
 Mark single notification as read.
 **Response:** `200`
+**is_implemented:** true
 
 ### PUT /notifications/read-all
 Mark all notifications as read.
 **Response:** `200`
+**is_implemented:** true
 
 ### GET /notification-preferences
 **Response:** `200`
@@ -900,9 +1413,11 @@ Mark all notifications as read.
   { "type": "in_app", "enabled": true }
 ]}
 ```
+**is_implemented:** true
 
 ### PUT /notification-preferences
 **Request:** `{ "email": true, "push": false, "in_app": true }`
+**is_implemented:** true
 
 ---
 
