@@ -134,7 +134,7 @@ UserExplorerState {
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/users/:userId/folders` | Get user's folder tree |
+| GET | `/users/:userId/folders` | Get user's folder tree (nested, no pinned) |
 | POST | `/users/:userId/folders` | Create folder |
 | PATCH | `/folders/:folderId` | Rename/move folder |
 | DELETE | `/folders/:folderId` | Delete folder (moves children to parent or root) |
@@ -144,14 +144,13 @@ UserExplorerState {
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/users/:userId/projects` | Get all projects in user's folder structure |
+| GET | `/users/:userId/projects` | Get pinned projects + user's all projects |
 | POST | `/users/:userId/folders/:folderId/projects` | Add project to folder |
 | DELETE | `/users/:userId/folders/:folderId/projects/:projectId` | Remove project from folder |
 | PATCH | `/users/:userId/projects/:projectId/move` | Move project to different folder |
 | POST | `/users/:userId/projects/:projectId/pin` | Pin project |
 | DELETE | `/users/:userId/projects/:projectId/pin` | Unpin project |
-| GET | `/users/:userId/projects/pinned` | Get pinned projects |
-| GET | `/users/:userId/projects/recent` | Get recently opened projects |
+| GET | `/users/:userId/projects/search?q=` | Search projects by name |
 
 ### Project CRUD (with folder context)
 
@@ -198,25 +197,27 @@ Response:
           "name": "Fine-tuning",
           "parent_id": "folder-uuid-1",
           "order_index": 0,
-          "children": []
+          "children": [],
+          "projects": [
+            {
+              "id": "project-uuid-1",
+              "name": "GPT-4 Fine-tune",
+              "color": "#3B82F6",
+              "icon": "🤖",
+              "status": "active"
+            }
+          ]
         },
         {
           "id": "folder-uuid-3",
           "name": "RAG Chunking",
           "parent_id": "folder-uuid-1",
           "order_index": 1,
-          "children": []
+          "children": [],
+          "projects": []
         }
       ],
-      "projects": [
-        {
-          "id": "project-uuid-1",
-          "name": "GPT-4 Fine-tune",
-          "color": "#3B82F6",
-          "icon": "🤖",
-          "status": "active"
-        }
-      ]
+      "projects": []
     },
     {
       "id": "folder-uuid-4",
@@ -226,7 +227,16 @@ Response:
       "children": [],
       "projects": []
     }
-  ],
+  ]
+}
+```
+
+**Get User Projects (pinned):**
+```json
+GET /users/123/projects
+
+Response:
+{
   "pinned": [
     {
       "id": "project-uuid-2",
