@@ -342,6 +342,17 @@ The layout is **NOT** the traditional sidebar + topbar pattern. It is a **VS Cod
 - `AppShell` only renders inside `/app/projects/$projectId/*` via the layout route
 - ActivityBar uses `useNavigate` for route-driven navigation
 
+**⚠️ Important: Which routes get AppShell — Feature Type distinction**
+
+| Feature Type | Route Pattern | AppShell? | Description |
+|---|---|---|---|
+| **General/Global** | `/`, `/login`, `/app/projects`, `/app/projects/create` | ❌ No | Standalone pages. No TitleBar, ActivityBar, Explorer, or StatusBar. These pages have their own navigation chrome (nav bars, auth forms, etc.). |
+| **Project** | `/app/projects/$projectId/*` | ✅ Yes | All views under a project (board, backlog, sprints, reports, settings, etc.) are automatically wrapped in AppShell. The TitleBar, ActivityBar, Explorer, Tabs, and StatusBar are **provided by AppShell**, not by the view itself. |
+
+**Why this matters:** When creating a new view, you must first determine its type:
+- If the view lives under `/app/projects/$projectId/...` → it's a Project Feature. **Do NOT document or recreate AppShell elements.** Only describe the main content (what renders in the `<Outlet />`).
+- If the view is standalone (public pages, project management pages) → it's a General Feature. Document its own layout chrome.
+
 ### `TitleBar.tsx` — Top Bar
 
 Custom window title bar with app branding and command palette trigger (Ctrl+Shift+P).
@@ -625,10 +636,25 @@ The migration to route-driven layout is complete. The application now follows th
 
 ```
 /app                          → Auth guard (beforeLoad redirect)
-/app/projects                 → Workspace context (no AppShell)
+/app/projects                 → Project list (no AppShell)
 /app/projects/create           → Create project (no AppShell)
 /app/projects/$projectId/*    → Project workspace (AppShell + Outlet)
 ```
+
+### General Features vs Project Features
+
+**General (Global) Features** — routes outside `$projectId`:
+- `/` — Landing page
+- `/login` — Authentication
+- `/app/projects` — Project list / explorer
+- `/app/projects/create` — New project creation
+
+These are **standalone pages** with their own navigation chrome. They do **NOT** use AppShell, TitleBar, ActivityBar, Explorer, or StatusBar.
+
+**Project Features** — routes under `$projectId`:
+- All routes matching `/app/projects/$projectId/*` — board, backlog, sprints, reports, settings, etc.
+
+These are **automatically wrapped in AppShell**. The AppShell provides TitleBar, ActivityBar, Explorer, Tabs, and StatusBar. **Do NOT recreate these elements in feature views.**
 
 ### Project Layout Route
 
