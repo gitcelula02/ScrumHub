@@ -41,7 +41,7 @@ function ProjectCard({ project }: { project: ExplorerProject }) {
     >
       <div className="flex items-center gap-2">
         <span className="text-lg">{project.icon || "📁"}</span>
-        <span className="font-semibold text-[14px] truncate" style={{ color: "var(--entity-fg)" }}>
+        <span className="font-semibold text-[14px] truncate text-sidebar-fg">
           {project.name}
         </span>
       </div>
@@ -51,7 +51,7 @@ function ProjectCard({ project }: { project: ExplorerProject }) {
           style={{ width: `${completionPercent}%` }}
         />
       </div>
-      <span className="text-[11px] font-mono" style={{ color: "var(--entity-fg)", opacity: 0.7 }}>
+      <span className="text-[11px] text-muted-foreground">
         {completionPercent}% complete
       </span>
     </button>
@@ -105,13 +105,7 @@ function FolderGridComponent({
             <h2 className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase mb-3">
               Folders
             </h2>
-            <div
-              className={
-                viewSize === "compact"
-                  ? "flex flex-col gap-2"
-                  : "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
-              }
-            >
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               {subfolders.map((sub) => (
                 <SubfolderCard
                   key={sub.id}
@@ -128,13 +122,7 @@ function FolderGridComponent({
             <h2 className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase mb-3">
               Projects
             </h2>
-            <div
-              className={
-                viewSize === "compact"
-                  ? "flex flex-col gap-2"
-                  : "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
-              }
-            >
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               {projects.map((project) => (
                 <ProjectCard key={project.id} project={project} />
               ))}

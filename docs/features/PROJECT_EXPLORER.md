@@ -473,11 +473,11 @@ When no folder is selected in sidebar - shows welcome and recent items:
 ```
 
 **State 2: Folder Contents Grid**
-When a folder is selected in sidebar - shows folder contents:
+When a folder is selected in sidebar - shows folder contents as a **card grid** (like Windows File Explorer's thumbnail/icon view):
 
 ```
 ┌─────────────────────────────────────────────┐
-│ Folder Name                                │
+│ Folder Name                     [ViewSize] │
 │                                             │
 │ ┌─────────┐ ┌─────────┐ ┌─────────┐       │
 │ │    📁    │ │    📁    │ │    📁    │       │
@@ -487,18 +487,21 @@ When a folder is selected in sidebar - shows folder contents:
 │ ┌─────────┐ ┌─────────┐ ┌─────────┐       │
 │ │ [Icon]  │ │ [Icon]  │ │ [Icon]  │       │
 │ │ Project │ │ Project │ │ Project │       │
+│ │  80%    │ │  45%    │ │  20%    │       │
 │ └─────────┘ └─────────┘ └─────────┘       │
 │                                             │
-│ [View: Compact | Medium | Big]             │
 └─────────────────────────────────────────────┘
 ```
 
+**Important:** Items are always displayed as **cards in a grid** (never as full-width rows).
+The grid adapts columns: 2 cols on mobile, 3 on tablet, 4 on desktop.
+
 **View Size Toggle (Compact/Medium/Big):**
-- Only affects the Folder Contents Grid view (main panel)
-- Does NOT affect the sidebar folder tree
-- **Compact**: Just names, 24-28px height
-- **Medium**: Name + icon + completion bar, 36-40px height
-- **Big**: Name + description + completion bar + task count, 56-64px height
+- Only affects the **card content density**, NOT the layout type
+- Cards always stay in grid format regardless of size
+- **Compact**: Just icon + name (minimal card)
+- **Medium**: Icon + name + completion bar (default)
+- **Big**: Icon + name + description + completion bar + task count
 
 ### Main Panel - Project Selected
 

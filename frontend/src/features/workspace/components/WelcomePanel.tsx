@@ -37,7 +37,7 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
     >
       <div className="flex items-center gap-2">
         <span className="text-lg">{project.icon || "📁"}</span>
-        <span className="font-semibold text-[14px]" style={{ color: "var(--entity-fg)" }}>
+        <span className="font-semibold text-[14px] text-sidebar-fg">
           {project.name}
         </span>
       </div>
@@ -49,7 +49,7 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
           style={{ width: `${completionPercent}%` }}
         />
       </div>
-      <span className="text-[11px] font-mono" style={{ color: "var(--entity-fg)", opacity: 0.7 }}>
+      <span className="text-[11px] text-muted-foreground">
         {completionPercent}% complete
       </span>
     </button>
