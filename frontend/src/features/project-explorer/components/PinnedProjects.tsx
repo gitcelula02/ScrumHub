@@ -8,7 +8,6 @@
 
 import { memo, useState } from "react";
 import { ChevronRight, ChevronDown, Pin } from "lucide-react";
-import { cn } from "@/lib/utils";
 import type { ExplorerProject, ViewSize } from "../types/explorerTypes";
 import { ProjectNode } from "./ProjectNode";
 
@@ -32,7 +31,7 @@ function PinnedProjectsComponent({
   return (
     <div className="mb-2">
       <button
-        className="w-full flex items-center gap-1 px-2 py-1 hover:bg-sidebar-hover text-left"
+        className="w-full flex items-center gap-1 px-2 py-1 hover:bg-list-hover text-left"
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         {isCollapsed ? (

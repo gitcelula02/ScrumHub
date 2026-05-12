@@ -17,7 +17,6 @@ import type { ExplorerProject } from "../types/explorerTypes";
 interface WelcomePanelProps {
   pinnedProjects: ExplorerProject[];
   recentProjects: ExplorerProject[];
-  onCreateProject?: () => void;
 }
 
 interface ProjectCardProps {
@@ -26,11 +25,13 @@ interface ProjectCardProps {
 }
 
 function ProjectCard({ project, onClick }: ProjectCardProps) {
-  const theme = useEntityTheme(project.color);
+  const theme = useEntityTheme(project.id, project.color);
+
+  const completionPercent = project.status === "completed" ? 100 : project.status === "active" ? 50 : 20;
 
   return (
     <button
-      className="flex flex-col items-start gap-2 p-4 rounded-md border border-panel-border bg-card hover:bg-card-hover transition-colors text-left w-full"
+      className="flex flex-col items-start gap-2 p-4 rounded-md border border-panel-border bg-card hover:bg-list-hover transition-colors text-left w-full"
       style={theme}
       onClick={onClick}
     >
@@ -45,11 +46,11 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
       >
         <div
           className="h-full rounded-full bg-[--entity-solid]"
-          style={{ width: "75%" }}
+          style={{ width: `${completionPercent}%` }}
         />
       </div>
       <span className="text-[11px] font-mono" style={{ color: "var(--entity-fg)", opacity: 0.7 }}>
-        75% complete
+        {completionPercent}% complete
       </span>
     </button>
   );
@@ -58,7 +59,6 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
 function WelcomePanelComponent({
   pinnedProjects,
   recentProjects,
-  onCreateProject,
 }: WelcomePanelProps) {
   const navigate = useNavigate();
 
@@ -67,6 +67,10 @@ function WelcomePanelComponent({
       to: "/app/projects/$projectId/dashboard",
       params: { projectId },
     });
+  };
+
+  const handleCreateProject = () => {
+    navigate({ to: "/app/projects/create" });
   };
 
   return (
@@ -120,7 +124,7 @@ function WelcomePanelComponent({
         )}
 
         <section>
-          <Button onClick={onCreateProject} className="gap-2">
+          <Button onClick={handleCreateProject} className="gap-2">
             <Plus size={16} />
             Create New Project
           </Button>

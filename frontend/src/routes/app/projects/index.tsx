@@ -1,10 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ExplorerView } from "@/features/project-explorer";
+import { ProjectsPage } from "@/pages/ProjectsPage";
 
 export const Route = createFileRoute("/app/projects/")({
-  component: ProjectsIndex,
+  component: ProjectsPage,
 });
-
-function ProjectsIndex() {
-  return <ExplorerView />;
-}

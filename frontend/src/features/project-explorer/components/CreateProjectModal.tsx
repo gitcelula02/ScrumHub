@@ -50,6 +50,7 @@ function CreateProjectModalComponent({ isOpen, onClose, folderId = null }: Creat
         goal: goal.trim(),
         color,
         icon,
+        folder_id: folderId,
       },
       {
         onSuccess: () => {
@@ -124,7 +125,7 @@ function CreateProjectModalComponent({ isOpen, onClose, folderId = null }: Creat
                       key={i}
                       type="button"
                       className={`w-8 h-8 rounded flex items-center justify-center text-lg ${
-                        icon === i ? "bg-sidebar-active" : "bg-sidebar-bg"
+                        icon === i ? "bg-list-active" : "bg-sidebar-bg"
                       }`}
                       onClick={() => setIcon(i)}
                     >

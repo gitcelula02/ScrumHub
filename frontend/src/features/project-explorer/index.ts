@@ -10,7 +10,6 @@ export * from "./components/ExplorerView";
 export * from "./components/CreateFolderModal";
 export * from "./components/CreateProjectModal";
 export * from "./hooks/useExplorerState";
-export * from "./hooks/useUserFolders";
 export * from "./hooks/useExplorerProjects";
 export * from "./hooks/useExplorerSearch";
 export * from "./services/explorerService";

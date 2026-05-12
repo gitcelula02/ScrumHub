@@ -30,7 +30,7 @@ function ViewSizeToggleComponent({ value, onChange }: ViewSizeToggleProps) {
           key={size}
           variant="ghost"
           size="icon"
-          className={`h-6 w-6 ${value === size ? "bg-sidebar-active" : ""}`}
+          className={`h-6 w-6 ${value === size ? "bg-list-active" : ""}`}
           onClick={() => onChange(size)}
           title={label}
         >

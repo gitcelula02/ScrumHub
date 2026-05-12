@@ -53,7 +53,7 @@ function FolderNodeComponent({
           <button
             className={cn(
               "w-full flex items-center gap-1 py-1 text-left transition-colors duration-100",
-              "hover:bg-sidebar-hover"
+              "hover:bg-list-hover"
             )}
             style={{ paddingLeft }}
             onClick={() => onToggle(folder.id)}

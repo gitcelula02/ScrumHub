@@ -372,9 +372,9 @@ EXPLORER
 - Medium gray text, bold-ish
 - Caret icon (▼ expanded / ▶ collapsed) for expand/collapse
 - Yellow folder icon
-- Hover: `background: rgba(255,255,255,0.04)`
+- Hover: `hover:bg-list-hover` (CSS variable)
 - Right-click: context menu
-- Selected: `background: rgba(14,165,233,0.15); border-left: 2px solid #0EA5E9;`
+- Selected: `bg-list-active border-l-2 border-primary` (CSS variables)
 
 **Project Row:**
 ```
@@ -383,11 +383,11 @@ EXPLORER
 - Lighter gray text
 - Project icon (emoji or color square)
 - 32-40px height
-- Selected: `background: rgba(14,165,233,0.15); border-left: 2px solid #0EA5E9;`
+- Selected: `bg-list-active border-l-2 border-primary` (CSS variables)
 
 **Typography:**
-- Monospace font for explorer labels (JetBrains Mono)
-- Regular UI font for interface elements
+- Regular UI font (DM Sans) for explorer labels and interface elements
+- Monospace font (JetBrains Mono) for ticket numbers and IDs only
 
 **Import Button:**
 - Triggers external import flow (e.g., Moodle integration for students)
@@ -564,8 +564,8 @@ CREATE TABLE user_folders (
   order_index INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
-  CONSTRAINT unique_folder_name_per_parent UNIQUE (user_id, parent_id, name),
-  CONSTRAINT max_nesting_depth CHECK (nest_level <= 5)
+  CONSTRAINT unique_folder_name_per_parent UNIQUE (user_id, parent_id, name)
+  -- Note: nesting depth enforced at application layer (max 5 levels)
 );
 
 -- ProjectCustomSections table

@@ -91,6 +91,7 @@ export interface CreateProjectPayload {
   goal?: string;
   color?: string;
   icon?: string;
+  folder_id?: string | null;
 }
 
 export interface MoveProjectPayload {
