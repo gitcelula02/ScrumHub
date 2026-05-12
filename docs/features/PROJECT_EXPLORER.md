@@ -306,78 +306,92 @@ POST /projects/project-uuid/sections
 
 ## Frontend Views
 
-### Explorer Layout
+### Explorer Layout (Windows Explorer-Style)
+
+The layout follows Windows File Explorer behavior:
+- **Left sidebar (20-25%)**: Folder tree navigation with breadcrumb
+- **Main panel (75-80%)**: Content changes based on navigation state
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ TOP NAVBAR                                                 │
-├──────────────┬──────────────────────────────────────────────┤
-│ EXPLORER    │ MAIN PREVIEW PANEL                          │
-│ (260-320px) │                                              │
-│              │ [Welcome / Recent Activity]                 │
-│ [EXPLORER]  │                                              │
-│              │ OR                                         │
-│ [Search... ] │ [Selected Project Details]                  │
-│              │                                              │
-│ + Folder     │                                              │
-│ + Project    │                                              │
-│              │                                              │
-│ 📌 Pinned   │                                              │
-│   📘 ScrumHub│                                              │
-│              │                                              │
-│ ▼ AI Projects│                                              │
-│   ▼ Fine-tune│                                              │
-│     📘 GPT4 │                                              │
-│   ▼ RAG     │                                              │
-│     📘 Chunk │                                              │
-│              │                                              │
-│ ▼ Pipelines │                                              │
-│   📘 CI/CD  │                                              │
-│              │                                              │
-└──────────────┴──────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│ TOP NAVBAR                                                             │
+├──────────────────────┬──────────────────────────────────────────────────┤
+│ EXPLORER (20-25%)    │ MAIN CONTENT PANEL (75-80%)                     │
+│                      │                                                  │
+│ [EXPLORER]           │ [Welcome / Recent Activity]                     │
+│ [Breadcrumb: Home]   │          OR                                     │
+│ [Search...____] [🤖] │ [Folder Contents Grid]                           │
+│                      │          OR                                     │
+│ [+Folder] [+Project] │ [Selected Project Details]                      │
+│ [Import ↓]           │                                                  │
+│                      │                                                  │
+│ 📌 Pinned            │                                                  │
+│   📘 [Project]       │                                                  │
+│                      │                                                  │
+│ ▼ Folder A           │                                                  │
+│   ▼ Subfolder        │                                                  │
+│     📘 Project      │                                                  │
+│   📘 Project         │                                                  │
+│ ▼ Folder B           │                                                  │
+│   📘 Project         │                                                  │
+│                      │                                                  │
+└──────────────────────┴──────────────────────────────────────────────────┘
 ```
+
+**Behavior:**
+- Default view (Home): Shows Welcome + Pinned + Recent sections
+- When folder selected: Main panel shows folder contents as grid
+- When project selected: Opens project workspace view
 
 ### Explorer Sidebar (Left Panel)
 
 **Dimensions:**
-- Width: 260-320px
-- Resizable (VS Code-style drag handle)
+- Width: 20-25% of viewport (~260-320px base, responsive)
+- Resizable (Windows Explorer-style drag handle)
 - Background: slightly darker than main area
 
 **Header Section:**
 ```
 EXPLORER
-[Search...____]  [🔍] [🤖 AI]
-[ + Folder ] [ + Project ]
+[Breadcrumb: Home / Folder Name / Subfolder]
+[Search...______________] [🤖 AI]
+[+Folder] [+Project] [Import ↓]
 ```
 
 **Sections:**
-1. **Pinned Projects** (collapsible)
-2. **Folder Tree** (recursive, expandable)
-3. **Root Level Projects** (projects without folder)
+1. **Pinned Projects** (collapsible, pinned items show here)
+2. **Folder Tree** (recursive, expandable, Windows Explorer-style)
+3. **Root Level Projects** (projects at root level)
 
 **Folder Row:**
 ```
 ▼ Folder Name
+  ▼ Subfolder
+    📘 Project Name
 ```
 - Medium gray text, bold-ish
-- Caret icon (collapsible)
-- Folder icon
+- Caret icon (▼ expanded / ▶ collapsed) for expand/collapse
+- Yellow folder icon
 - Hover: `background: rgba(255,255,255,0.04)`
 - Right-click: context menu
+- Selected: `background: rgba(14,165,233,0.15); border-left: 2px solid #0EA5E9;`
 
 **Project Row:**
 ```
 • Project Name
 ```
 - Lighter gray text
-- Smaller icon (project icon or emoji)
+- Project icon (emoji or color square)
 - 32-40px height
 - Selected: `background: rgba(14,165,233,0.15); border-left: 2px solid #0EA5E9;`
 
 **Typography:**
 - Monospace font for explorer labels (JetBrains Mono)
 - Regular UI font for interface elements
+
+**Import Button:**
+- Triggers external import flow (e.g., Moodle integration for students)
+- Opens separate modal/view for source selection and destination folder
 
 ### Context Menus
 
@@ -431,43 +445,75 @@ Delete
 - Name + description + completion bar
 - 56-64px height
 
-### Main Panel - No Selection
+### Main Panel - Two States (Windows Explorer Behavior)
 
-When no project is selected:
+**State 1: Default (Home/Recent)**
+When no folder is selected in sidebar - shows welcome and recent items:
 
 ```
 ┌─────────────────────────────────────────────┐
 │ Welcome to ScrumHub                        │
+│ Select a project from the explorer...      │
 │                                             │
-│ 📌 Pinned                                  │
+│ 📌 PINNED                                  │
 │ ┌─────────┐ ┌─────────┐ ┌─────────┐        │
-│ │ScrumHub │ │Orbit    │ │Nimbus   │        │
-│ │ 📘 80%  │ │ 📘 45%  │ │ 📘 20%  │        │
+│ │ [Icon]  │ │ [Icon]  │ │ [Icon]  │        │
+│ │ Project │ │ Project │ │ Project │        │
+│ │  80%    │ │  45%    │ │  20%    │        │
 │ └─────────┘ └─────────┘ └─────────┘        │
 │                                             │
-│ ⏱ Recent                                  │
+│ ⏱ RECENT                                   │
 │ ┌─────────┐ ┌─────────┐                    │
-│ │Helix    │ │RAG Perf │                    │
+│ │ [Icon]  │ │ [Icon]  │                    │
+│ │ Project │ │ Project │                    │
 │ └─────────┘ └─────────┘                    │
 │                                             │
 │ + Create New Project                        │
 └─────────────────────────────────────────────┘
 ```
 
+**State 2: Folder Contents Grid**
+When a folder is selected in sidebar - shows folder contents:
+
+```
+┌─────────────────────────────────────────────┐
+│ Folder Name                                │
+│                                             │
+│ ┌─────────┐ ┌─────────┐ ┌─────────┐       │
+│ │    📁    │ │    📁    │ │    📁    │       │
+│ │ Folder 1 │ │ Folder 2 │ │ Folder 3 │       │
+│ └─────────┘ └─────────┘ └─────────┘       │
+│                                             │
+│ ┌─────────┐ ┌─────────┐ ┌─────────┐       │
+│ │ [Icon]  │ │ [Icon]  │ │ [Icon]  │       │
+│ │ Project │ │ Project │ │ Project │       │
+│ └─────────┘ └─────────┘ └─────────┘       │
+│                                             │
+│ [View: Compact | Medium | Big]             │
+└─────────────────────────────────────────────┘
+```
+
+**View Size Toggle (Compact/Medium/Big):**
+- Only affects the Folder Contents Grid view (main panel)
+- Does NOT affect the sidebar folder tree
+- **Compact**: Just names, 24-28px height
+- **Medium**: Name + icon + completion bar, 36-40px height
+- **Big**: Name + description + completion bar + task count, 56-64px height
+
 ### Main Panel - Project Selected
 
 When clicking "Open" on a project:
 - View is REPLACED by project workspace
 - NOT a tab (explorer stays as separate view)
-- Similar to "Open Folder" in VS Code, not "Open File"
+- Similar to "Open Folder" in Windows Explorer, not "Open File"
 
 **Project View includes "Back to Explorer" option:**
 ```
 ┌─────────────────────────────────────────────┐
 │ ← Back to Explorer                         │
 │                                             │
-│ 📘 ScrumHub                                 │
-│ AI-powered project management               │
+│ 📘 [Project Name]                           │
+│ [Project Description]                     │
 │                                             │
 │ [Board] [Backlog] [Sprints] [Chat] [Settings] │
 └─────────────────────────────────────────────┘
@@ -561,56 +607,61 @@ CREATE INDEX idx_user_folder_projects_pinned ON user_folder_projects(user_id, is
 
 ### Frontend Changes
 
-**New Feature Module:**
+This is an **enhancement to existing workspace Explorer** (`src/features/workspace/components/Explorer.tsx`), not a new feature module.
+
+**New/Enhanced Components:**
 ```
-features/project-explorer/
+src/features/workspace/
 ├── components/
-│   ├── ExplorerSidebar.tsx
-│   ├── FolderTree.tsx
-│   ├── FolderNode.tsx
-│   ├── ProjectNode.tsx
-│   ├── PinnedProjects.tsx
-│   ├── SearchBar.tsx
-│   ├── ContextMenu.tsx
-│   ├── CreateFolderModal.tsx
-│   ├── CreateProjectModal.tsx
-│   ├── ViewSizeToggle.tsx
-│   └── WelcomePanel.tsx
+│   ├── Explorer.tsx          (enhanced - main container)
+│   ├── Breadcrumb.tsx        (NEW - folder path navigation)
+│   ├── FolderTree.tsx        (enhanced - nested tree structure)
+│   ├── FolderNode.tsx        (enhanced - with expand/collapse)
+│   ├── ProjectNode.tsx       (enhanced - with selection state)
+│   ├── PinnedProjects.tsx    (existing - enhanced)
+│   ├── SearchBar.tsx         (existing - enhanced with AI)
+│   ├── ContextMenu.tsx       (existing - enhanced)
+│   ├── CreateFolderModal.tsx (existing)
+│   ├── CreateProjectModal.tsx (existing)
+│   ├── MainPanel.tsx         (ENHANCED - two states: Default/FolderGrid)
+│   ├── FolderGrid.tsx       (NEW - folder contents grid view)
+│   ├── ViewSizeToggle.tsx   (existing - affects folder grid only)
+│   └── WelcomePanel.tsx      (existing - default view)
 ├── hooks/
-│   ├── useUserFolders.ts
-│   ├── useExplorerProjects.ts
-│   ├── useExplorerSearch.ts
-│   └── useExplorerState.ts
-├── services/
-│   └── explorerService.ts
-├── types/
-│   └── explorerTypes.ts
-└── index.ts
+│   ├── useExplorerState.ts   (existing - enhanced)
+│   ├── useUserFolders.ts     (NEW - folder CRUD)
+│   └── useExplorerNavigation.ts (NEW - navigation state management)
+└── types/
+    └── explorerTypes.ts      (NEW - shared types)
 ```
 
-**New Routes:**
-- `/app/projects` - Explorer view (replaces current projects list)
-- `/app/projects/explorer` - Explicit explorer route
+**Existing Routes (enhanced):**
+- `/app/projects` - Explorer view (enhanced, existing route)
 
 **State Management:**
-- `useExplorerState` - Manages expanded folders, active folder, view size
+- `useExplorerState` - Manages expanded folders, active folder, view size, main panel state
 - Persisted to localStorage
+- `useExplorerNavigation` - Tracks current view state (Default vs Folder Contents)
 - `useActiveProject` - When project opened, sets active project
 
 **Component Details:**
 
-1. **ExplorerSidebar**: Main container, resizable
-2. **FolderTree**: Recursive tree of folders + projects
-3. **ProjectNode**: Project row with icon, name, optional completion bar
-4. **SearchBar**: Search + AI input (double as AI trigger)
-5. **ContextMenu**: Right-click menu with actions
-6. **WelcomePanel**: Main panel when no project selected
-7. **ViewSizeToggle**: Compact/Medium/Big switcher
+1. **Explorer** (enhanced): Main container, handles two-panel layout
+2. **Breadcrumb** (NEW): Folder path navigation in sidebar header
+3. **FolderTree**: Nested tree of folders + projects (Windows Explorer-style)
+4. **FolderNode**: Expandable folder row with selection state
+5. **ProjectNode**: Project row with icon, name, optional completion bar
+6. **MainPanel** (enhanced): Switches between Default and Folder Contents states
+7. **FolderGrid** (NEW): Grid display for folder contents with View Size toggle
+8. **SearchBar**: Search + AI input
+9. **ContextMenu**: Right-click menu with actions
+10. **ViewSizeToggle**: Compact/Medium/Big switcher (affects folder grid only)
 
 ---
 
 ## Implementation Checklist
 
+### Backend
 - [ ] Database migration for user_folders, project_custom_sections, user_folder_projects
 - [ ] Add goal and icon columns to projects table
 - [ ] Backend: FolderService CRUD
@@ -618,18 +669,81 @@ features/project-explorer/
 - [ ] Backend: Custom sections CRUD
 - [ ] Backend: Search endpoint
 - [ ] Backend: Recent projects endpoint
-- [ ] Frontend: project-explorer feature module
-- [ ] Frontend: ExplorerSidebar layout
-- [ ] Frontend: FolderTree with recursion
-- [ ] Frontend: ProjectNode with view sizes
+
+### Frontend (Workspace Enhancement)
+- [ ] Frontend: Enhancement to existing workspace/Explorer.tsx
+- [ ] Frontend: Breadcrumb component for folder path navigation
+- [ ] Frontend: FolderTree with nested recursion (Windows Explorer-style)
+- [ ] Frontend: FolderNode with expand/collapse and selection state
+- [ ] Frontend: ProjectNode with view size support
+- [ ] Frontend: MainPanel with two states (Default/FolderGrid)
+- [ ] Frontend: FolderGrid component for folder contents display
+- [ ] Frontend: ViewSizeToggle (affects folder grid only, not sidebar)
 - [ ] Frontend: ContextMenu system
 - [ ] Frontend: Search with filtering
-- [ ] Frontend: Welcome panel
+- [ ] Frontend: WelcomePanel (default view)
 - [ ] Frontend: Navigation to project view
 - [ ] Frontend: localStorage persistence for explorer state
-- [ ] Frontend: Route /app/projects update
+- [ ] Frontend: useExplorerNavigation hook for state management
+- [ ] Frontend: useUserFolders hook for folder CRUD
+- [ ] Frontend: Import button with external import flow
+
+### Testing & Documentation
 - [ ] E2E tests for explorer navigation
 - [ ] Documentation update (ERD.md, ENDPOINTS.md, TRUTH.md)
+
+---
+
+## Implementation Plan
+
+### Phase 1: Backend (Foundation)
+
+**Step 1.1: Database Schema**
+- Run SQL migrations for user_folders, project_custom_sections, user_folder_projects
+- Add goal and icon columns to projects table
+- Create indexes for performance
+
+**Step 1.2: API Implementation**
+- FolderService: CRUD operations for folders
+- ProjectService: Updates for folder assignment and pinning
+- Custom sections: Full CRUD
+- Search: Project search by name
+- Recent: Recent projects endpoint
+
+### Phase 2: Frontend Core (Explorer Enhancement)
+
+**Step 2.1: Types & Hooks**
+- Create `src/features/workspace/types/explorerTypes.ts`
+- Implement `useUserFolders.ts` hook for folder operations
+- Enhance `useExplorerState.ts` with navigation state
+- Implement `useExplorerNavigation.ts` for view state management
+
+**Step 2.2: Sidebar Components**
+- Create `Breadcrumb.tsx` component
+- Enhance `FolderTree.tsx` for nested structure
+- Enhance `FolderNode.tsx` with expand/collapse
+- Enhance `ProjectNode.tsx` with selection state
+
+**Step 2.3: Main Panel Components**
+- Enhance `MainPanel.tsx` for two-state behavior
+- Create `FolderGrid.tsx` component
+- Integrate ViewSizeToggle for folder grid
+
+**Step 2.4: Integration**
+- Wire up Import button (placeholder for external flow)
+- Connect folder selection to main panel state
+- Implement localStorage persistence
+
+### Phase 3: Polish & Testing
+
+**Step 3.1: Polish**
+- Add context menus
+- Refine search functionality
+- Add AI integration
+
+**Step 3.2: Testing**
+- E2E tests for explorer navigation
+- Verify all user flows work correctly
 
 ---
 
@@ -638,7 +752,9 @@ features/project-explorer/
 - Folders are purely personal organization - not shared between users even for shared projects
 - Project colors serve as status indicators (no separate "blocker" entity)
 - View size preference stored in localStorage, not per-folder
-- Explorer state (expanded folders, last folder) stored in localStorage
+- Explorer state (expanded folders, last folder, main panel state) stored in localStorage
 - When project is deleted, it's removed from all folder structures automatically
 - Search should be debounced (300ms) and case-insensitive
 - AI button in search bar triggers AI mode for natural language project creation
+- Main panel behavior mirrors Windows Explorer: Default (Recent) → Folder Contents (when folder selected)
+- Import button triggers separate external flow (Moodle integration)
