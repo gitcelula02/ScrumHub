@@ -1,5 +1,5 @@
 /**
- * @module project-explorer/services/explorerService
+ * @module workspace/services/explorerService
  * API service for Project Explorer endpoints.
  */
 

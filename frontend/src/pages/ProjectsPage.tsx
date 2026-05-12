@@ -1,4 +1,4 @@
-import { ExplorerView } from "@/features/project-explorer";
+import { ExplorerView } from "@/features/workspace";
 
 /**
  * @page ProjectsPage

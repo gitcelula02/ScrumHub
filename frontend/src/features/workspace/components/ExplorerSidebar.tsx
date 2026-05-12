@@ -1,32 +1,43 @@
 /**
  * @component ExplorerSidebar
  * Main resizable left panel for the Project Explorer.
- * Contains search bar, pinned projects, folder tree, and view size toggle.
+ * Contains breadcrumb, search bar, action buttons, pinned projects, and folder tree.
  *
  * COLOR CONTRACT:
  * - Consumes no entity colors (uses neutral sidebar colors)
  */
 
 import { memo, useState } from "react";
-import { Plus, FolderPlus } from "lucide-react";
+import { Plus, FolderPlus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useExplorerState } from "../hooks/useExplorerState";
 import { useExplorerProjects, usePinnedProjects } from "../hooks/useExplorerProjects";
 import { useExplorerSearch } from "../hooks/useExplorerSearch";
 import { explorerService } from "../services/explorerService";
 import { SearchBar } from "./SearchBar";
+import { Breadcrumb } from "./Breadcrumb";
 import { PinnedProjects } from "./PinnedProjects";
 import { FolderTree } from "./FolderTree";
-import { ViewSizeToggle } from "./ViewSizeToggle";
 import { CreateFolderModal } from "./CreateFolderModal";
 import { CreateProjectModal } from "./CreateProjectModal";
+import type { FolderTreeNode } from "../types/explorerTypes";
 
 interface ExplorerSidebarProps {
   onProjectSelect?: (projectId: string) => void;
+  breadcrumbPath: FolderTreeNode[];
+  selectedFolderId: string | null;
+  onBreadcrumbNavigate: (folder: FolderTreeNode | null) => void;
+  onFolderSelect: (folder: FolderTreeNode) => void;
 }
 
-function ExplorerSidebarComponent({ onProjectSelect }: ExplorerSidebarProps) {
-  const { state, toggleFolder, setViewSize } = useExplorerState();
+function ExplorerSidebarComponent({
+  onProjectSelect,
+  breadcrumbPath,
+  selectedFolderId,
+  onBreadcrumbNavigate,
+  onFolderSelect,
+}: ExplorerSidebarProps) {
+  const { state, toggleFolder } = useExplorerState();
   const { folderTree, isLoading: treeLoading } = useExplorerProjects();
   const { data: pinnedData } = usePinnedProjects();
   const { query, setQuery } = useExplorerSearch();
@@ -50,6 +61,13 @@ function ExplorerSidebarComponent({ onProjectSelect }: ExplorerSidebarProps) {
     }
   };
 
+  const handleFolderSelect = (folder: FolderTreeNode) => {
+    onFolderSelect(folder);
+    if (!state.expanded_folder_ids.includes(folder.id)) {
+      toggleFolder(folder.id);
+    }
+  };
+
   return (
     <aside className="h-full w-full bg-sidebar-bg border-r border-panel-border flex flex-col select-none shrink-0 flex-1">
       {/* Header */}
@@ -58,6 +76,12 @@ function ExplorerSidebarComponent({ onProjectSelect }: ExplorerSidebarProps) {
           Explorer
         </span>
       </div>
+
+      {/* Breadcrumb */}
+      <Breadcrumb
+        path={breadcrumbPath}
+        onNavigate={onBreadcrumbNavigate}
+      />
 
       {/* Search Bar */}
       <SearchBar
@@ -86,13 +110,17 @@ function ExplorerSidebarComponent({ onProjectSelect }: ExplorerSidebarProps) {
           <FolderPlus size={12} />
           <span>Folder</span>
         </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 text-[11px] gap-1"
+          title="Import (coming soon)"
+          disabled
+        >
+          <Download size={12} />
+          <span className="hidden sm:inline">Import</span>
+        </Button>
       </div>
-
-      {/* View Size Toggle */}
-      <ViewSizeToggle
-        value={state.view_size}
-        onChange={setViewSize}
-      />
 
       {/* Content */}
       <div className="flex-1 overflow-auto pb-2">
@@ -105,12 +133,16 @@ function ExplorerSidebarComponent({ onProjectSelect }: ExplorerSidebarProps) {
             <PinnedProjects
               projects={pinnedData?.pinned}
               viewSize={state.view_size}
+              selectedProjectId={selectedFolderId}
             />
             <FolderTree
               folders={folderTree.data}
+              level={0}
               viewSize={state.view_size}
               expandedFolderIds={state.expanded_folder_ids}
               onToggleFolder={toggleFolder}
+              onSelectFolder={handleFolderSelect}
+              selectedFolderId={selectedFolderId}
             />
           </>
         ) : (
@@ -135,6 +167,7 @@ function ExplorerSidebarComponent({ onProjectSelect }: ExplorerSidebarProps) {
       <CreateProjectModal
         isOpen={showCreateProject}
         onClose={() => setShowCreateProject(false)}
+        folderId={selectedFolderId}
       />
     </aside>
   );

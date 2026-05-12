@@ -1,6 +1,7 @@
 /**
  * @component FolderNode
- * Displays a single folder row with collapse toggle and context menu trigger.
+ * Displays a single folder row with separate expand (chevron) and select (name) actions.
+ * Following Windows Explorer behavior: chevron click = expand/collapse, name click = select folder.
  *
  * COLOR CONTRACT:
  * - Consumes no entity colors (folder is neutral)
@@ -12,7 +13,7 @@ import { cn } from "@/lib/utils";
 import type { FolderTreeNode, ViewSize } from "../types/explorerTypes";
 import { ProjectNode } from "./ProjectNode";
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from "@/components/ui/context-menu";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
 import { useDeleteFolder } from "../hooks/useExplorerProjects";
 
@@ -21,8 +22,11 @@ interface FolderNodeProps {
   level: number;
   viewSize: ViewSize;
   isExpanded: boolean;
+  isFolderSelected?: boolean;
   onToggle: (folderId: string) => void;
+  onSelectFolder?: (folder: FolderTreeNode) => void;
   selectedProjectId?: string | null;
+  selectedFolderId?: string | null;
   canCreateSubfolder?: boolean;
 }
 
@@ -31,8 +35,11 @@ function FolderNodeComponent({
   level,
   viewSize,
   isExpanded,
+  isFolderSelected = false,
   onToggle,
+  onSelectFolder,
   selectedProjectId,
+  selectedFolderId,
   canCreateSubfolder = true,
 }: FolderNodeProps) {
   const deleteFolder = useDeleteFolder();
@@ -45,31 +52,49 @@ function FolderNodeComponent({
   };
 
   const paddingLeft = 8 + level * 16;
+  const childLevel = level + 1;
+  const isSelected = isFolderSelected || folder.id === selectedFolderId;
 
   return (
     <div>
       <ContextMenu onOpenChange={setShowContext}>
         <ContextMenuTrigger asChild>
-          <button
+          <div
             className={cn(
-              "w-full flex items-center gap-1 py-1 text-left transition-colors duration-100",
-              "hover:bg-list-hover"
+              "w-full flex items-center py-1 pr-2 transition-colors duration-100",
+              isSelected
+                ? "bg-list-active border-l-2 border-primary"
+                : "hover:bg-list-hover",
             )}
             style={{ paddingLeft }}
-            onClick={() => onToggle(folder.id)}
           >
-            {isExpanded ? (
-              <ChevronDown size={14} className="shrink-0 text-muted-foreground" />
-            ) : (
-              <ChevronRight size={14} className="shrink-0 text-muted-foreground" />
-            )}
-            <span className="text-sm">📁</span>
-            <span
-              className="text-[13px] font-semibold text-sidebar-fg/80 truncate"
+            {/* Chevron: expand/collapse only */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggle(folder.id);
+              }}
+              className="p-0.5 rounded hover:bg-list-hover shrink-0"
+              aria-label={isExpanded ? "Collapse" : "Expand"}
             >
-              {folder.name}
-            </span>
-          </button>
+              {isExpanded ? (
+                <ChevronDown size={14} className="text-muted-foreground" />
+              ) : (
+                <ChevronRight size={14} className="text-muted-foreground" />
+              )}
+            </button>
+
+            {/* Folder name + icon: select folder */}
+            <button
+              onClick={() => onSelectFolder?.(folder)}
+              className="flex-1 flex items-center gap-1 min-w-0 text-left"
+            >
+              <span className="text-sm shrink-0">📁</span>
+              <span className="text-[13px] font-semibold text-sidebar-fg/80 truncate">
+                {folder.name}
+              </span>
+            </button>
+          </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem>New Project</ContextMenuItem>
@@ -124,10 +149,14 @@ function FolderNodeComponent({
             <FolderNode
               key={child.id}
               folder={child}
-              level={level + 1}
+              level={childLevel}
               viewSize={viewSize}
               isExpanded={false}
+              isFolderSelected={child.id === selectedFolderId}
               onToggle={onToggle}
+              onSelectFolder={onSelectFolder}
+              selectedProjectId={selectedProjectId}
+              selectedFolderId={selectedFolderId}
               canCreateSubfolder={level < 4}
             />
           ))}

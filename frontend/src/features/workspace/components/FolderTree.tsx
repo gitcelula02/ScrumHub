@@ -1,6 +1,7 @@
 /**
  * @component FolderTree
  * Recursive tree renderer for folders and projects.
+ * Passes folder selection and expand state to each FolderNode.
  *
  * COLOR CONTRACT:
  * - Consumes no entity colors (uses neutral sidebar colors)
@@ -16,7 +17,9 @@ interface FolderTreeProps {
   viewSize: ViewSize;
   expandedFolderIds: string[];
   onToggleFolder: (folderId: string) => void;
+  onSelectFolder?: (folder: FolderTreeNode) => void;
   selectedProjectId?: string | null;
+  selectedFolderId?: string | null;
 }
 
 function FolderTreeComponent({
@@ -25,7 +28,9 @@ function FolderTreeComponent({
   viewSize,
   expandedFolderIds,
   onToggleFolder,
+  onSelectFolder,
   selectedProjectId,
+  selectedFolderId,
 }: FolderTreeProps) {
   return (
     <div className="text-[13px] text-sidebar-fg">
@@ -36,8 +41,11 @@ function FolderTreeComponent({
           level={level}
           viewSize={viewSize}
           isExpanded={expandedFolderIds.includes(folder.id)}
+          isFolderSelected={folder.id === selectedFolderId}
           onToggle={onToggleFolder}
+          onSelectFolder={onSelectFolder}
           selectedProjectId={selectedProjectId}
+          selectedFolderId={selectedFolderId}
           canCreateSubfolder={level < 4}
         />
       ))}

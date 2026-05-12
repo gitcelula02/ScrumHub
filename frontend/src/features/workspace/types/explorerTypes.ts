@@ -1,5 +1,5 @@
 /**
- * @module project-explorer/types
+ * @module workspace/types
  * TypeScript interfaces for the Project Explorer feature.
  */
 
