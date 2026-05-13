@@ -2,12 +2,8 @@ import { apiClient } from "@/services/apiClient";
 import type { User } from "@/types";
 
 interface AuthResponse {
-  data: LoginResponse;
-}
-
-interface LoginResponse {
+  success: boolean;
   user: User;
-  token: string;
 }
 
 interface LoginCredentials {
@@ -23,12 +19,12 @@ export const authService = {
   /**
    * Performs login with credentials.
    */
-  login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
+  login: async (credentials: LoginCredentials): Promise<User> => {
     const response = await apiClient.post<AuthResponse>(
       "/auth/login",
       credentials,
     );
-    return response.data;
+    return response.user;
   },
 
   /**
@@ -42,6 +38,6 @@ export const authService = {
    * Retrieves current session information.
    */
   getCurrentUser: async (): Promise<User> => {
-    return apiClient.get<User>("/auth/me");
+    return apiClient.get<AuthResponse>("/auth/me").then((r) => r.user);
   },
 };

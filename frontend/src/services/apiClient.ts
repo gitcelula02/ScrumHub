@@ -31,6 +31,12 @@ export interface ApiClient {
   delete: <T>(endpoint: string, options?: RequestOptions) => Promise<T>;
 }
 
+let onUnauthorizedCallback: (() => void) | null = null;
+
+export const setOnUnauthorizedCallback = (fn: (() => void) | null) => {
+  onUnauthorizedCallback = fn;
+};
+
 export const apiClient = (async <T>(
   endpoint: string,
   options: RequestOptions = {},
@@ -49,19 +55,16 @@ export const apiClient = (async <T>(
     headers.set("Content-Type", "application/json");
   }
 
-  // Get token from localStorage (simplified for now, will be moved to AuthContext later)
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
-  if (token && !headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${token}`);
-  }
-
   const response = await fetch(url.toString(), {
     ...init,
     headers,
+    credentials: "include",
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      onUnauthorizedCallback?.();
+    }
     const errorData = await response.json().catch(() => ({}));
     throw new Error(
       errorData.message ||
