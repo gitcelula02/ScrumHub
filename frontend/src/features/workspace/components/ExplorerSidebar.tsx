@@ -9,6 +9,7 @@
 
 import { memo, useState } from "react";
 import { Plus, FolderPlus, Download } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useExplorerState } from "../hooks/useExplorerState";
 import { useExplorerProjects, usePinnedProjects } from "../hooks/useExplorerProjects";
@@ -19,7 +20,6 @@ import { Breadcrumb } from "./Breadcrumb";
 import { PinnedProjects } from "./PinnedProjects";
 import { FolderTree } from "./FolderTree";
 import { CreateFolderModal } from "./CreateFolderModal";
-import { CreateProjectModal } from "./CreateProjectModal";
 import type { FolderTreeNode } from "../types/explorerTypes";
 
 interface ExplorerSidebarProps {
@@ -40,10 +40,10 @@ function ExplorerSidebarComponent({
   const { state, toggleFolder } = useExplorerState();
   const { folderTree, isLoading: treeLoading } = useExplorerProjects();
   const { data: pinnedData } = usePinnedProjects();
+  const navigate = useNavigate();
   const { query, setQuery } = useExplorerSearch();
 
   const [showCreateFolder, setShowCreateFolder] = useState(false);
-  const [showCreateProject, setShowCreateProject] = useState(false);
   const [searchMode, setSearchMode] = useState(false);
 
   const isLoading = treeLoading;
@@ -96,7 +96,7 @@ function ExplorerSidebarComponent({
           variant="ghost"
           size="sm"
           className="h-6 text-[11px] gap-1 flex-1"
-          onClick={() => setShowCreateProject(true)}
+          onClick={() => navigate({ to: "/app/projects/create" })}
         >
           <Plus size={12} />
           <span>Project</span>
@@ -151,7 +151,7 @@ function ExplorerSidebarComponent({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setShowCreateProject(true)}
+              onClick={() => navigate({ to: "/app/projects/create" })}
             >
               Create your first project
             </Button>
@@ -163,11 +163,6 @@ function ExplorerSidebarComponent({
       <CreateFolderModal
         isOpen={showCreateFolder}
         onClose={() => setShowCreateFolder(false)}
-      />
-      <CreateProjectModal
-        isOpen={showCreateProject}
-        onClose={() => setShowCreateProject(false)}
-        folderId={selectedFolderId}
       />
     </aside>
   );
