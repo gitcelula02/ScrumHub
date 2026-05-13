@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { MoreHorizontal, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTasks } from "@/features/backlog";
+import { useTasks, BacklogSelector } from "@/features/backlog";
 import { useMoveTask } from "@/features/board";
 import type { Task, TaskStatus } from "@/types";
 
@@ -46,11 +46,14 @@ export function Board({ onOpenTask, projectId }: BoardProps) {
 
   return (
     <div className="h-full overflow-auto bg-editor p-6">
-      <div className="mb-6 flex items-baseline gap-3">
-        <h1 className="text-xl font-semibold text-foreground">Tablero</h1>
-        <span className="font-mono text-xs text-muted-foreground">
-          {tasks.length} tareas
-        </span>
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-xl font-semibold text-foreground">Tablero</h1>
+          <span className="font-mono text-xs text-muted-foreground">
+            {tasks.length} tareas
+          </span>
+        </div>
+        <BacklogSelector projectId={projectId} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {COLUMNS.map((col) => {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Zap, Calendar, Clock, ChevronRight, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BacklogSelector } from "@/features/backlog";
 
 interface Sprint {
   id: string;
@@ -55,11 +56,15 @@ const STATUS_LABEL: Record<Sprint["status"], string> = {
   completed: "Completado",
 };
 
+interface SprintsViewProps {
+  projectId: string;
+}
+
 /**
  * @component SprintsView
  * Sprint management interface showing active and planned sprints.
  */
-export function SprintsView() {
+export function SprintsView({ projectId }: SprintsViewProps) {
   const [sprints] = useState<Sprint[]>(MOCK_SPRINTS);
 
   const activeSprints = sprints.filter((s) => s.status === "active");
@@ -67,7 +72,7 @@ export function SprintsView() {
 
   return (
     <div className="h-full overflow-auto bg-editor p-6">
-      <div className="mb-6 flex items-baseline justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex items-baseline gap-3">
           <h1 className="text-xl font-semibold text-foreground flex items-center gap-2">
             <Zap size={18} className="text-status-bar" /> Sprints
@@ -76,9 +81,12 @@ export function SprintsView() {
             {sprints.length} sprints
           </span>
         </div>
-        <button className="flex items-center gap-2 px-3 h-8 text-[12px] bg-status-bar text-status-bar-fg rounded-sm hover:opacity-90">
-          <Plus size={14} /> Nuevo Sprint
-        </button>
+        <div className="flex items-center gap-3">
+          <BacklogSelector projectId={projectId} />
+          <button className="flex items-center gap-2 px-3 h-8 text-[12px] bg-status-bar text-status-bar-fg rounded-sm hover:opacity-90">
+            <Plus size={14} /> Nuevo Sprint
+          </button>
+        </div>
       </div>
 
       {activeSprints.length > 0 && (

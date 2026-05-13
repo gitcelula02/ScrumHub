@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { ListTodo, Filter, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTasks } from "@/features/backlog";
+import { useTasks, BacklogSelector } from "@/features/backlog";
 import type { Task, TaskStatus, Priority } from "@/types";
 
 interface BacklogViewProps {
@@ -68,13 +68,16 @@ export function BacklogView({ projectId, onOpenTask }: BacklogViewProps) {
 
   return (
     <div className="h-full overflow-auto bg-editor p-6">
-      <div className="mb-6 flex items-baseline gap-3">
-        <h1 className="text-xl font-semibold text-foreground flex items-center gap-2">
-          <ListTodo size={18} className="text-status-bar" /> Backlog
-        </h1>
-        <span className="font-mono text-xs text-muted-foreground">
-          {filteredTasks.length} de {tasks.length} tareas
-        </span>
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-xl font-semibold text-foreground flex items-center gap-2">
+            <ListTodo size={18} className="text-status-bar" /> Backlog
+          </h1>
+          <span className="font-mono text-xs text-muted-foreground">
+            {filteredTasks.length} de {tasks.length} tareas
+          </span>
+        </div>
+        <BacklogSelector projectId={projectId} />
       </div>
 
       <div className="flex items-center gap-4 mb-4">

@@ -378,6 +378,39 @@ Get boards linked to backlog.
 
 ---
 
+## Backlog Types
+
+### GET /api/backlog-types
+List all registered backlog types for the system (used when backlog type is "custom").
+**Response:** `200`
+```json
+{
+  "data": [
+    { "id": 1, "name": "Documentation", "description": "Docs and technical writing tasks" },
+    { "id": 2, "name": "Bug Fixing", "description": "Bug reports and hotfixes" }
+  ]
+}
+```
+**is_implemented:** false
+
+### POST /api/backlog-types
+Create a new backlog type.
+**Request:** `{ "name": "Documentation", "description": "Docs and technical writing tasks" }`
+**Response:** `201`
+```json
+{
+  "data": { "id": 3, "name": "Documentation", "description": "Docs and technical writing tasks" }
+}
+```
+**is_implemented:** false
+
+### DELETE /api/backlog-types/:id
+Delete a backlog type.
+**Response:** `204`
+**is_implemented:** false
+
+---
+
 ## Tasks (Epic, Story, Task, Subtask)
 
 All task types use the same endpoint — `type` field distinguishes them.

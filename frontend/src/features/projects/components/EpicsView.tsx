@@ -1,6 +1,7 @@
 import { Layers, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEpics } from "../hooks/useEpics";
+import { BacklogSelector } from "@/features/backlog";
 import type { Task } from "@/types";
 
 interface EpicsViewProps {
@@ -45,11 +46,14 @@ export function EpicsView({
 
   return (
     <div className="h-full overflow-auto bg-editor p-6">
-      <div className="mb-6 flex items-baseline gap-3">
-        <h1 className="text-xl font-semibold text-foreground">Épicas</h1>
-        <span className="font-mono text-xs text-muted-foreground">
-          {epics.length} épicas
-        </span>
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-xl font-semibold text-foreground">Épicas</h1>
+          <span className="font-mono text-xs text-muted-foreground">
+            {epics.length} épicas
+          </span>
+        </div>
+        <BacklogSelector projectId={projectId} />
       </div>
 
       <div className="space-y-3">
