@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils";
 interface CreateProjectFormProps {
   className?: string;
   defaultValues?: Partial<ProjectFormValues>;
+  folderId?: string;
 }
 
 interface SelectedMember {
@@ -54,7 +55,7 @@ interface SearchResult {
  * @param {Partial<ProjectFormValues>} defaultValues - Optional initial values (e.g., from AI assistant)
  * @returns {JSX.Element}
  */
-export function CreateProjectForm({ className, defaultValues }: CreateProjectFormProps) {
+export function CreateProjectForm({ className, defaultValues, folderId }: CreateProjectFormProps) {
   const navigate = useNavigate();
   const { createProject, isLoading: isProjectsLoading } = useProjects();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -132,8 +133,9 @@ export function CreateProjectForm({ className, defaultValues }: CreateProjectFor
         key: generateKey(data.name),
         icon: iconFile || undefined,
         scrumTeam: selectedMembers.map((m) => m.id).join(","),
+        folder_id: folderId || null,
       };
-      const project = await createProject(payload as Partial<ProjectFormValues>);
+      const project = await createProject(payload as any);
       form.reset();
       navigate({
         to: "/app/projects/$projectId",

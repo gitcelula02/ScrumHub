@@ -96,7 +96,7 @@ function ExplorerSidebarComponent({
           variant="ghost"
           size="sm"
           className="h-6 text-[11px] gap-1 flex-1"
-          onClick={() => navigate({ to: "/app/projects/create" })}
+          onClick={() => navigate({ to: "/app/projects/create", search: { folderId: selectedFolderId || undefined } })}
         >
           <Plus size={12} />
           <span>Project</span>
@@ -151,7 +151,7 @@ function ExplorerSidebarComponent({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate({ to: "/app/projects/create" })}
+              onClick={() => navigate({ to: "/app/projects/create", search: { folderId: selectedFolderId || undefined } })}
             >
               Create your first project
             </Button>

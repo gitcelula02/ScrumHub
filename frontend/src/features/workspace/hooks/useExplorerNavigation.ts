@@ -20,7 +20,7 @@ export interface UseExplorerNavigationResult {
   setViewSize: (size: ViewSize) => void;
 }
 
-function findFolderPath(
+export function findFolderPath(
   folders: FolderTreeNode[],
   targetId: string,
   path: FolderTreeNode[] = [],
