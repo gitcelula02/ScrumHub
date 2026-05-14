@@ -400,15 +400,28 @@ const project = await apiClient.post('/projects', { name: 'My Project', color: '
 
 **Features:** Base URL from `VITE_API_URL` env var, JSON serialization, consistent error shape `{ message, status, data }`, methods: `get`, `post`, `patch`, `put`, `delete`.
 
+**Auth integration:**
+- All requests send `credentials: "include"` to forward express-session cookies (no Bearer token headers)
+- A 401 interceptor via `setOnUnauthorizedCallback(logout)` auto-logouts the user when the backend session expires
+- No token is stored in localStorage (only user JSON for optimistic UI restore)
+
 ---
 
 ## 7. Global State (Store)
 
 ### `src/store/AuthContext.tsx`
 
-Provides authenticated user state app-wide. localStorage-backed (token + user JSON).
+Provides authenticated user state app-wide. Uses **express-session cookies** for auth (no Bearer tokens).
+
+**Behavior:**
+- `authService.login()` returns `User` (no token — session is managed by backend cookies)
+- `getCurrentUser()` is called on mount to validate session via `GET /auth/me` — if it fails, user is logged out
+- `localStorage` stores only user JSON for optimistic UI restore (not the auth token)
+- A 401 interceptor (`setOnUnauthorizedCallback`) is registered on mount to auto-logout when the backend session expires
 
 **Exposes:** `{ user, isAuthenticated, isLoading, login, logout }`
+
+**Login flow:** `LoginPage` → `authService.login(credentials)` → returns `User` → `auth.login(user)` → stores user in localStorage + state.
 
 ### `src/store/useAuth.ts`
 

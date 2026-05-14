@@ -15,7 +15,7 @@ so that new views and components feel native to the existing codebase.
 | Styles      | Tailwind CSS                                         |
 | State       | TanStack Query + React Context                       |
 | Routing     | TanStack Router                                      |
-| HTTP        | Custom `apiClient` (fetch wrapper)                  |
+| HTTP        | Custom `apiClient` (fetch wrapper with `credentials: "include"` for session cookies)                  |
 | Fonts       | DM Sans (body) · JetBrains Mono (code)               |
 
 ---
@@ -211,6 +211,24 @@ For components that participate in the color system, add:
    - In the hook: call `registerEntities(data.map(e => ({ id: e.id, color: e.color })))`
    - In the feature component: `const theme = useEntityTheme(entity.color)` → `style={theme}`
    - In the UI atom: use `var(--entity-bg/fg/border/solid)` only
+
+---
+
+## Authentication pattern
+
+The backend uses **express-session cookies** (not JWT Bearer tokens). All `apiClient` requests send `credentials: "include"` to forward the session cookie automatically.
+
+- `authService.login()` calls `POST /api/auth/login` → backend sets session cookie → returns `User`
+- `AuthContext` validates session on mount via `GET /api/auth/me`
+- If the API returns 401, `apiClient` calls `onUnauthorizedCallback` which triggers auto-logout
+- No token is stored in localStorage (only user JSON for UI hydration)
+- When calling `apiClient` in new services, no special auth handling needed — cookies are sent automatically
+
+```ts
+// Example: new service
+import { apiClient } from '@/services/apiClient';
+const data = await apiClient.get('/my-endpoint');  // session cookie sent automatically
+```
 
 ---
 

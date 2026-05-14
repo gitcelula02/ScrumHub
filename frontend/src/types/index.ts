@@ -50,6 +50,7 @@ export interface User extends Entity {
   name: string;
   email: string;
   role: string;
+  avatar_url?: string;
 }
 
 export interface Backlog extends Entity {

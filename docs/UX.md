@@ -294,7 +294,6 @@ Each view is documented with:
 
 **Overlays:**
 - Folder Creation (modal)
-- Project Quick-Create (modal, simple name + description)
 - Command Palette (Ctrl+Shift+P)
 
 **Relationships**: Clicking a project → navigates to `/app/projects/$projectId/dashboard`.
@@ -885,7 +884,6 @@ These are the "small views" often missed in documentation. Each one appears as a
 |-------|---------------|---------|--------------|
 | **Task Creation** | Backlog, Board, Epics | Create new task with AI | Type selector, title, description, AI input |
 | **Epic Creation** | Backlog, Epics | Create new epic | Title, description, color, AI input |
-| **Project Quick-Create** | Projects list | Quick project from sidebar | Name + description + AI input |
 | **Folder Creation** | Explorer sidebar | New personal folder | Name input |
 | **Sprint Creation** | Sprints view | New sprint | Name, dates, goal, team tag, task selector |
 | **Mini-Sprint Creation** | Sprints view | New tactical sprint | Name, type (hotfix/etc), dates, goal |
