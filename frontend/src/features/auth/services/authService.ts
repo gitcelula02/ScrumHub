@@ -1,18 +1,39 @@
 import { apiClient } from "@/services/apiClient";
 import type { User } from "@/types";
 
-interface AuthResponse {
-  data: LoginResponse;
+interface ApiUser {
+  id: number;
+  username: string;
+  email: string;
+  avatar_url: string;
+  default_language?: string;
+  created_at?: string;
 }
 
 interface LoginResponse {
-  user: User;
-  token: string;
+  data: {
+    token: string;
+    user: ApiUser;
+  };
+}
+
+interface MeResponse {
+  data: ApiUser;
 }
 
 interface LoginCredentials {
   email: string;
   password?: string;
+}
+
+function mapUser(apiUser: ApiUser): User {
+  return {
+    id: String(apiUser.id),
+    name: apiUser.username,
+    email: apiUser.email,
+    avatar_url: apiUser.avatar_url,
+    createdAt: apiUser.created_at,
+  };
 }
 
 /**
@@ -23,12 +44,12 @@ export const authService = {
   /**
    * Performs login with credentials.
    */
-  login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
-    const response = await apiClient.post<AuthResponse>(
+  login: async (credentials: LoginCredentials): Promise<User> => {
+    const response = await apiClient.post<LoginResponse>(
       "/auth/login",
       credentials,
     );
-    return response.data;
+    return mapUser(response.data.user);
   },
 
   /**
@@ -42,6 +63,7 @@ export const authService = {
    * Retrieves current session information.
    */
   getCurrentUser: async (): Promise<User> => {
-    return apiClient.get<User>("/auth/me");
+    const response = await apiClient.get<MeResponse>("/auth/me");
+    return mapUser(response.data);
   },
 };

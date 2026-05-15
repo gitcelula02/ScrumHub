@@ -44,13 +44,15 @@ function RootBeforeLoad() {
     return { isAuthenticated: false, isLoading: true };
   }
   const userJson = localStorage.getItem("user");
-  const token = localStorage.getItem("auth_token");
-  const isAuthenticated = !!(userJson && token && userJson !== "undefined");
+  const isAuthenticated = !!(userJson && userJson !== "undefined");
   return { isAuthenticated, isLoading: false };
 }
 
 export const Route = createRootRoute({
   beforeLoad: ({ location }) => {
+    if (typeof window === "undefined") {
+      return;
+    }
     const { isAuthenticated } = RootBeforeLoad();
     if (!isAuthenticated && location.pathname.startsWith("/app")) {
       throw redirect({ to: "/login", search: { redirect: location.href } });

@@ -27,8 +27,8 @@ export function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await authService.login({ email, password });
-      auth.login(response.token, response.user);
+      const user = await authService.login({ email, password });
+      auth.login(user);
       toast.success("Bienvenido de nuevo");
       navigate({ to: "/app/projects" });
     } catch (error: unknown) {

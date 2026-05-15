@@ -1,11 +1,13 @@
 import React, { createContext, useState, useEffect } from "react";
 import type { User } from "@/types";
+import { setOnUnauthorizedCallback } from "@/services/apiClient";
+import { authService } from "@/features/auth/services/authService";
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (token: string, user: User) => void;
+  login: (user: User) => void;
   logout: () => void;
 }
 
@@ -19,34 +21,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const logout = async () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    try {
+      await authService.logout();
+    } catch {
+      // Session already invalid, no need to call logout endpoint
+    }
+  };
+
   useEffect(() => {
+    setOnUnauthorizedCallback(logout);
+
     const savedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("auth_token");
-    if (savedUser && token && savedUser !== "undefined") {
+    if (savedUser && savedUser !== "undefined") {
       try {
         setUser(JSON.parse(savedUser));
       } catch {
         localStorage.removeItem("user");
-        localStorage.removeItem("auth_token");
       }
     }
-    setIsLoading(false);
+
+    authService
+      .getCurrentUser()
+      .then((serverUser) => {
+        setUser(serverUser);
+        localStorage.setItem("user", JSON.stringify(serverUser));
+      })
+      .catch(() => {
+        localStorage.removeItem("user");
+        setUser(null);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+
+    return () => {
+      setOnUnauthorizedCallback(null);
+    };
   }, []);
 
-  const login = (token: string, userData: User) => {
-    if (!token || !userData) {
-      console.error("Invalid login arguments");
-      return;
-    }
-    localStorage.setItem("auth_token", token);
+  const login = (userData: User) => {
     localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
-  };
-
-  const logout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user");
-    setUser(null);
   };
 
   return (

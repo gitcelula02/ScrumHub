@@ -50,6 +50,21 @@ export interface User extends Entity {
   name: string;
   email: string;
   role: string;
+  avatar_url?: string;
+}
+
+export interface Backlog extends Entity {
+  name: string;
+  type: "development" | "qa_testing" | "strategic" | "custom";
+  color?: string;
+  description?: string;
+  order_index: number;
+  is_default: boolean;
+}
+
+export interface BacklogType extends Entity {
+  name: string;
+  description: string;
 }
 
 export interface Tab {
