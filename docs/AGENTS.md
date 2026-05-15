@@ -1,273 +1,166 @@
-# AGENTS.md — ScrumHub Codebase Guide for AI Assistants
+# AGENTS.md — Entry Point for AI Assistants
 
-This file is the **first thing to read** before generating any code for this project.
-It describes conventions, paradigms, and rules that must be followed consistently
-so that new views and components feel native to the existing codebase.
-
----
-
-## Stack
-
-| Layer       | Technology                                           |
-|-------------|------------------------------------------------------|
-| Bundler     | Vite (TSX, path alias `@/` → `src/`)                |
-| UI          | React 18, TypeScript                                 |
-| Styles      | Tailwind CSS                                         |
-| State       | TanStack Query + React Context                       |
-| Routing     | TanStack Router                                      |
-| HTTP        | Custom `apiClient` (fetch wrapper with `credentials: "include"` for session cookies)                  |
-| Fonts       | DM Sans (body) · JetBrains Mono (code)               |
+**This file is the first thing to read before any task.**
+It routes you to the correct docs and defines the workflow.
+**Last updated:** 2026-05-15
 
 ---
 
-## Folder structure
+## Reading Order
 
-```
-src/
-├── assets/               Static files (images, icons)
-├── components/
-│   ├── ui/               Shared atoms — EpicBadge, StatusBadge, etc.
-│   └── layout/           App shell — AppShell, Sidebar, TopBar
-├── features/             Feature modules (see below)
-│   ├── auth/
-│   ├── projects/
-│   ├── backlog/
-│   ├── sprints/
-│   ├── tasks/
-│   ├── quest-tree/
-│   ├── chatroom/
-│   └── ai/
-├── hooks/                Cross-feature hooks — useEntityTheme, etc.
-├── pages/                Route-level components (thin orchestrators only)
-├── routes/               TanStack Router route configuration
-├── services/             apiClient.ts — all fetch calls go through here
-├── store/                React Context providers — ThemeRegistry, AuthContext
-├── styles/               Global styles, Tailwind config
-├── types/                Global TypeScript types
-└── utils/                Pure functions — themeUtils.ts, etc.
-```
+For any task, read these files **in order**:
 
-### Feature module structure (each feature follows this pattern)
-```
-features/<name>/
-├── components/     UI pieces specific to this feature
-├── hooks/          use<Name>.ts — data fetching + state
-├── services/       <name>Service.ts — API calls only
-├── types/          <name>Types.ts — feature-specific types
-├── utils/          <name>Utils.ts — feature-specific utilities
-├── styles/         <name>.module.css — feature-specific styles (if needed)
-└── index.ts        Public barrel export
-```
+1. **This file (AGENTS.md)** — determines which docs to read
+2. **core/TRUTH.md** — non-negotiable rules (<80 lines)
+3. Relevant **core/*.md** files based on task type (see below)
 
 ---
 
-## The three-tier component rule
+## Task-Based Routing
 
-Every piece of UI belongs to exactly one tier. Never mix tiers.
+### Implement a new feature
+1. `core/TRUTH.md` — folder naming, barrel exports, component tier rules
+2. `core/ARCHITECTURE.md` — stack, directory structure, TypeScript norms
+3. `core/STYLING.md` — Tailwind rules, entity colors, component specs
+4. `core/UX.md` — navigation, ActivityBar, AI interactions, view behaviors
+5. `core/BRAND.md` — colors (with values), typography
+6. `domain/ERD.md` — entity definitions and relationships
+7. `api/ENDPOINTS.md` — API endpoints (table format)
+8. `features/[name]/SPEC.md` — feature spec (what to build)
 
-### Tier 1 — UI Atoms (`src/components/ui/`)
-- **No data fetching. No business logic. Props in, JSX out.**
-- Reference only `var(--entity-*)` or `var(--color-*)` — never hardcode hex.
-- Every atom is documented with JSDoc `@component` block.
-- Exported via `src/components/ui/index.ts` barrel.
+### Add a UI component to an existing feature
+1. `core/TRUTH.md` — three-tier rule, naming
+2. `core/STYLING.md` — component specs, "what not to do"
+3. `core/BRAND.md` — color values
+4. `features/[name]/SPEC.md` — component requirements
 
-### Tier 2 — Feature Components (`src/features/<name>/components/`)
-- Own their data by calling the feature's hook.
-- May import Tier 1 atoms freely.
-- Must NOT import from other features directly — use shared atoms instead.
+### Fix a bug
+1. `core/TRUTH.md` — core rules
+2. `core/ARCHITECTURE.md` — service layer, query keys
+3. `features/[name]/SPEC.md` — expected behavior
+4. `features/[name]/STATUS.md` — current implementation state
 
-### Tier 3 — Pages (`src/pages/`)
-- Thin orchestrators: call hooks, compose feature components, handle routing params.
-- **Zero rendering logic** — no conditional JSX, no inline styles, no data transformation.
-- If you add more than ~30 lines of JSX to a page, extract a feature component.
+### Add an API endpoint
+1. `domain/ERD.md` — entity schema
+2. `api/ENDPOINTS.md` — endpoint format (table)
+3. `core/ARCHITECTURE.md` — service layer pattern
+4. Update `api/ENDPOINTS.md` with new endpoint
 
----
+### Update styling (CSS/Tailwind)
+1. `core/STYLING.md` — Tailwind rules, anti-patterns
+2. `core/BRAND.md` — color values, typography
+3. `core/TRUTH.md` — entity color chain
 
-## Dynamic color system (most important paradigm)
-
-User-defined colors are stored as hex strings on entity records (Project, Epic, Sprint).
-**Components never receive raw hex — they only consume CSS variables.**
-
-### The chain (follow this exactly for any new colored component)
-
-```
-API response { color: "#3B6D11" }
-      ↓
-useBacklog hook calls registerEntities([{ id, color }])
-      ↓
-ThemeRegistry caches buildEntityTheme(hex) → CSS vars object
-      ↓
-Feature component calls useEntityTheme(entity.color)
-      ↓
-Spreads result as style={{ ...theme }} on the container element
-      ↓
-UI atom reads var(--entity-bg), var(--entity-fg), var(--entity-border)
-```
-
-### CSS variables injected by useEntityTheme / ThemeRegistry
-| Variable          | Value                        | Usage                    |
-|-------------------|------------------------------|--------------------------|
-| `--entity-bg`     | hex at 12% alpha             | Badge fill, row tint     |
-| `--entity-fg`     | auto-contrasted text color   | Text on colored bg       |
-| `--entity-border` | hex at 45% alpha             | Border, left accent line |
-| `--entity-solid`  | full hex                     | Color dot, icon fill     |
-
-### Rules
-- **Never pass `color` as a prop into a UI atom.** Use `useEntityTheme` at the
-  feature component level and spread `style={theme}` on the container.
-- **CSS variable scoping is automatic** — each container's `--entity-*` vars
-  only apply to its subtree. Sibling badges with different colors never collide.
-- Semantic statuses (todo/done/blocked) use Tailwind color classes — NOT entity colors.
-  See `StatusBadge` for the correct pattern.
+### Update navigation/UX
+1. `core/UX.md` — ActivityBar, routes, view behaviors
+2. `core/STYLING.md` — layout specs
+3. `features/[name]/SPEC.md` — view requirements
 
 ---
 
-## Tailwind CSS rules
+## Creating a New Feature Doc
 
-### Configuration
-- Tailwind is configured in `tailwind.config.ts`
-- Custom colors defined as CSS variables in `src/styles/globals.css`
-- Use `var(--color-*)` for brand/neutral colors
+When creating `docs/features/[name]/`:
 
-### Rules for writing styles
-- Use Tailwind utility classes for all styling
-- Use `var(--color-*)` for brand/neutral colors. Never hardcode hex.
-- Write custom CSS only when Tailwind doesn't cover the case (rare)
-- For entity-colored elements, only use `var(--entity-*)` variables — never compute
-  colors in CSS. The computation happens in `themeUtils.ts`.
+1. Create `SPEC.md` — route, components, UX description (stable)
+2. Create `STATUS.md` — implementation state (living log)
+3. **After completing work, update STATUS.md** with what was done
 
-### Import order in main CSS
-```css
-@import './globals.css';          /* 1. CSS variables and base styles */
-@import 'tailwindcss/base';       /* 2. Tailwind base */
-@import 'tailwindcss/components'; /* 3. Tailwind components */
-@import 'tailwindcss/utilities';   /* 4. Tailwind utilities */
+### STATUS.md Format
+
+```markdown
+# [Feature] Status
+
+**Last updated:** YYYY-MM-DD
+
+## Implementation State
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Service | ✅ Done | |
+| Hook | 🚧 In Progress | |
+| Component | 📋 Planned | |
+
+## Known Issues
+- None
+
+## Recent Changes
+- YYYY-MM-DD: Completed service layer
 ```
 
 ---
 
-## TypeScript rules
+## Adding a New View (Step-by-Step)
 
-- All files use `.ts` or `.tsx` extension
-- Strict typing required — no `any` types
-- Use interfaces for object shapes
-- Use type for unions and primitives
-- JSDoc still required on all exported functions/components
+1. **Create page**: `src/pages/<Feature>Page.tsx`
+   - Thin orchestrator: `useParams()` → call hook → render component
 
----
+2. **Add route**: `src/routes/app/projects/$projectId/<feature>.tsx`
+   - Use `createFileRoute("/app/projects/$projectId/<feature>")`
 
-## JSDoc requirement
+3. **Add ActivityBar item**: `src/components/layout/ActivityBar.tsx`
+   - Icon, label, route path, project-only flag
 
-Every exported component, hook, service method, and utility function must have a JSDoc block.
-Minimum required tags:
+4. **Create feature component**: `src/features/<name>/components/<View>.tsx`
+   - Receives data via props, uses Tier 1 atoms
 
-```ts
-/**
- * @component|@hook|@service|@module MyThing
- * @description What it does and why it exists.
- *
- * @param {Type} props.name   Description
- * @returns {JSX.Element|type}
- *
- * @example
- * <MyThing prop="value" />
- */
-```
+5. **Create feature hook**: `src/features/<name>/hooks/use<Name>.ts`
+   - TanStack Query, `registerEntities()` if colored
 
-For components that participate in the color system, add:
-```ts
- * COLOR CONTRACT:
- * [Explain whether this component sets, passes, or consumes --entity-* vars]
-```
+6. **Create feature service**: `src/features/<name>/services/<name>Service.ts`
+   - `apiClient` calls, JSDoc on every method
+
+7. **Update SPEC.md** if it exists
+
+8. **Update STATUS.md** — mark component as done
 
 ---
 
-## How to add a new view (step-by-step)
+## Key Rules (from TRUTH.md)
 
-1. **Create the page**: `src/pages/MyFeaturePage.tsx`
-   - Call `useParams()` for route params
-   - Call the feature hook
-   - Render the feature component
-   - No other logic
-
-2. **Add the route**: in `src/routes/index.ts`, add a route using TanStack Router
-
-3. **Create the feature component**: `src/features/<name>/components/MyFeatureView.tsx`
-   - Receives data via props from the page
-   - Uses shared atoms from `@/components/ui`
-   - JSDoc with full prop documentation
-
-4. **Create the feature hook**: `src/features/<name>/hooks/use<Name>.ts`
-   - Uses TanStack Query to call the service
-   - Calls `registerEntities()` if the data has colored entities
-   - Returns `{ data, loading, error, refetch }`
-
-5. **Create the service**: `src/features/<name>/services/<name>Service.ts`
-   - Uses `apiClient` from `@/services/apiClient`
-   - One method per API endpoint
-   - JSDoc on every method with `@param` and `@returns`
-
-6. **If entities have user colors**:
-   - In the hook: call `registerEntities(data.map(e => ({ id: e.id, color: e.color })))`
-   - In the feature component: `const theme = useEntityTheme(entity.color)` → `style={theme}`
-   - In the UI atom: use `var(--entity-bg/fg/border/solid)` only
+- **No `any` types** — always proper TypeScript
+- **Never pass raw hex to UI atoms** — use `useEntityTheme()` + CSS vars
+- **Pages are thin** — no business logic, only routing and composition
+- **Services fetch data** — no React imports, no JSX
+- **Barrel exports** — always import from `index.ts`
+- **Query keys** — always `['project', projectId, 'resource']`
 
 ---
 
-## Authentication pattern
+## File Index
 
-The backend uses **express-session cookies** (not JWT Bearer tokens). All `apiClient` requests send `credentials: "include"` to forward the session cookie automatically.
-
-- `authService.login()` calls `POST /api/auth/login` → backend sets session cookie → returns `User`
-- `AuthContext` validates session on mount via `GET /api/auth/me`
-- If the API returns 401, `apiClient` calls `onUnauthorizedCallback` which triggers auto-logout
-- No token is stored in localStorage (only user JSON for UI hydration)
-- When calling `apiClient` in new services, no special auth handling needed — cookies are sent automatically
-
-```ts
-// Example: new service
-import { apiClient } from '@/services/apiClient';
-const data = await apiClient.get('/my-endpoint');  // session cookie sent automatically
-```
-
----
-
-## Color-carrying entities
-
-| Entity  | Stored field | Registered by hook   |
-|---------|--------------|----------------------|
-| Project | `color`      | `useProjects`        |
-| Epic    | `color`      | `useBacklog`         |
-| Sprint  | `color`      | `useSprints`         |
-| Status  | `color`      | `useBoards`          |
+| File | Owns | Don't repeat here |
+|------|------|-------------------|
+| `core/TRUTH.md` | Non-negotiables | Styling, architecture |
+| `core/BRAND.md` | Color values, typography | Rules, structure |
+| `core/ARCHITECTURE.md` | Folder structure, TS norms | Colors, UX |
+| `core/STYLING.md` | Tailwind rules, layouts | Values, naming |
+| `core/UX.md` | Navigation, AI flows | Styling, colors |
+| `domain/ERD.md` | Entity schemas | Routes, components |
+| `domain/CONCEPTS.md` | Scrum terminology | Code, specs |
+| `api/ENDPOINTS.md` | API endpoints (table) | UI, entities |
+| `features/*/SPEC.md` | Feature requirements | Architecture |
+| `features/*/STATUS.md` | Implementation state | Specs |
 
 ---
 
-## Naming conventions
+## Critical: Never Do These
 
-| Thing              | Convention           | Example                    |
-|--------------------|----------------------|----------------------------|
-| Component files    | PascalCase           | `BacklogTable.tsx`         |
-| Hook files         | camelCase            | `useBacklog.ts`            |
-| Service files      | camelCase            | `backlogService.ts`        |
-| Type files         | camelCase            | `backlogTypes.ts`          |
-| CSS files          | _kebab-case          | `_variables.css`           |
-| CSS variables      | --kebab-case         | `--color-brand-500`        |
-| CSS entity vars    | --entity-*           | `--entity-bg`              |
-| Page components    | PascalCase + Page    | `BacklogPage.tsx`          |
-| Context providers  | PascalCase           | `ThemeRegistry.tsx`        |
-| Route files        | routes.ts            | `routes.ts`                |
+- ❌ `style={{ backgroundColor: '#3B6D11' }}` — use `useEntityTheme`
+- ❌ Import from other features' internals
+- ❌ Business logic in pages
+- ❌ `any` type
+- ❌ `.js` extension in imports
 
 ---
 
-## What NOT to do
+## Questions?
 
-- ❌ `style={{ backgroundColor: '#3B6D11' }}` — use `useEntityTheme` instead
-- ❌ `import { EpicBadge } from '../ui/EpicBadge'` — always import from the barrel `@/components/ui`
-- ❌ Business logic in pages — pages are thin orchestrators only
-- ❌ API calls in components — all fetching goes through a hook → service
-- ❌ Color logic in CSS — color math lives in `themeUtils.ts`
-- ❌ Fetching in UI atoms — atoms receive data via props only
-- ❌ Importing between features — use shared atoms or lift to a shared hook
-- ❌ Using `any` type — always use proper TypeScript types
-- ❌ Using `.js` extension in imports — use `.ts` or `.tsx` as appropriate
+If a doc is unclear or contradictory:
+1. **TRUTH.md** is the source of truth for technical decisions
+2. Ask for clarification before proceeding
+3. Note the ambiguity so docs can be improved
+
+---
+
+*After any task that modifies implementation, update `features/[name]/STATUS.md`*
