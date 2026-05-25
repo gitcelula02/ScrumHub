@@ -43,6 +43,11 @@ function CreateProjectModalComponent({ isOpen, onClose, folderId = null }: Creat
     e.preventDefault();
     if (!name.trim()) return;
 
+    console.log("[CreateProjectModal] Submitting project creation:", {
+      name: name.trim(),
+      folderId,
+    });
+
     createProject.mutate(
       {
         name: name.trim(),
@@ -53,7 +58,8 @@ function CreateProjectModalComponent({ isOpen, onClose, folderId = null }: Creat
         folder_id: folderId,
       },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          console.log("[CreateProjectModal] Project created successfully:", data);
           setName("");
           setDescription("");
           setGoal("");
@@ -61,6 +67,9 @@ function CreateProjectModalComponent({ isOpen, onClose, folderId = null }: Creat
           setIcon(DEFAULT_ICONS[0]);
           onClose();
         },
+        onError: (error) => {
+          console.error("[CreateProjectModal] Project creation failed:", error);
+        }
       }
     );
   };
