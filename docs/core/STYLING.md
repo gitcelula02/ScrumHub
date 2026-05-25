@@ -36,6 +36,95 @@
 
 ---
 
+## shadcn/ui Component Library
+
+The project uses [shadcn/ui](https://ui.shadcn.com) — a collection of re-usable components built with Radix UI primitives and Tailwind CSS. Components are installed individually via CLI and live in `src/components/ui/`.
+
+### Adding a Component
+
+```bash
+cd frontend
+npx shadcn@latest add button card input dialog tooltip
+```
+
+### Component Library
+
+The project uses these shadcn/ui components (not custom implementations):
+
+| Category | Components |
+|----------|------------|
+| **Actions** | Button (with CVA variants: default, destructive, outline, ghost, link) |
+| **Layout** | Card, Separator, ScrollArea, ResizablePanels |
+| **Forms** | Input, Label, Textarea, Checkbox, RadioGroup, Switch, Select |
+| **Feedback** | Alert, Dialog, AlertDialog, Toast/Sonner |
+| **Navigation** | Tabs, NavigationMenu, Menu/DropdownMenu, Tooltip |
+| **Data** | Table, Badge (EpicBadge, StatusBadge, PriorityBadge), Avatar, Progress |
+| **Overlays** | Popover, HoverCard, Sheet (slide-out panel), Tooltip |
+
+### CVA (class-variance-authority)
+
+shadcn/ui uses CVA for component variants. Never write variant logic from scratch — use the `cva()` helper:
+
+```tsx
+// components/ui/button.tsx
+import { cva } from "class-variance-authority";
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+        destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+        outline: "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-9 px-4 py-2",
+        sm: "h-8 px-3 text-xs",
+        lg: "h-10 px-8",
+        icon: "h-9 w-9",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
+```
+
+### Tailwind v4 CSS Import Order
+
+When using Tailwind v4 with `@tailwindcss/vite` plugin:
+
+```css
+/* src/styles/globals.css */
+@import "./globals.css";
+
+/* Tailwind base, components, utilities — auto-injected by plugin */
+/* Do NOT use @import "tailwindcss/base" manually */
+```
+
+### Radix Primitives
+
+Each shadcn/ui component wraps a Radix UI primitive. The primitive provides:
+- Accessible keyboard navigation
+- Focus management
+- ARIA attributes
+- Portal support
+
+You can access the underlying primitive via the `asChild` prop pattern (using `@radix-ui/react-slot`):
+
+```tsx
+<Button asChild>
+  <Link to="/projects">Go to Projects</Link>
+</Button>
+```
+
+---
+
 ## Entity Color System
 
 **CRITICAL:** Entity colors (Project, Epic, Sprint, Status) are computed at runtime from user-defined hex.

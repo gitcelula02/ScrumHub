@@ -12,11 +12,13 @@
 | Layer | Technology |
 |-------|------------|
 | Bundler | Vite (TSX, path alias `@/` → `src/`) |
-| UI | React 18, TypeScript |
-| Styles | Tailwind CSS |
+| UI | React 19, TypeScript |
+| Component Library | shadcn/ui (Radix primitives + CVA) |
+| Styles | Tailwind CSS v4 with `@tailwindcss/vite` plugin |
 | State | TanStack Query + React Context |
-| Routing | TanStack Router |
+| Routing | TanStack Router (file-based via `@tanstack/router-plugin`) |
 | HTTP | Custom `apiClient` (fetch wrapper) |
+| Deployment | Cloudflare Pages (`@cloudflare/vite-plugin`) |
 
 ---
 

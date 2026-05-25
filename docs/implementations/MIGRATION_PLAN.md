@@ -1,26 +1,39 @@
 # ScrumHub Frontend Architecture Migration Plan
 
-## Overview
-
-This plan outlines the migration of the current `frontend/` codebase to the architecture defined in `docs/TRUTH.md`, `docs/FRONTEND_ARCHITECTURE.md`, and `docs/FRONTEND_STYLING.md`.
-
-**Current State:**
-- Vite configured via `@lovable.dev/vite-tanstack-config` (black-box)
-- Some components in `components/scrumhub/` (not feature-organized)
-- Uses Bootstrap CSS with custom overrides
-- TanStack Router with file-based routing
-
-**Target State:**
-- Native Vite config with explicit plugins (per TRUTH.md:459-507)
-- Feature-first architecture with strict boundaries (TRUTH.md:486-502)
-- Tailwind CSS v4 with oklch CSS variables (FRONTEND_STYLING.md:1-567)
-- TanStack Router + TanStack Query (TRUTH.md:340)
-- React Context for global state (AGENTS.md:16)
-- TypeScript only (`.ts`/`.tsx`) (AGENTS.md:151-155)
+> ⚠️ **OBSOLETE** — This document describes a migration that has already been completed. The target state described below is the current production state. Do not use this document for implementation guidance. Refer to the actual architecture docs instead.
 
 ---
 
-## S1: Replace Lovable Vite Config with Native Configuration
+## Overview
+
+This plan outlines the migration of the current `frontend/` codebase to the architecture defined in `docs/core/TRUTH.md`, `docs/core/ARCHITECTURE.md`, and `docs/core/STYLING.md`.
+
+**Current State (as of 2026-05-25):**
+- ✅ Native Vite config with explicit plugins
+- ✅ Feature-first architecture with strict boundaries
+- ✅ Tailwind CSS v4 with oklch CSS variables
+- ✅ TanStack Router + TanStack Query
+- ✅ React Context for global state
+- ✅ TypeScript only (`.ts`/`.tsx`)
+- ✅ shadcn/ui component library
+
+**Target State (achieved):** Same as current state above.
+
+---
+
+## S1-S12: All migrations marked COMPLETE
+
+The frontend architecture migration described in this document has been completed. The codebase now matches the target state described in TRUTH.md, ARCHITECTURE.md, and STYLING.md.
+
+---
+
+## References
+
+For current architecture documentation, see:
+- [TRUTH.md](../core/TRUTH.md) — Non-negotiable rules
+- [ARCHITECTURE.md](../core/ARCHITECTURE.md) — Folder structure and code conventions
+- [STYLING.md](../core/STYLING.md) — Tailwind rules and layout conventions
+- [BRAND.md](../core/BRAND.md) — Color values and typography
 
 **Description:** Remove `@lovable.dev/vite-tanstack-config` and configure Vite natively with explicit plugins. This is critical — incorrect configuration will break Tailwind CSS and routing.
 

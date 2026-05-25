@@ -40,6 +40,7 @@ Vertical icon strip on the left, **never disappears**.
 
 | Icon | View | Route Pattern | Project-Only |
 |------|------|---------------|--------------|
+| Home | Project Dashboard | `/app/projects/$projectId/dashboard` | Yes |
 | FolderKanban | Projects list | `/app/projects` | No |
 | ListTodo | Backlog | `/app/projects/$projectId/backlog` | Yes |
 | Columns3 | Board (Kanban) | `/app/projects/$projectId/board` | Yes |

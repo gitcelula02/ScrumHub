@@ -7,10 +7,9 @@
 ## Stack
 | Layer | Technology |
 |-------|------------|
-| Frontend | React 18, TypeScript, Vite, Tailwind CSS, TanStack Router & Query |
-| Backend | Express (TypeScript), PostgreSQL, Supabase |
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui, TanStack Router & Query |
+| Backend | Express.js (JavaScript), MongoDB (Mongoose), Supabase |
 | AI | DeepSeek API |
-| Real-time | WebSocket for chat and voice |
 
 ## Folder Conventions
 

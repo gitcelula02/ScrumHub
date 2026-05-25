@@ -53,7 +53,7 @@ This document defines the pure data structure and relationships. No technology s
 |-------|------|-------------|
 | id | INT | Primary Key |
 | user_id | INT | Foreign Key → User |
-| role_type | String | "product_owner" / "scrum_master" / "qa" / "developer" / "tester" / "devops" / "tech_lead" |
+| role_type | String | "product_owner" / "scrum_master" / "qa" / "developer" / "devops" / "tech_lead" |
 | specialization | String | Optional (e.g., "frontend", "backend", "react", "node") |
 | is_primary | Boolean | This is the user's main role for the project |
 
@@ -1415,7 +1415,7 @@ CREATE TABLE users (
 CREATE TABLE scrum_role_preferences (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  role_type VARCHAR(50) NOT NULL, -- 'product_owner', 'scrum_master', 'qa', 'developer', 'tester', 'devops', 'tech_lead'
+  role_type VARCHAR(50) NOT NULL, -- 'product_owner', 'scrum_master', 'qa', 'developer', 'devops', 'tech_lead'
   specialization VARCHAR(100),
   is_primary BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT NOW(),

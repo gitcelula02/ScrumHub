@@ -72,10 +72,10 @@
 ## 7. AI & RAG
 | Method | Path | Status | Returns | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| POST | `/ai/chat` | ✅ Ready | `AI Message` | See [SCHEMAS.md#ai](./SCHEMAS.md#ai) |
-| GET | `/ai/sessions` | ✅ Ready | `Session[]` | |
-| POST | `/ai/transcribe` | ✅ Ready | `Transcription` | |
-| GET | `/ai/search` | ✅ Ready | `SearchResult[]` | Semantic search |
+| POST | `/api/ai/chat` | ✅ Ready | `AI Message` | See [SCHEMAS.md#ai](./SCHEMAS.md#ai) |
+| GET | `/api/ai/sessions` | ✅ Ready | `Session[]` | |
+| POST | `/api/ai/transcribe` | ✅ Ready | `Transcription` | |
+| GET | `/api/ai/search` | ✅ Ready | `SearchResult[]` | Semantic search |
 
 ## 8. Infrastructure
 | Method | Path | Status | Returns | Notes |

@@ -1,147 +1,218 @@
-# TaskFlow - Sistema de Gestión de Proyectos con IA
+# ScrumHub - AI-Powered Project Management
 
-Un sistema de gestión de proyectos similar a Jira con asistente de IA integrado para crear tareas, asignar responsables, gestionar prioridades y enviar alertas automáticas por correo electrónico.
+A Jira-like project management system with an integrated AI assistant that understands natural language, automates task creation and assignment, manages priorities, and sends email alerts.
 
-## Características
+**Note:** This is a monorepo containing a Node.js/Express backend API and a React SPA frontend.
 
-- 🔐 **Sistema de autenticación** (login/registro)
-- 📋 **Tableros tipo Jira** con columnas personalizables
-- 🤖 **Asistente de IA** que entiende lenguaje natural
-- 📧 **Alertas por correo** basadas en fechas y prioridades
-- 👥 **Gestión de equipos** y permisos
-- 📊 **Dashboard** con estadísticas en tiempo real
-- 📱 **Diseño responsive**
+---
 
-## Arquitectura MVC
+## Features
+
+- 🔐 **Authentication** (login/register)
+- 📋 **Jira-style boards** with customizable Kanban columns
+- 🤖 **AI assistant** powered by DeepSeek that understands natural language
+- 📧 **Email alerts** based on due dates and priorities
+- 👥 **Team management** with roles and permissions
+- 📊 **Dashboard** with real-time statistics
+- 📱 **Responsive design**
+
+---
+
+## Architecture
 
 ```
-proyecto-jira/
-├── backend/
-│   ├── config/          # Configuración de base de datos
-│   ├── controllers/     # Controladores (lógica de negocio)
-│   ├── models/          # Modelos (datos y operaciones)
-│   ├── routes/          # Rutas de la API
-│   ├── services/        # Servicios (IA, notificaciones)
-│   ├── middleware/       # Middlewares (autenticación)
-│   └── server.js        # Punto de entrada
-├── frontend/
-│   ├── public/
-│   │   ├── css/         # Estilos
-│   │   └── js/          # JavaScript del cliente
-│   └── views/           # Páginas HTML
-├── data/                # Archivos JSON (base de datos)
-├── .env                 # Variables de entorno
-└── package.json
+ScrumHub/
+├── backend/                    # Express.js API server
+│   ├── config/                 # Database configuration (MongoDB)
+│   ├── controllers/            # Request handlers (business logic)
+│   ├── database/               # Database connection + seed data
+│   ├── middleware/             # Auth middleware
+│   ├── models/                  # Data models
+│   ├── routes/                  # API route definitions
+│   ├── services/                # AI and notification services
+│   └── server.js                # Entry point
+├── frontend/                   # React SPA (Vite + TanStack)
+│   ├── public/                  # Static assets
+│   ├── src/
+│   │   ├── client.tsx           # Client entry point
+│   │   ├── components/          # Shared UI atoms + layout
+│   │   ├── features/            # Feature modules (backlog, board, etc.)
+│   │   ├── hooks/               # Global hooks
+│   │   ├── lib/                 # Query client setup
+│   │   ├── pages/               # Route-level orchestrators
+│   │   ├── routes/              # TanStack Router config
+│   │   ├── services/            # API service layer
+│   │   ├── store/               # Auth context, theme registry
+│   │   ├── styles/              # Global CSS + Tailwind
+│   │   ├── types/               # Global TypeScript types
+│   │   └── utils/               # Pure utility functions
+│   └── vite.config.ts
+├── .env.example                 # Environment variables template
+└── package.json                 # Root scripts (backend only)
 ```
 
-## Instalación
+---
 
-1. **Clonar o entrar al directorio:**
-   ```bash
-   cd proyecto-jira
-   ```
+## Tech Stack
 
-2. **Instalar dependencias:**
-   ```bash
-   npm install
-   ```
+| Layer | Technology |
+|-------|------------|
+| **Backend** | Node.js, Express.js (JavaScript) |
+| **Frontend** | React 19, TypeScript, Vite, TanStack Router & Query |
+| **UI Components** | shadcn/ui (Radix primitives), Tailwind CSS v4 |
+| **Primary DB** | MongoDB (Mongoose ODM) |
+| **Auth & Storage** | Supabase (Auth + BLOB storage) |
+| **AI** | DeepSeek API (via backend proxy) |
+| **Email** | Nodemailer |
+| **Auth (session)** | express-session + bcrypt |
 
-3. **Configurar variables de entorno:**
-   Edita el archivo `.env`:
-   ```env
-   PORT=3000
-   SESSION_SECRET=tu_clave_secreta
-   EMAIL_USER=tu_correo@gmail.com
-   EMAIL_PASS=password_de_aplicacion
-   AI_API_KEY=tu_api_key_openai (opcional)
-   ```
+---
 
-4. **Iniciar el servidor:**
-   ```bash
-   npm start
-   # o para desarrollo con recarga automática:
-   npm run dev
-   ```
+## Setup
 
-5. **Abrir en el navegador:**
-   - Landing: http://localhost:3000/
-   - Login: http://localhost:3000/login
-   - Dashboard: http://localhost:3000/dashboard
+### 1. Clone and install root dependencies
 
-## Credenciales de Prueba
+```bash
+cd ScrumHub
+npm install
+```
+
+### 2. Configure environment variables
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your credentials:
+
+```env
+# Supabase
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# MongoDB
+MONGODB_URI=mongodb+srv://...
+
+# DeepSeek AI
+DEEPSEEK_API_KEY=sk-...
+
+# Email (optional)
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=app_password
+
+# Session
+SESSION_SECRET=your_secret_here
+
+# Ports
+PORT=3000          # Backend API
+```
+
+### 3. Start the backend
+
+```bash
+npm start
+# or for development with auto-reload:
+npm run dev
+```
+
+Backend runs on **http://localhost:3000**
+
+### 4. Start the frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend runs on **http://localhost:8080**
+
+### 5. Open in browser
+
+- Landing: http://localhost:8080/
+- Login: http://localhost:8080/login
+- Dashboard: http://localhost:8080/app/projects
+
+---
+
+## Test Credentials
 
 - **Email:** admin@proyecto.com
 - **Password:** admin123
 
-## Comandos del Asistente de IA
-
-El chat de IA acepta los siguientes comandos en lenguaje natural:
-
-### Crear tareas
-- "crear tarea [título]"
-- "nueva tarea [título]"
-- "crear task [título]"
-
-### Asignar tareas
-- "asignar a [nombre] #123"
-- Asigna la tarea #123 a un miembro del equipo
-
-### Cambiar prioridad
-- "cambiar prioridad alta #123"
-- "prioridad baja"
-
-### Establecer fecha
-- "fecha 25/12/2024 #123"
-- "vencimiento 31/12/2024"
-
-### Crear proyectos
-- "crear proyecto [nombre]"
-
-### Buscar tareas
-- "buscar [término]"
+---
 
 ## API Endpoints
 
-### Autenticación
-- `POST /api/auth/login` - Iniciar sesión
-- `POST /api/auth/register` - Registrarse
-- `POST /api/auth/logout` - Cerrar sesión
-- `GET /api/auth/me` - Usuario actual
+### Authentication
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/auth/login` | Login |
+| POST | `/api/auth/register` | Register |
+| POST | `/api/auth/logout` | Logout |
+| GET | `/api/auth/me` | Current user |
 
-### Proyectos
-- `GET /api/projects/all` - Listar proyectos
-- `GET /api/projects/:id` - Detalles del proyecto
-- `POST /api/projects` - Crear proyecto
-- `PUT /api/projects/:id` - Actualizar proyecto
-- `DELETE /api/projects/:id` - Eliminar proyecto
-- `POST /api/projects/:id/members` - Agregar miembro
+### Projects
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/projects/all` | List all projects |
+| GET | `/api/projects/:id` | Project details |
+| POST | `/api/projects` | Create project |
+| PUT | `/api/projects/:id` | Update project |
+| DELETE | `/api/projects/:id` | Delete project |
+| POST | `/api/projects/:id/members` | Add member |
 
-### Tareas
-- `GET /api/tasks` - Listar todas las tareas
-- `GET /api/tasks/my-tasks` - Tareas del usuario actual
-- `GET /api/tasks/project/:projectId` - Tareas del proyecto
-- `GET /api/tasks/:id` - Detalles de tarea
-- `POST /api/tasks` - Crear tarea
-- `PUT /api/tasks/:id` - Actualizar tarea
-- `DELETE /api/tasks/:id` - Eliminar tarea
-- `POST /api/tasks/:id/comments` - Agregar comentario
+### Tasks
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/tasks` | List tasks |
+| GET | `/api/tasks/my-tasks` | Current user's tasks |
+| GET | `/api/tasks/project/:projectId` | Project tasks |
+| GET | `/api/tasks/:id` | Task details |
+| POST | `/api/tasks` | Create task |
+| PUT | `/api/tasks/:id` | Update task |
+| DELETE | `/api/tasks/:id` | Delete task |
+| POST | `/api/tasks/:id/comments` | Add comment |
 
-### IA
-- `POST /api/ai/chat` - Chat con IA
-- `POST /api/ai/check-alerts` - Verificar y enviar alertas
+### AI
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/ai/chat` | Chat with AI assistant |
 
-## Tecnologías
+---
 
-- **Backend:** Node.js, Express.js
-- **Frontend:** HTML5, CSS3, JavaScript vanilla
-- **Base de datos:** JSON files (simulada)
-- **Auth:** express-session, bcrypt
-- **Email:** nodemailer
-- **IA:** Procesamiento de lenguaje natural (integrado)
+## AI Assistant Commands
 
-## Notas de Desarrollo
+The AI chat accepts natural language commands:
 
-- La base de datos es archivos JSON en la carpeta `data/`
-- Las alertas de correo se envían automáticamente cada hora
-- La IA procesa comandos en español de forma nativa
-- No requiere API key externa para funcionamiento básico
+### Create tasks
+- `crear tarea [title]`
+- `nueva tarea [title]`
+- `crear task [title]`
+
+### Assign tasks
+- `asignar a [name] #123` — assigns task #123 to a team member
+
+### Change priority
+- `cambiar prioridad alta #123`
+- `prioridad baja #123`
+
+### Set due date
+- `fecha 25/12/2024 #123`
+- `vencimiento 31/12/2024`
+
+### Create projects
+- `crear proyecto [name]`
+
+### Search tasks
+- `buscar [term]`
+
+---
+
+## Development Notes
+
+- Email alerts are checked and sent every 60 minutes automatically
+- AI processes commands in Spanish natively
+- The frontend communicates with the backend via REST API on port 3000
+- CORS is configured to allow the frontend dev server on port 8080
