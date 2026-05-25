@@ -68,7 +68,7 @@ export const apiClient = (async <T>(
     const errorData = await response.json().catch(() => ({}));
     throw new Error(
       errorData.message ||
-        `API error: ${response.status} ${response.statusText}`,
+      `API error: ${response.status} ${response.statusText}`,
     );
   }
 

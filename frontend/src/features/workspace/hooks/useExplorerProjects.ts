@@ -25,6 +25,8 @@ export function useExplorerProjects(): UseExplorerProjectsResult {
     queryFn: () => explorerService.getFolderTree(userId),
   });
 
+  console.log("[useExplorerProjects] Folder tree data:", data);
+
   return {
     folderTree: data,
     isLoading,
