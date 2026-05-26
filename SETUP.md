@@ -65,19 +65,48 @@ pnpm install
 
 ## Paso 5: Ejecutar el proyecto
 
-### Desarrollo (con auto-reload)
+### Opción 1: Ejecución Manual
+
+**Desarrollo (con auto-reload)**
 ```bash
 cd backend
 pnpm run dev
 ```
 
-### Producción
+**Producción**
 ```bash
 cd backend
 pnpm start
 ```
 
-El servidor estará disponible en: http://localhost:3001
+El servidor estará disponible en: http://localhost:3000
+
+### Opción 2: Ejecutar con Docker (Recomendado)
+
+Si tienes Docker y Docker Compose instalados, puedes levantar todo el entorno (frontend y backend) con un solo comando.
+
+**Iniciar el entorno de desarrollo:**
+```bash
+docker-compose -f docker-compose.dev.yml up -d --build
+```
+*Frontend disponible en http://localhost:8080*
+*Backend disponible en http://localhost:3000*
+
+**Detener el entorno:**
+```bash
+docker-compose -f docker-compose.dev.yml down
+```
+
+**Detener el entorno y limpiar volúmenes (reiniciar base de datos / dependencias):**
+```bash
+docker-compose -f docker-compose.dev.yml down -v
+```
+
+**Reconstruir imágenes (Útil si añades nuevas dependencias en package.json):**
+```bash
+docker-compose -f docker-compose.dev.yml build --no-cache
+docker-compose -f docker-compose.dev.yml up -d
+```
 
 ## Usuarios de prueba
 
