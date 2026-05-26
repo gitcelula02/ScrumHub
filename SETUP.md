@@ -37,7 +37,7 @@ MONGODB_URI=mongodb://localhost:27017/ScrumHub
 
 ## Paso 3: Configurar variables de entorno
 
-Edita el archivo `.env` en la raíz del proyecto:
+Copia el archivo `backend/.env.example` a `backend/.env` y edítalo:
 
 ```bash
 # Supabase
@@ -52,29 +52,32 @@ MONGODB_URI=mongodb+srv://usuario:password@cluster.mongodb.net/ScrumHub
 SESSION_SECRET=cualquier-string-aleatorio-seguro
 
 # Server
-PORT=3000
+PORT=3001
 NODE_ENV=development
 ```
 
-## Paso 4: Instalar dependencias
+## Paso 4: Instalar dependencias del backend
 
 ```bash
-npm install
+cd backend
+pnpm install
 ```
 
 ## Paso 5: Ejecutar el proyecto
 
 ### Desarrollo (con auto-reload)
 ```bash
-npm run dev
+cd backend
+pnpm run dev
 ```
 
 ### Producción
 ```bash
-npm start
+cd backend
+pnpm start
 ```
 
-El servidor estará disponible en: http://localhost:3000
+El servidor estará disponible en: http://localhost:3001
 
 ## Usuarios de prueba
 
@@ -84,12 +87,12 @@ Después de ejecutar el script SQL, puedes usar:
 |-------|------------|-----|
 | admin@proyecto.com | admin123 | Admin |
 
-**Nota:** Si el usuario no existe, regístrate manualmente en http://localhost:3000/register
+**Nota:** Si el usuario no existe, regístrate manualmente en http://localhost:3001/register
 
 ## Troubleshooting
 
 ### Error: "Supabase credentials missing"
-- Verifica que `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` estén configurados en `.env`
+- Verifica que `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` estén configurados en `backend/.env`
 
 ### Error: "MongoDB connection error"
 - Verifica que el URI de MongoDB sea correcto
