@@ -84,6 +84,10 @@ app.get('/landing', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/views/landing.html'));
 });
 
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 setInterval(() => {
     NotificationService.checkAllTasksAndNotify();
 }, 60 * 60 * 1000);
