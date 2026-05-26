@@ -1,0 +1,15 @@
+# Frontend Development Dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci && npm cache clean --force
+
+COPY . .
+
+EXPOSE 8080
+
+ENV NODE_ENV=development
+
+CMD ["npm", "run", "dev"]
