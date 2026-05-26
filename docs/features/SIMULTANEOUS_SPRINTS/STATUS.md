@@ -6,17 +6,17 @@
 
 ## Implementation State
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Database migration | 📋 Planned | sprint_groups table |
-| Backend: SprintService updates | 📋 Planned | |
-| Backend: BoardService multi-sprint | 📋 Planned | |
-| Backend: TaskService validation | 📋 Planned | |
-| Frontend: useActiveSprints hook | 📋 Planned | |
-| Frontend: SprintSelector | 📋 Planned | |
-| Frontend: SprintCard | 📋 Planned | |
-| Frontend: Board multi-sprint | 📋 Planned | |
-| Frontend: SprintCompareView | 📋 Planned | |
+| Component                          | Status     | Notes               |
+| ---------------------------------- | ---------- | ------------------- |
+| Database migration                 | 📋 Planned | sprint_groups table |
+| Backend: SprintService updates     | 📋 Planned |                     |
+| Backend: BoardService multi-sprint | 📋 Planned |                     |
+| Backend: TaskService validation    | 📋 Planned |                     |
+| Frontend: useActiveSprints hook    | 📋 Planned |                     |
+| Frontend: SprintSelector           | 📋 Planned |                     |
+| Frontend: SprintCard               | 📋 Planned |                     |
+| Frontend: Board multi-sprint       | 📋 Planned |                     |
+| Frontend: SprintCompareView        | 📋 Planned |                     |
 
 ---
 

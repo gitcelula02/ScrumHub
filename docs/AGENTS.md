@@ -55,41 +55,8 @@ For any task, read these files **in order**:
 1. `core/UX.md` — ActivityBar, routes, view behaviors
 2. `core/STYLING.md` — layout specs
 3. `features/[name]/SPEC.md` — view requirements
-
----
-
-## Creating a New Feature Doc
-
-When creating `docs/features/[name]/`:
-
-1. Create `SPEC.md` — route, components, UX description (stable)
-2. Create `STATUS.md` — implementation state (living log)
-3. **After completing work, update STATUS.md** with what was done
-
-### STATUS.md Format
-
-```markdown
-# [Feature] Status
-
-**Last updated:** YYYY-MM-DD
-
-## Implementation State
-
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Service | ✅ Done | |
-| Hook | 🚧 In Progress | |
-| Component | 📋 Planned | |
-
-## Known Issues
-- None
-
-## Recent Changes
-- YYYY-MM-DD: Completed service layer
-```
-
----
-
+### update/create documentation
+1. `DOCUMENTATION_NORMS.md` — Negotiable and non-negotiable norms
 ## Adding a New View (Step-by-Step)
 
 1. **Create page**: `src/pages/<Feature>Page.tsx`
@@ -129,18 +96,19 @@ When creating `docs/features/[name]/`:
 
 ## File Index
 
-| File | Owns | Don't repeat here |
-|------|------|-------------------|
-| `core/TRUTH.md` | Non-negotiables | Styling, architecture |
-| `core/BRAND.md` | Color values, typography | Rules, structure |
-| `core/ARCHITECTURE.md` | Folder structure, TS norms | Colors, UX |
-| `core/STYLING.md` | Tailwind rules, layouts | Values, naming |
-| `core/UX.md` | Navigation, AI flows | Styling, colors |
-| `domain/ERD.md` | Entity schemas | Routes, components |
-| `domain/CONCEPTS.md` | Scrum terminology | Code, specs |
-| `api/ENDPOINTS.md` | API endpoints (table) | UI, entities |
-| `features/*/SPEC.md` | Feature requirements | Architecture |
-| `features/*/STATUS.md` | Implementation state | Specs |
+| File                     | Owns                       | Don't repeat here     |
+| ------------------------ | -------------------------- | --------------------- |
+| `core/TRUTH.md`          | Non-negotiables            | Styling, architecture |
+| `core/BRAND.md`          | Color values, typography   | Rules, structure      |
+| `core/ARCHITECTURE.md`   | Folder structure, TS norms | Colors, UX            |
+| `core/STYLING.md`        | Tailwind rules, layouts    | Values, naming        |
+| `core/UX.md`             | Navigation, AI flows       | Styling, colors       |
+| `domain/ERD.md`          | Entity schemas             | Routes, components    |
+| `domain/CONCEPTS.md`     | Scrum terminology          | Code, specs           |
+| `api/ENDPOINTS.md`       | API endpoints (table)      | UI, entities          |
+| `features/*/SPEC.md`     | Feature requirements       | Architecture          |
+| `features/*/STATUS.md`   | Implementation state       | Specs                 |
+| `DOCUMENTATION_NORMS.md` | Documentation scoped       | Truth                 |
 
 ---
 

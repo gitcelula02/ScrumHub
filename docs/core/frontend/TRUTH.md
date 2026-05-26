@@ -80,7 +80,7 @@ All project-scoped queries: `['project', projectId, resource]`
 
 ---
 
-*For brand colors/typography: See [BRAND.md](./BRAND.md)*
-*For folder structure details: See [ARCHITECTURE.md](./ARCHITECTURE.md)*
-*For styling rules: See [STYLING.md](./STYLING.md)*
-*For UX/navigation: See [UX.md](./UX.md)*
+*For brand colors/typography: See [BRAND.md](BRAND.md)*
+*For folder structure details: See [ARCHITECTURE.md](core/frontend/ARCHITECTURE.md)*
+*For styling rules: See [STYLING.md](STYLING.md)*
+*For UX/navigation: See [UX.md](UX.md)*

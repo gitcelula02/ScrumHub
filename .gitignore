@@ -83,3 +83,6 @@ secrets.*
 *.pem
 *.key
 *.crt
+
+# Obsidian
+**/.Obsidian

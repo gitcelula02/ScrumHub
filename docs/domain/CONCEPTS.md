@@ -1,5 +1,5 @@
 # ScrumHub Concepts
-This document defines key concepts and terminology used in ScrumHub. For technical implementation details, see **[TRUTH.md](../core/TRUTH.md)**.
+This document defines key concepts and terminology used in ScrumHub. For technical implementation details, see **[TRUTH.md](TRUTH.md)**.
 
 ---
 
@@ -131,16 +131,16 @@ Groups of users assigned to projects, boards, and chats.
 
 ## Document Hierarchy
 
-| Document | Purpose |
-| :--- | :--- |
-| **[AGENTS.md](../AGENTS.md)** | Entry point. Task-based routing for AI agents. |
-| **[core/TRUTH.md](../core/TRUTH.md)** | Source of truth. Non-negotiables and core rules. |
-| **[domain/ERD.md](./ERD.md)** | Entity relationships and database schema. |
-| **[domain/CONCEPTS.md](./CONCEPTS.md)** | Terminology and Scrum methodology. |
-| **[api/ENDPOINTS.md](../api/ENDPOINTS.md)** | API Route Status & Dashboard. |
-| **[api/SCHEMAS.md](../api/SCHEMAS.md)** | Technical JSON contracts and payloads. |
-| **[features/](../features/)** | Detailed implementation specs and status per feature. |
-| **[core/ARCHITECTURE.md](../core/ARCHITECTURE.md)** | Folder structure, TS norms, component patterns. |
-| **[core/STYLING.md](../core/STYLING.md)** | Tailwind rules and layout conventions. |
-| **[core/UX.md](../core/UX.md)** | Navigation flows and user interactions. |
-| **[BACKEND_SUPPORT.md](../BACKEND_SUPPORT.md)** | Living log of required backend changes. |
+| Document                                                  | Purpose                                               |
+| :-------------------------------------------------------- | :---------------------------------------------------- |
+| **[AGENTS.md](../AGENTS.md)**                             | Entry point. Task-based routing for AI agents.        |
+| **[core/TRUTH.md](TRUTH.md)**                             | Source of truth. Non-negotiables and core rules.      |
+| **[domain/ERD.md](./ERD.md)**                             | Entity relationships and database schema.             |
+| **[domain/CONCEPTS.md](./CONCEPTS.md)**                   | Terminology and Scrum methodology.                    |
+| **[api/ENDPOINTS.md](../api/ENDPOINTS.md)**               | API Route Status & Dashboard.                         |
+| **[api/SCHEMAS.md](../api/SCHEMAS.md)**                   | Technical JSON contracts and payloads.                |
+| **[features/](features/)**                                | Detailed implementation specs and status per feature. |
+| **[core/ARCHITECTURE.md](core/frontend/ARCHITECTURE.md)** | Folder structure, TS norms, component patterns.       |
+| **[core/STYLING.md](STYLING.md)**                         | Tailwind rules and layout conventions.                |
+| **[core/UX.md](../core/UX.md)**                           | Navigation flows and user interactions.               |
+| **[BACKEND_SUPPORT.md](../BACKEND_SUPPORT.md)**           | Living log of required backend changes.               |

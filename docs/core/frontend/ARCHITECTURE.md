@@ -1,8 +1,8 @@
 # ARCHITECTURE.md — Project Structure & Code Conventions
 
 **This file owns:** Folder structure, TypeScript norms, component patterns, stack.
-**For colors:** See [BRAND.md](./BRAND.md)
-**For styling rules:** See [STYLING.md](./STYLING.md)
+**For colors:** See [BRAND.md](BRAND.md)
+**For styling rules:** See [STYLING.md](STYLING.md)
 **Last updated:** 2026-05-15
 
 ---
@@ -192,7 +192,7 @@ QueryClientProvider → EntityThemeRegistryProvider → ThemeRegistryProvider �
 
 ## Color System (Summary)
 
-**See [STYLING.md](./STYLING.md) for full details.**
+**See [STYLING.md](STYLING.md) for full details.**
 
 Entity colors (Project, Epic, Sprint, Status) follow this chain:
 

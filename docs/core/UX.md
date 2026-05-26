@@ -1,7 +1,7 @@
 # UX.md — User Experience & Navigation
 
 **This file owns:** Navigation flows, ActivityBar items, AI interactions, view behaviors.
-**For styling:** See [STYLING.md](./STYLING.md)
+**For styling:** See [STYLING.md](STYLING.md)
 **For brand:** See [BRAND.md](./BRAND.md)
 **Last updated:** 2026-05-15
 

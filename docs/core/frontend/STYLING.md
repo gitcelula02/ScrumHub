@@ -1,7 +1,7 @@
 # STYLING.md — Tailwind Rules & Layout Conventions
 
 **This file owns:** Tailwind usage, entity colors, AppShell layout, component styles.
-**For color values:** See [BRAND.md](./BRAND.md)
+**For color values:** See [BRAND.md](BRAND.md)
 **Last updated:** 2026-05-15
 
 ---

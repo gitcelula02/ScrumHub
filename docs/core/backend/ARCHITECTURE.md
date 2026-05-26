@@ -1,9 +1,9 @@
 # Backend Architecture
 
 **This file owns:** Backend folder structure, Express.js route organization, middleware, database configuration, and service layer.
-**For frontend architecture:** See [core/ARCHITECTURE.md](../core/ARCHITECTURE.md)
-**For API endpoints:** See [api/ENDPOINTS.md](../api/ENDPOINTS.md)
-**For entity schemas:** See [domain/ERD.md](../domain/ERD.md)
+**For frontend architecture:** See [core/ARCHITECTURE.md](core/frontend/ARCHITECTURE.md)
+**For API endpoints:** See [api/ENDPOINTS.md](ENDPOINTS.md)
+**For entity schemas:** See [domain/ERD.md](ERD.md)
 **Last updated:** 2026-05-25
 
 ---
@@ -208,5 +208,5 @@ The backend does **not** use CORS middleware. Instead, the frontend (port 8080) 
 
 ---
 
-*For entity definitions, see [domain/ERD.md](../domain/ERD.md)*
-*For API endpoint status, see [api/ENDPOINTS.md](../api/ENDPOINTS.md)*
+*For entity definitions, see [domain/ERD.md](ERD.md)*
+*For API endpoint status, see [api/ENDPOINTS.md](ENDPOINTS.md)*
