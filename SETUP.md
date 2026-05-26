@@ -51,8 +51,13 @@ MONGODB_URI=mongodb+srv://usuario:password@cluster.mongodb.net/ScrumHub
 # Session
 SESSION_SECRET=cualquier-string-aleatorio-seguro
 
-# Server
-PORT=3001
+# Server internal port
+PORT=3000
+
+# Docker Host Ports (The ports expuestos a tu máquina local)
+HOST_BACKEND_PORT=3000
+HOST_FRONTEND_PORT=8080
+
 NODE_ENV=development
 ```
 
