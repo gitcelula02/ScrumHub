@@ -216,3 +216,8 @@ The AI chat accepts natural language commands:
 - AI processes commands in Spanish natively
 - The frontend communicates with the backend via REST API on port 3000
 - CORS is configured to allow the frontend dev server on port 8080
+
+---
+## Future
+A specialized Task manager directly connected to the GitHub and documentation managment of a project. 
+Using a documentation system and architecture for AI Agents and highly technical developers, the system should server and appear as part of the different documentation on a project that complement each other:
