@@ -220,19 +220,4 @@ Current AI integration only supports DeepSeek. No abstraction for multi-provider
 | P3 | Replace `Task.getStats()` with SQL aggregation | Performance |
 | P3 | Add constants file for magic strings | Maintainability |
 
----
-
-## Future State (After Migration)
-
-After completing the migration roadmap:
-
-- **MongoDB** → removed, chat history in Supabase `messages` table
-- **Node.js AI regex** → removed, Express proxies to Python AI service
-- **`project.description` TEXT** → replaced by `project_documents` table with Markdown
-- **`backlogitem.assignee`** → replaced by `task_assignments` table
-- **Single database** → Supabase PostgreSQL with pgvector for RAG
-- **Dual lock files** → single `pnpm-lock.yaml`
-- **Legacy HTML routes** → removed
-- **No global error handler** → `express-async-errors` + error middleware
-- **No input validation** → Zod schemas on all endpoints
-- **Hardcoded session secret** → required env var, startup throw if missing
+*See [ARCHITECTURE.md](ARCHITECTURE.md) for the planned target architecture.*
