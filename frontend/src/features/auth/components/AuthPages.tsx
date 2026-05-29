@@ -40,6 +40,7 @@ export function LoginPage() {
     }
   };
 
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-editor p-4">
       <div className="w-full max-w-[400px] bg-sidebar-bg border border-panel-border rounded-sm shadow-2xl p-8">
@@ -55,7 +56,7 @@ export function LoginPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" id="login-form">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">

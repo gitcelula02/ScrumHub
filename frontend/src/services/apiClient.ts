@@ -3,10 +3,16 @@
  * Handles fetch requests with base URL and default headers.
  */
 
-const API_BASE_URL =
+const _RAW_BASE =
   import.meta.env.VITE_API_URL_DOCKER ||
   import.meta.env.VITE_API_URL ||
   "http://localhost:3000/api";
+
+// new URL() requires an absolute base. If the env var is a relative path
+// (e.g. '/api' inside Docker), resolve it against the current origin.
+const API_BASE_URL = _RAW_BASE.startsWith("http")
+  ? _RAW_BASE
+  : `${typeof window !== "undefined" ? window.location.origin : ""}${_RAW_BASE}`;
 
 export interface RequestOptions extends RequestInit {
   params?: Record<string, string>;

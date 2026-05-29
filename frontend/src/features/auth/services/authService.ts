@@ -11,14 +11,25 @@ interface ApiUser {
 }
 
 interface LoginResponse {
-  data: {
-    token: string;
-    user: ApiUser;
+  success: boolean;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    avatar: string;
   };
 }
 
 interface MeResponse {
-  data: ApiUser;
+  success: boolean;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    avatar: string;
+  };
 }
 
 interface LoginCredentials {
@@ -26,12 +37,12 @@ interface LoginCredentials {
   password?: string;
 }
 
-function mapUser(apiUser: ApiUser): User {
+function mapUser(apiUser: { id: string | number; name: string; username?: string; email: string; avatar_url?: string; avatar?: string; created_at?: string }): User {
   return {
     id: String(apiUser.id),
-    name: apiUser.username,
+    name: apiUser.name || apiUser.username || "",
     email: apiUser.email,
-    avatar_url: apiUser.avatar_url,
+    avatar_url: apiUser.avatar_url || apiUser.avatar || "",
     createdAt: apiUser.created_at,
   };
 }
@@ -49,7 +60,7 @@ export const authService = {
       "/auth/login",
       credentials,
     );
-    return mapUser(response.data.user);
+    return mapUser(response.user);
   },
 
   /**
@@ -64,6 +75,6 @@ export const authService = {
    */
   getCurrentUser: async (): Promise<User> => {
     const response = await apiClient.get<MeResponse>("/auth/me");
-    return mapUser(response.data);
+    return mapUser(response.user);
   },
 };

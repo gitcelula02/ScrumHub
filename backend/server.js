@@ -8,6 +8,7 @@ const projectRoutes = require('./routes/projects');
 const taskRoutes = require('./routes/tasks');
 const aiRoutes = require('./routes/ai');
 const NotificationService = require('./services/notificationService');
+const cors = require('cors');
 
 // Inicializar base de datos
 (async () => {

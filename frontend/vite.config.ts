@@ -22,6 +22,12 @@ export default defineConfig({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      '/api': {
+        target: process.env.VITE_API_PROXY_URL || 'http://backend:3000',
+        changeOrigin: true,
+      },
+    },
   },
   optimizeDeps: {
     exclude: ["@tanstack/react-start"],
