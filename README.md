@@ -117,6 +117,7 @@ npm run dev
 ```
 
 Backend runs on **http://localhost:3000**
+- For Docker: set `VITE_API_URL_DOCKER=http://backend:3000/api` in your `.env`
 
 ### 4. Start the frontend
 

@@ -28,11 +28,16 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, '../frontend/public')));
 
+app.use(cors({
+    origin: 'http://localhost:8080',
+    credentials: true
+}));
+
 app.use(session({
     secret: process.env.SESSION_SECRET || 'secret_key_12345',
     resave: false,
     saveUninitialized: false,
-    cookie: { 
+    cookie: {
         secure: false,
         maxAge: 24 * 60 * 60 * 1000
     }

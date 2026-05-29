@@ -58,6 +58,10 @@ PORT=3000
 HOST_BACKEND_PORT=3000
 HOST_FRONTEND_PORT=8080
 
+# Docker API URL (use when running via docker-compose)
+# This replaces localhost with the Docker service name for internal networking
+VITE_API_URL_DOCKER=http://backend:3000/api
+
 NODE_ENV=development
 ```
 
@@ -92,6 +96,8 @@ Si tienes Docker y Docker Compose instalados, puedes levantar todo el entorno (f
 
 **Iniciar el entorno de desarrollo:**
 ```bash
+# Set the Docker API URL before starting
+export VITE_API_URL_DOCKER=http://backend:3000/api
 docker-compose -f docker-compose.dev.yml up -d --build
 ```
 *Frontend disponible en http://localhost:8080*

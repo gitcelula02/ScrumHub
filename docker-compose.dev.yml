@@ -36,7 +36,7 @@ services:
       - backend/.env
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://localhost:3000/api
+      - VITE_API_URL=${VITE_API_URL_DOCKER:-http://localhost:3000/api}
     depends_on:
       - backend
     command: npm run dev
