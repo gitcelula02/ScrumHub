@@ -37,7 +37,15 @@ MONGODB_URI=mongodb://localhost:27017/ScrumHub
 
 ## Paso 3: Configurar variables de entorno
 
+### Backend
+
 Copia el archivo `backend/.env.example` a `backend/.env` y edítalo:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+Edita `backend/.env` con tus credenciales:
 
 ```bash
 # Supabase
@@ -58,11 +66,26 @@ PORT=3000
 HOST_BACKEND_PORT=3000
 HOST_FRONTEND_PORT=8080
 
-# Docker API URL (use when running via docker-compose)
-# This replaces localhost with the Docker service name for internal networking
+# Environment
+NODE_ENV=development
+```
+
+### Frontend
+
+Copia el archivo `frontend/.env.example` a `frontend/.env`:
+
+```bash
+cp frontend/.env.example frontend/.env
+```
+
+El archivo `frontend/.env` viene con valores preconfigurados para Docker. Si necesitas ajustarlos:
+
+```bash
+# URL del API cuando corre en Docker (no cambiar si usas docker-compose.dev.yml)
 VITE_API_URL_DOCKER=http://backend:3000/api
 
-NODE_ENV=development
+# URL del API para desarrollo local sin Docker
+VITE_API_PROXY_URL=http://localhost:3000
 ```
 
 ## Paso 4: Instalar dependencias del backend
