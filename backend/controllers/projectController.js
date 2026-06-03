@@ -11,7 +11,7 @@ function isMember(members, userId) {
 class ProjectController {
     static async getAll(req, res) {
         try {
-            if (!req.session.userId) {
+            if (!req.session || !req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
 
@@ -52,7 +52,7 @@ class ProjectController {
 
     static async getById(req, res) {
         try {
-            if (!req.session.userId) {
+            if (!req.session || !req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
 
@@ -96,7 +96,7 @@ class ProjectController {
 
     static async create(req, res) {
         try {
-            if (!req.session.userId) {
+            if (!req.session || !req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
 
@@ -126,7 +126,7 @@ class ProjectController {
 
     static async update(req, res) {
         try {
-            if (!req.session.userId) {
+            if (!req.session || !req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
 
@@ -148,7 +148,7 @@ class ProjectController {
 
     static async delete(req, res) {
         try {
-            if (!req.session.userId) {
+            if (!req.session || !req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
 
@@ -170,7 +170,7 @@ class ProjectController {
 
     static async addMember(req, res) {
         try {
-            if (!req.session.userId) {
+            if (!req.session || !req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
 
@@ -191,7 +191,7 @@ class ProjectController {
 
     static async getTree(req, res) {
         try {
-            if (!req.session.userId) {
+            if (!req.session || !req.session.userId) {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
 

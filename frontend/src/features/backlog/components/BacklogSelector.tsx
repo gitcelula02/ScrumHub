@@ -33,7 +33,8 @@ function setSearchParam(key: string, value: string | undefined) {
  */
 export function BacklogSelector({ projectId }: BacklogSelectorProps) {
   const navigate = useNavigate();
-  const { data: backlogs = [] } = useBacklogs(projectId);
+  const { data } = useBacklogs(projectId);
+  const backlogs = Array.isArray(data) ? data : [];
   const [modalOpen, setModalOpen] = useState(false);
 
   const currentBacklogId = getSearchParam("backlogId");
@@ -41,7 +42,6 @@ export function BacklogSelector({ projectId }: BacklogSelectorProps) {
   const handleChange = useCallback(
     (value: string) => {
       setSearchParam("backlogId", value || undefined);
-      navigate({ to: window.location.pathname + window.location.search });
     },
     [navigate],
   );
@@ -49,7 +49,6 @@ export function BacklogSelector({ projectId }: BacklogSelectorProps) {
   const handleBacklogCreated = useCallback(
     (backlogId: number) => {
       setSearchParam("backlogId", String(backlogId));
-      navigate({ to: window.location.pathname + window.location.search });
     },
     [navigate],
   );

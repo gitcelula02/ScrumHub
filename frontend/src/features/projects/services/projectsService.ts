@@ -34,7 +34,20 @@ const projectsService = {
       const response = await apiClient.get<Project[] | ProjectsResponse>(
         "/projects",
       );
-      return Array.isArray(response) ? response : response.data;
+
+      if (Array.isArray(response)) {
+        return response;
+      }
+
+      if (response && "data" in response && Array.isArray(response.data)) {
+        return response.data;
+      }
+
+      if (response && "projects" in response && Array.isArray(response.projects)) {
+        return response.projects;
+      }
+
+      return [];
     } catch {
       return [];
     }
@@ -46,7 +59,9 @@ const projectsService = {
         `/projects/${projectId}`,
       );
       if (!response) return null;
-      return "data" in response ? response.data : response;
+      if ("data" in response) return response.data;
+      if ("project" in response) return response.project;
+      return response as Project;
     } catch {
       return null;
     }
@@ -56,7 +71,12 @@ const projectsService = {
    * Creates a new project.
    */
   create: async (data: Partial<Project>): Promise<Project> => {
-    return apiClient.post<Project>("/projects", data);
+    const res = await apiClient.post<any>("/projects", data);
+    // API might return either the project directly or a wrapper { success: true, project }
+    if (!res) throw new Error('Empty response from create project');
+    if ('project' in res) return res.project as Project;
+    if ('data' in res) return res.data as Project;
+    return res as Project;
   },
 
   /**

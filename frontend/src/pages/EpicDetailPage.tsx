@@ -13,14 +13,13 @@ export function EpicDetailPage() {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    navigate({ to: "/app/projects/$projectId/epics/", params: { projectId } });
+    if (!projectId) return;
+    navigate({ to: `/app/projects/${projectId}/epics/` });
   };
 
   const handleOpenTask = (task: Task) => {
-    navigate({
-      to: "/app/projects/$projectId/tasks/$taskId",
-      params: { projectId, taskId: task.id },
-    });
+    if (!projectId) return;
+    navigate({ to: `/app/projects/${projectId}/tasks/${task.id}` });
   };
 
   return (

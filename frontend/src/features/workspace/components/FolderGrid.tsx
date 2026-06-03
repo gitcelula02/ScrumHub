@@ -27,10 +27,11 @@ function ProjectCard({ project }: { project: ExplorerProject }) {
   const completionPercent = project.status === "completed" ? 100 : project.status === "active" ? 50 : 20;
 
   const handleClick = () => {
-    navigate({
-      to: "/app/projects/$projectId/dashboard",
-      params: { projectId: project.id },
-    });
+    if (!project.id) {
+      console.warn('[FolderGrid] attempt to navigate with empty project.id', project);
+      return;
+    }
+    navigate({ to: `/app/projects/${project.id}/dashboard` });
   };
 
   return (

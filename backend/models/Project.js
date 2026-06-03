@@ -30,7 +30,7 @@ class Project {
     }
 
     static async getById(id) {
-        if (!id) return null;
+        if (!id || id === 'undefined') return null;
         const { data, error } = await supabase
             .from('project')
             .select('*, projectuser(user_id)')

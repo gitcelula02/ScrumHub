@@ -103,11 +103,18 @@ export function ActivityBar({ onNotifications, projectId }: ActivityBarProps) {
   };
 
   const handleNavigate = (path: string, id: ActivityView) => {
+    console.log('[ActivityBar] navigate called', { path, projectId: projectId, id });
     if (id === "projects") {
+      // absolute projects list
       navigate({ to: path });
-    } else if (projectId) {
-      navigate({ to: path, params: { projectId } });
+      return;
     }
+    if (!projectId) return;
+    // Force absolute navigation to avoid router-relative doubling
+    const target = path.includes('$projectId') ? path.replace('$projectId', projectId) : path;
+    // Ensure absolute path
+    const abs = target.startsWith('/') ? target : `/${target}`;
+    navigate({ to: abs });
   };
 
   const handleExport = () => {
@@ -172,13 +179,10 @@ export function ActivityBar({ onNotifications, projectId }: ActivityBarProps) {
           )}
         </button>
         <button
-          onClick={() =>
-            projectId &&
-            navigate({
-              to: "/app/projects/$projectId/settings",
-              params: { projectId },
-            })
-          }
+          onClick={() => {
+            if (!projectId) return;
+            navigate({ to: `/app/projects/${projectId}/settings` });
+          }}
           title="Ajustes"
           disabled={!projectId}
           className={cn(

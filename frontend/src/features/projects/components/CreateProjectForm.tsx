@@ -137,10 +137,11 @@ export function CreateProjectForm({ className, defaultValues, folderId }: Create
       };
       const project = await createProject(payload as any);
       form.reset();
-      navigate({
-        to: "/app/projects/$projectId",
-        params: { projectId: project.id },
-      });
+      if (!project?.id) {
+        console.warn('[CreateProjectForm] created project has no id', project);
+      } else {
+        navigate({ to: `/app/projects/${project.id}` });
+      }
     } catch (error) {
       setServerError(error instanceof Error ? error.message : "Failed to create project");
     }

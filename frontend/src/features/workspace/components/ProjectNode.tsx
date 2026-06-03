@@ -34,18 +34,16 @@ function ProjectNodeComponent({ project, viewSize, isSelected, onSelect }: Proje
     if (onSelect) {
       onSelect(project);
     } else {
-      navigate({
-        to: "/app/projects/$projectId/dashboard",
-        params: { projectId: project.id },
-      });
+      console.log('[ProjectNode] navigate to dashboard', { projectId: project.id });
+      if (!project.id) return;
+      navigate({ to: `/app/projects/${project.id}/dashboard` });
     }
   };
 
   const handleOpen = () => {
-    navigate({
-      to: "/app/projects/$projectId/dashboard",
-      params: { projectId: project.id },
-    });
+    console.log('[ProjectNode] navigate open', { projectId: project.id });
+    if (!project.id) return;
+    navigate({ to: `/app/projects/${project.id}/dashboard` });
   };
 
   const handleArchive = () => {

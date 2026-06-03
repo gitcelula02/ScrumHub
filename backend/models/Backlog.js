@@ -18,7 +18,7 @@ function mapFromDB(row) {
 
 class Backlog {
     static async getByProject(projectId) {
-        if (!projectId) return [];
+        if (!projectId || projectId === 'undefined') return [];
         const { data, error } = await supabase
             .from('backlogs')
             .select('*')
@@ -29,7 +29,7 @@ class Backlog {
     }
 
     static async getById(id) {
-        if (!id) return null;
+        if (!id || id === 'undefined') return null;
         const { data, error } = await supabase
             .from('backlogs')
             .select('*')
@@ -40,6 +40,10 @@ class Backlog {
     }
 
     static async create(projectId, backlogData) {
+        if (!projectId || projectId === 'undefined') {
+            throw new Error('Invalid projectId for backlog creation');
+        }
+
         const newBacklog = {
             project_id: projectId,
             name: backlogData.name,

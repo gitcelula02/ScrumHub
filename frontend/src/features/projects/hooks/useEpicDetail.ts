@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useTasks } from "@/features/backlog";
 import { epicService } from "../services/epicService";
 import type { Task } from "@/types";
@@ -13,12 +14,17 @@ import type { Task } from "@/types";
  * @returns {Object} Epic, children array, loading state, error
  */
 export function useEpicDetail(projectId: string, epicId: string) {
-  const { data: tasks = [], isLoading, error } = useTasks(projectId);
-
-  const epic = useMemo(
-    () => tasks.find((t) => t.id === epicId && t.type === "EPIC"),
-    [tasks, epicId],
-  );
+  const { data: tasks = [], isLoading: tasksLoading, error: tasksError } =
+    useTasks(projectId);
+  const {
+    data: epic,
+    isLoading: epicLoading,
+    error: epicError,
+  } = useQuery<Task | undefined>({
+    queryKey: ["project", projectId, "epic", epicId],
+    queryFn: () => epicService.getEpic(epicId),
+    enabled: !!epicId,
+  });
 
   const children = useMemo(
     () => epicService.getEpicChildren(tasks, epicId),
@@ -28,7 +34,7 @@ export function useEpicDetail(projectId: string, epicId: string) {
   return {
     epic,
     children,
-    isLoading,
-    error,
+    isLoading: tasksLoading || epicLoading,
+    error: tasksError || epicError,
   };
 }

@@ -131,11 +131,6 @@ const SprintController = {
             res.status(500).json({ success: false, message: error.message });
         }
     }
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ success: false, message: error.message });
-        }
-    }
 };
 
 module.exports = SprintController;

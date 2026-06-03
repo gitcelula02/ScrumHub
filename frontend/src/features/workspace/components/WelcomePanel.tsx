@@ -63,10 +63,7 @@ function WelcomePanelComponent({
   const navigate = useNavigate();
 
   const handleProjectClick = (projectId: string) => {
-    navigate({
-      to: "/app/projects/$projectId/dashboard",
-      params: { projectId },
-    });
+    navigate({ to: `/app/projects/${projectId}/dashboard` });
   };
 
   const handleCreateProject = () => {

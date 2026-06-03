@@ -10,11 +10,11 @@ export function BacklogPage() {
   const { projectId } = useParams({ from: "/app/projects/$projectId/backlog" });
   const navigate = useNavigate();
 
+  console.log('[BacklogPage] projectId =', projectId);
+
   const handleOpenTask = (task: Task) => {
-    navigate({
-      to: "/app/projects/$projectId/tasks/$taskId",
-      params: { projectId, taskId: task.id },
-    });
+    if (!projectId) return;
+    navigate({ to: `/app/projects/${projectId}/tasks/${task.id}` });
   };
 
   return <BacklogView projectId={projectId} onOpenTask={handleOpenTask} />;

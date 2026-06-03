@@ -11,30 +11,48 @@ export const backlogService = {
    * @param {string} projectId - The project identifier
    */
   getTasks: async (projectId: string): Promise<Task[]> => {
-    return apiClient.get<Task[]>("/tasks", {
-      params: { project_id: projectId },
-    });
+    const response = await apiClient<{ success: boolean; tasks: Task[] }>(
+      `/tasks/project/${projectId}`,
+    );
+    return response.tasks;
   },
 
   /**
    * Fetches a single task by ID.
    */
   getTaskById: async (id: string): Promise<Task> => {
-    return apiClient.get<Task>(`/tasks/${id}?include=comments`);
+    const response = await apiClient<{ success: boolean; task: Task }>(
+      `/tasks/${id}?include=comments`,
+    );
+    return response.task;
   },
 
   /**
    * Updates an existing task.
    */
   updateTask: async (id: string, data: Partial<Task>): Promise<Task> => {
-    return apiClient.patch<Task>(`/tasks/${id}`, data);
+    const response = await apiClient<{ success: boolean; task: Task }>(
+      `/tasks/${id}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      },
+    );
+    return response.task;
   },
 
   /**
    * Creates a new task.
    */
   createTask: async (data: Partial<Task>): Promise<Task> => {
-    return apiClient.post<Task>("/tasks", data);
+    const response = await apiClient<{ success: boolean; task: Task }>(
+      "/tasks",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+    );
+    return response.task;
   },
 
   /**
@@ -42,7 +60,12 @@ export const backlogService = {
    * @param {string} projectId - The project identifier
    */
   getBacklogs: async (projectId: string): Promise<Backlog[]> => {
-    return apiClient.get<Backlog[]>(`/projects/${projectId}/backlogs`);
+    const res = await apiClient.get<any>(`/projects/${projectId}/backlogs`);
+    if (!res) return [];
+    if (Array.isArray(res)) return res as Backlog[];
+    if (Array.isArray(res.backlogs)) return res.backlogs as Backlog[];
+    if (Array.isArray(res.data)) return res.data as Backlog[];
+    return [];
   },
 
   /**

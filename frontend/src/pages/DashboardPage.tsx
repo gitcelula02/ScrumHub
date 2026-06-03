@@ -14,10 +14,8 @@ export function DashboardPage() {
   const navigate = useNavigate();
 
   const handleOpenTask = (task: Task) => {
-    navigate({
-      to: "/app/projects/$projectId/tasks/$taskId",
-      params: { projectId, taskId: task.id },
-    });
+    if (!projectId) return;
+    navigate({ to: `/app/projects/${projectId}/tasks/${task.id}` });
   };
 
   return <Board onOpenTask={handleOpenTask} projectId={projectId} />;

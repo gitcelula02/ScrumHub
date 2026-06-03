@@ -33,7 +33,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../frontend/public')));
 
 app.use(cors({
-    origin: 'http://localhost:8080',
+    origin: function (origin, callback) {
+        // Allow requests with no origin (e.g., server-to-server) or reflect dev frontend origin.
+        if (!origin) return callback(null, true);
+        // Allow configured FRONTEND_URL or any localhost dev ports
+        const allowed = [process.env.FRONTEND_URL, 'http://localhost:8080', 'http://localhost:8081', 'http://localhost:8082'].filter(Boolean);
+        if (allowed.includes(origin) || /http:\/\/localhost:8\d{2}/.test(origin)) {
+            return callback(null, true);
+        }
+        return callback(null, false);
+    },
     credentials: true
 }));
 
@@ -47,6 +56,10 @@ app.use(session({
     }
 }));
 
+const FRONTEND_URL =
+    process.env.FRONTEND_URL ||
+    `http://localhost:${process.env.HOST_FRONTEND_PORT || 8080}`;
+
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
@@ -57,43 +70,20 @@ app.use('/api/ai', aiRoutes);
 
 app.get('/', (req, res) => {
     if (req.session.userId) {
-        res.redirect('/dashboard');
-    } else {
-        res.sendFile(path.join(__dirname, '../frontend/views/landing.html'));
+        return res.redirect(`${FRONTEND_URL}/dashboard`);
     }
+    return res.redirect(`${FRONTEND_URL}/login`);
 });
 
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/views/login.html'));
+app.get(['/login', '/register', '/landing'], (req, res) => {
+    return res.redirect(`${FRONTEND_URL}${req.path}`);
 });
 
-app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/views/register.html'));
-});
-
-app.get('/dashboard', (req, res) => {
+app.get(['/dashboard', '/profile', '/project/:id'], (req, res) => {
     if (!req.session.userId) {
-        return res.redirect('/login');
+        return res.redirect(`${FRONTEND_URL}/login`);
     }
-    res.sendFile(path.join(__dirname, '../frontend/views/dashboard.html'));
-});
-
-app.get('/project/:id', (req, res) => {
-    if (!req.session.userId) {
-        return res.redirect('/login');
-    }
-    res.sendFile(path.join(__dirname, '../frontend/views/project.html'));
-});
-
-app.get('/profile', (req, res) => {
-    if (!req.session.userId) {
-        return res.redirect('/login');
-    }
-    res.sendFile(path.join(__dirname, '../frontend/views/profile.html'));
-});
-
-app.get('/landing', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/views/landing.html'));
+    return res.redirect(`${FRONTEND_URL}${req.path}`);
 });
 
 app.get('/api/health', (req, res) => {

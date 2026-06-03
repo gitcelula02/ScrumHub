@@ -6,7 +6,7 @@
 const _RAW_BASE =
   import.meta.env.VITE_API_URL_DOCKER ||
   import.meta.env.VITE_API_URL ||
-  "http://localhost:3000/api";
+  (import.meta.env.DEV ? "/api" : "http://localhost:3000/api");
 
 // new URL() requires an absolute base. If the env var is a relative path
 // (e.g. '/api' inside Docker), resolve it against the current origin.

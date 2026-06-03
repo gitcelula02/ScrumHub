@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { ActivityBar } from "./ActivityBar";
 import { StatusBar } from "./StatusBar";
 import { TitleBar } from "./TitleBar";
@@ -29,6 +30,28 @@ export function AppShell({ children }: { children?: ReactNode }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   const projectId = params.projectId;
+
+  const routerState = useRouterState();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const p = routerState.location.pathname;
+    if (p.includes('/app/projects/undefined')) {
+      console.log('[AppShell] redirecting from undefined project to /app/projects');
+      navigate({ to: '/app/projects', replace: true });
+      return;
+    }
+    const m = p.match(/^(.+\/app\/projects\/[^/]+)(\/app\/projects\/.*)$/);
+    if (m) {
+      const normalized = m[2];
+      console.log('[AppShell] normalizing duplicated path', { from: p, to: normalized });
+      try {
+        navigate({ to: normalized, replace: true });
+      } catch (e) {
+        console.warn('[AppShell] normalization navigate failed', e);
+      }
+    }
+  }, [routerState.location.pathname, navigate]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

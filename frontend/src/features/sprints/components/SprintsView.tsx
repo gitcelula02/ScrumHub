@@ -1,47 +1,8 @@
-import { useState } from "react";
-import { Zap, Calendar, Clock, ChevronRight, Plus } from "lucide-react";
+import { Zap, Calendar, ChevronRight, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BacklogSelector } from "@/features/backlog";
-
-interface Sprint {
-  id: string;
-  name: string;
-  status: "active" | "planned" | "completed";
-  startDate: string;
-  endDate: string;
-  taskCount: number;
-  completedCount: number;
-}
-
-const MOCK_SPRINTS: Sprint[] = [
-  {
-    id: "sprint-1",
-    name: "Sprint 24",
-    status: "active",
-    startDate: "2026-04-14",
-    endDate: "2026-04-28",
-    taskCount: 12,
-    completedCount: 8,
-  },
-  {
-    id: "sprint-2",
-    name: "Sprint 25",
-    status: "planned",
-    startDate: "2026-04-29",
-    endDate: "2026-05-12",
-    taskCount: 15,
-    completedCount: 0,
-  },
-  {
-    id: "sprint-3",
-    name: "Sprint 26",
-    status: "planned",
-    startDate: "2026-05-13",
-    endDate: "2026-05-26",
-    taskCount: 0,
-    completedCount: 0,
-  },
-];
+import { useSprints } from "../hooks/useSprints";
+import type { Sprint } from "../types";
 
 const STATUS_BADGE: Record<Sprint["status"], string> = {
   active:
@@ -65,10 +26,25 @@ interface SprintsViewProps {
  * Sprint management interface showing active and planned sprints.
  */
 export function SprintsView({ projectId }: SprintsViewProps) {
-  const [sprints] = useState<Sprint[]>(MOCK_SPRINTS);
-
+  const { data: sprints = [], isLoading, error } = useSprints(projectId);
   const activeSprints = sprints.filter((s) => s.status === "active");
   const plannedSprints = sprints.filter((s) => s.status === "planned");
+
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center text-muted-foreground font-mono">
+        Cargando sprints...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full flex items-center justify-center text-destructive font-mono">
+        No se pudieron cargar los sprints.
+      </div>
+    );
+  }
 
   return (
     <div className="h-full overflow-auto bg-editor p-6">
@@ -107,9 +83,15 @@ export function SprintsView({ projectId }: SprintsViewProps) {
           Planificados
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {plannedSprints.map((sprint) => (
-            <SprintCard key={sprint.id} sprint={sprint} />
-          ))}
+          {plannedSprints.length > 0 ? (
+            plannedSprints.map((sprint) => (
+              <SprintCard key={sprint.id} sprint={sprint} />
+            ))
+          ) : (
+            <div className="col-span-full text-[13px] text-muted-foreground">
+              No hay sprints planificados todavía.
+            </div>
+          )}
         </div>
       </div>
     </div>

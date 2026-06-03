@@ -62,10 +62,7 @@ export function ProjectsView() {
   }, [filteredProjects, featuredProjects, activeTab]);
 
   const handleProjectClick = (projectId: string) => {
-    navigate({
-      to: "/app/projects/$projectId/dashboard",
-      params: { projectId },
-    });
+    navigate({ to: `/app/projects/${projectId}/dashboard` });
   };
 
   const getLeadName = (ownerId: string): string => {

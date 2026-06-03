@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const ProjectController = require('../controllers/projectController');
 
+router.get('/', ProjectController.getAll);
 router.get('/all', ProjectController.getAll);
 router.get('/:id', ProjectController.getById);
 router.get('/:id/tree', ProjectController.getTree);
