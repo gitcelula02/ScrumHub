@@ -44,7 +44,10 @@
 ## 4. Backlogs & Tasks
 | Method | Path | Status | Returns | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| GET | `/api/projects/:id/backlogs` | 📋 Planned | `Backlog[]` | |
+| GET | `/api/projects/:id/backlogs` | ✅ Ready | `Backlog[]` | |
+| POST | `/api/projects/:id/backlogs` | ✅ Ready | `Backlog` | |
+| PATCH | `/api/backlogs/:id` | ✅ Ready | `Backlog` | |
+| DELETE | `/api/backlogs/:id` | ✅ Ready | — | |
 | GET | `/api/tasks` | ✅ Ready | `Task[]` | |
 | POST | `/api/tasks` | ✅ Ready | `Task` | |
 | PATCH | `/api/tasks/:id/status` | ✅ Ready | `Task` | Optimized for drag-drop |
@@ -52,13 +55,23 @@
 | POST | `/api/tasks/:id/comments` | ✅ Ready | `Comment` | |
 | POST | `/api/tasks/:id/attachments` | ✅ Ready | `Attachment` | Multipart/form-data |
 
-## 5. Sprints
+## 5. Epics
+| Method | Path | Status | Returns | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| GET | `/api/projects/:id/epics` | ✅ Ready | `Task[]` | Epic list for project |
+| POST | `/api/projects/:id/epics` | ✅ Ready | `Task` | Create epic |
+| GET | `/api/epics/:id` | ✅ Ready | `Task` | Epic detail with child tasks |
+| PATCH | `/api/epics/:id` | ✅ Ready | `Task` | |
+| DELETE | `/api/epics/:id` | ✅ Ready | — | |
+| POST | `/api/epics/:id/tasks` | ✅ Ready | `Task[]` | Assign tasks to epic |
+
+## 6. Sprints
 | Method | Path | Status | Returns | Notes |
 | :--- | :--- | :--- | :--- | :--- |
 | GET | `/api/projects/:id/sprints` | ✅ Ready | `Sprint[]` | |
 | POST | `/api/projects/:id/sprints` | ✅ Ready | `Sprint` | |
-| POST | `/api/sprints/:id/activate` | 📋 Planned | — | |
-| POST | `/api/sprints/:id/complete` | 📋 Planned | — | |
+| POST | `/api/sprints/:id/activate` | ✅ Ready | — | |
+| POST | `/api/sprints/:id/complete` | ✅ Ready | — | |
 | POST | `/api/sprints/:id/tasks` | ✅ Ready | — | Assign tasks to sprint |
 
 ## 6. Chat & Channels

@@ -82,7 +82,18 @@ class TaskController {
                 return res.status(401).json({ success: false, message: 'No autenticado' });
             }
 
-            const { projectId, title, description, priority, dueDate, assignee } = req.body;
+            const {
+                projectId,
+                title,
+                description,
+                priority,
+                dueDate,
+                assignee,
+                backlogId,
+                sprintId,
+                epicId,
+                type
+            } = req.body;
 
             if (!projectId || !title) {
                 return res.status(400).json({ success: false, message: 'Proyecto y título son requeridos' });
@@ -105,6 +116,10 @@ class TaskController {
                 priority,
                 dueDate,
                 assignee,
+                backlogId,
+                sprintId,
+                epicId,
+                type,
                 reporter: req.session.userId
             });
 

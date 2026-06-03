@@ -136,6 +136,19 @@ class Project {
             console.error('Error al agregar miembro inicial:', memberError.message);
         }
 
+        try {
+            const Backlog = require('./Backlog');
+            await Backlog.create(data.id, {
+                name: 'Default Backlog',
+                description: 'Backlog creado automáticamente con el proyecto',
+                type: 'default',
+                color: '#3B82F6',
+                isDefault: true
+            });
+        } catch (backlogError) {
+            console.error('Error creando backlog predeterminado:', backlogError.message);
+        }
+
         return enrichProject({ ...data, _members: [projectData.owner] });
     }
 

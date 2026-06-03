@@ -24,13 +24,16 @@ function mapFromDB(row) {
         id: String(row.id),
         projectId: String(row.project_id),
         parentId: row.parent_id ? String(row.parent_id) : null,
+        backlogId: row.backlog_id ? String(row.backlog_id) : null,
+        sprintId: row.sprint_id ? String(row.sprint_id) : null,
+        epicId: row.epic_id ? String(row.epic_id) : null,
         title: row.title,
         description: row.description || '',
         status: DB_TO_STATUS[row.status] || 'todo',
         priority: DB_TO_PRIORITY[row.priority] ?? 'medium',
         dueDate: row.due_date || null,
-        assignee: null,
-        reporter: null,
+        assignee: row.assignee_id ? String(row.assignee_id) : null,
+        reporter: row.reporter_id ? String(row.reporter_id) : null,
         tags: [],
         subtasks: [],
         attachments: [],
@@ -73,6 +76,28 @@ class Task {
         return (data || []).map(mapFromDB);
     }
 
+    static async getBySprint(sprintId) {
+        if (!sprintId) return [];
+        const { data, error } = await supabase
+            .from('backlogitem')
+            .select('*')
+            .eq('sprint_id', sprintId)
+            .order('created_at', { ascending: true });
+        if (error) throw error;
+        return (data || []).map(mapFromDB);
+    }
+
+    static async getChildTasksByEpic(epicId) {
+        if (!epicId) return [];
+        const { data, error } = await supabase
+            .from('backlogitem')
+            .select('*')
+            .or(`parent_id.eq.${epicId},epic_id.eq.${epicId}`)
+            .order('created_at', { ascending: true });
+        if (error) throw error;
+        return (data || []).map(mapFromDB);
+    }
+
     static async getByUser(userId) {
         if (!userId) return [];
         const { data: memberProjects } = await supabase
@@ -94,12 +119,18 @@ class Task {
     static async create(taskData) {
         const newTask = {
             project_id: taskData.projectId,
+            parent_id: taskData.parentId || null,
+            backlog_id: taskData.backlogId || null,
+            sprint_id: taskData.sprintId || null,
+            epic_id: taskData.epicId || null,
             title: taskData.title,
             description: taskData.description || '',
             status: STATUS_TO_DB[taskData.status] || 'TODO',
             priority: PRIORITY_TO_DB[taskData.priority] ?? 2,
             due_date: taskData.dueDate || null,
-            type: 'TASK'
+            assignee_id: taskData.assignee || null,
+            reporter_id: taskData.reporter || null,
+            type: taskData.type ? taskData.type.toUpperCase() : 'TASK'
         };
         const { data, error } = await supabase
             .from('backlogitem')
@@ -114,6 +145,13 @@ class Task {
         const dbFields = {};
         if (updateData.title !== undefined) dbFields.title = updateData.title;
         if (updateData.description !== undefined) dbFields.description = updateData.description;
+        if (updateData.parentId !== undefined) dbFields.parent_id = updateData.parentId;
+        if (updateData.backlogId !== undefined) dbFields.backlog_id = updateData.backlogId;
+        if (updateData.sprintId !== undefined) dbFields.sprint_id = updateData.sprintId;
+        if (updateData.epicId !== undefined) dbFields.epic_id = updateData.epicId;
+        if (updateData.assignee !== undefined) dbFields.assignee_id = updateData.assignee;
+        if (updateData.reporter !== undefined) dbFields.reporter_id = updateData.reporter;
+        if (updateData.type !== undefined) dbFields.type = updateData.type.toUpperCase();
         if (updateData.status) dbFields.status = STATUS_TO_DB[updateData.status] || updateData.status;
         if (updateData.priority !== undefined) {
             dbFields.priority = PRIORITY_TO_DB[updateData.priority] ?? 2;

@@ -6,6 +6,9 @@ const { initDatabase } = require('./config/database');
 const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/projects');
 const taskRoutes = require('./routes/tasks');
+const backlogRoutes = require('./routes/backlogs');
+const sprintRoutes = require('./routes/sprints');
+const epicRoutes = require('./routes/epics');
 const aiRoutes = require('./routes/ai');
 const NotificationService = require('./services/notificationService');
 const cors = require('cors');
@@ -47,6 +50,9 @@ app.use(session({
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api', backlogRoutes);
+app.use('/api', sprintRoutes);
+app.use('/api', epicRoutes);
 app.use('/api/ai', aiRoutes);
 
 app.get('/', (req, res) => {
