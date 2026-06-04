@@ -1,6 +1,13 @@
 const { supabase } = require('../config/database');
 const Task = require('./Task');
 
+function isMissingSprintsTable(error) {
+    return error && (
+        error.code === '42P01' ||
+        /sprints/i.test(error.message || '') && /schema cache|does not exist|not find the table/i.test(error.message || '')
+    );
+}
+
 function mapFromDB(row) {
     if (!row) return null;
     return {
@@ -24,6 +31,7 @@ class Sprint {
             .select('*')
             .eq('project_id', projectId)
             .order('start_date', { ascending: false });
+        if (isMissingSprintsTable(error)) return [];
         if (error) throw error;
         return (data || []).map(mapFromDB);
     }
@@ -35,6 +43,7 @@ class Sprint {
             .select('*')
             .eq('id', id)
             .single();
+        if (isMissingSprintsTable(error)) return null;
         if (error && error.code !== 'PGRST116') throw error;
         return mapFromDB(data);
     }
@@ -54,6 +63,9 @@ class Sprint {
             .insert([insertData])
             .select()
             .single();
+        if (isMissingSprintsTable(error)) {
+            throw new Error('Sprint storage is not configured. Run the sprints database migration first.');
+        }
         if (error) throw error;
         return mapFromDB(data);
     }
@@ -73,6 +85,9 @@ class Sprint {
             .select()
             .single();
 
+        if (isMissingSprintsTable(error)) {
+            throw new Error('Sprint storage is not configured. Run the sprints database migration first.');
+        }
         if (error) throw error;
         return mapFromDB(data);
     }
