@@ -77,14 +77,34 @@ export const backlogService = {
     projectId: string,
     data: Partial<Backlog>,
   ): Promise<Backlog> => {
-    return apiClient.post<Backlog>(`/projects/${projectId}/backlogs`, data);
+    const response = await apiClient.post<
+      Backlog | { success: boolean; backlog: Backlog }
+    >(`/projects/${projectId}/backlogs`, data);
+
+    if (response && "backlog" in response) {
+      return response.backlog;
+    }
+
+    return response as Backlog;
   },
 
   /**
    * Fetches all registered backlog types (for custom backlogs).
    */
   getBacklogTypes: async (): Promise<BacklogType[]> => {
-    return apiClient.get<BacklogType[]>("/backlog-types");
+    const response = await apiClient.get<
+      BacklogType[] | { success: boolean; backlogTypes: BacklogType[] }
+    >("/backlog-types");
+
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    if (response && "backlogTypes" in response) {
+      return response.backlogTypes;
+    }
+
+    return [];
   },
 
   /**
@@ -95,6 +115,14 @@ export const backlogService = {
     name: string;
     description: string;
   }): Promise<BacklogType> => {
-    return apiClient.post<BacklogType>("/backlog-types", data);
+    const response = await apiClient.post<
+      BacklogType | { success: boolean; backlogType: BacklogType }
+    >("/backlog-types", data);
+
+    if (response && "backlogType" in response) {
+      return response.backlogType;
+    }
+
+    return response as BacklogType;
   },
 };

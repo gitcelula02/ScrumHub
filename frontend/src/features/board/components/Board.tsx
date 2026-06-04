@@ -92,60 +92,66 @@ export function Board({ onOpenTask, projectId }: BoardProps) {
                 </button>
               </div>
               <div className="p-2 flex flex-col gap-2 flex-1">
-                {items.map((t) => (
-                  <div
-                    key={t.id}
-                    draggable
-                    onDragStart={() => setDragId(t.id)}
-                    onDragEnd={() => {
-                      setDragId(null);
-                      setOverCol(null);
-                    }}
-                    onClick={() => onOpenTask(t)}
-                    className={cn(
-                      "cursor-grab active:cursor-grabbing text-left bg-editor hover:bg-list-hover border border-panel-border hover:border-status-bar/60 transition-colors rounded-sm p-3",
-                      dragId === t.id && "opacity-40",
-                    )}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <span className="font-mono text-[11px] text-muted-foreground">
-                        {t.id}
-                      </span>
-                      <MoreHorizontal
-                        size={14}
-                        className="text-muted-foreground"
-                      />
-                    </div>
-                    <p className="text-[13px] text-foreground leading-snug mb-3">
-                      {t.title}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <span
-                          className={cn(
-                            "w-2 h-2 rounded-full",
-                            PRIORITY_DOT[
-                              t.priority as keyof typeof PRIORITY_DOT
-                            ] || "bg-muted",
-                          )}
-                        />
-                        <span className="text-[11px] text-muted-foreground capitalize">
-                          {t.priority}
+                {items.map((t) => {
+                  const assigneeLabel = t.assignee || "Sin asignar";
+                  const assigneeInitials = assigneeLabel
+                    .split(" ")
+                    .map((p) => p[0])
+                    .slice(0, 2)
+                    .join("")
+                    .toUpperCase();
+
+                  return (
+                    <div
+                      key={t.id}
+                      draggable
+                      onDragStart={() => setDragId(t.id)}
+                      onDragEnd={() => {
+                        setDragId(null);
+                        setOverCol(null);
+                      }}
+                      onClick={() => onOpenTask(t)}
+                      className={cn(
+                        "cursor-grab active:cursor-grabbing text-left bg-editor hover:bg-list-hover border border-panel-border hover:border-status-bar/60 transition-colors rounded-sm p-3",
+                        dragId === t.id && "opacity-40",
+                      )}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <span className="font-mono text-[11px] text-muted-foreground">
+                          {t.id}
                         </span>
+                        <MoreHorizontal
+                          size={14}
+                          className="text-muted-foreground"
+                        />
                       </div>
-                      <div
-                        className="w-6 h-6 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold flex items-center justify-center"
-                        title={t.assignee}
-                      >
-                        {t.assignee
-                          .split(" ")
-                          .map((p) => p[0])
-                          .slice(0, 2)
-                          .join("")}
+                      <p className="text-[13px] text-foreground leading-snug mb-3">
+                        {t.title}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={cn(
+                              "w-2 h-2 rounded-full",
+                              PRIORITY_DOT[
+                                t.priority as keyof typeof PRIORITY_DOT
+                              ] || "bg-muted",
+                            )}
+                          />
+                          <span className="text-[11px] text-muted-foreground capitalize">
+                            {t.priority}
+                          </span>
+                        </div>
+                        <div
+                          className="w-6 h-6 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold flex items-center justify-center"
+                          title={assigneeLabel}
+                        >
+                          {assigneeInitials}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 {items.length === 0 && (
                   <div className="flex-1 flex items-center justify-center text-[11px] text-muted-foreground/60 italic py-6">
                     Suelta aquí

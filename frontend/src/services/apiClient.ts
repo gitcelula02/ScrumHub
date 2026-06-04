@@ -12,7 +12,9 @@ const _RAW_BASE =
 // (e.g. '/api' inside Docker), resolve it against the current origin.
 const API_BASE_URL = _RAW_BASE.startsWith("http")
   ? _RAW_BASE
-  : `${typeof window !== "undefined" ? window.location.origin : ""}${_RAW_BASE}`;
+  : typeof window !== "undefined"
+    ? `${window.location.origin}${_RAW_BASE}`
+    : `${import.meta.env.VITE_API_PROXY_URL || "http://localhost:3000"}${_RAW_BASE}`;
 
 export interface RequestOptions extends RequestInit {
   params?: Record<string, string>;

@@ -19,7 +19,7 @@ export interface UseExplorerSearchResult {
 
 export function useExplorerSearch(): UseExplorerSearchResult {
   const { user } = useAuthSession();
-  const userId = user?.id ?? "0";
+  const userId = user?.id;
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
@@ -31,16 +31,16 @@ export function useExplorerSearch(): UseExplorerSearchResult {
     return () => clearTimeout(timer);
   }, [query]);
 
-  const { data, isLoading, error } = useQuery<{ data: SearchResult[] }, Error>({
-    queryKey: ["user", userId, "explorer", "search", debouncedQuery],
+  const { data, isLoading, error } = useQuery<SearchResult[], Error>({
+    queryKey: ["user", userId ?? "anonymous", "explorer", "search", debouncedQuery],
     queryFn: () => explorerService.searchProjects(userId, debouncedQuery),
-    enabled: debouncedQuery.trim().length > 0,
+    enabled: Boolean(userId) && debouncedQuery.trim().length > 0,
   });
 
   return {
     query,
     setQuery,
-    results: data?.data ?? [],
+    results: data ?? [],
     isSearching: isLoading,
     error,
   };

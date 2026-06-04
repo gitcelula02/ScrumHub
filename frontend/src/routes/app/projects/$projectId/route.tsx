@@ -9,7 +9,12 @@ export const Route = createFileRoute("/app/projects/$projectId")({
       console.warn('[route loader] invalid projectId, skipping loader');
       return null;
     }
-    return queryClient.ensureQueryData(projectQuery(params.projectId));
+    try {
+      return await queryClient.ensureQueryData(projectQuery(params.projectId));
+    } catch (error) {
+      console.warn('[route loader] project prefetch skipped', error);
+      return null;
+    }
   },
   component: ProjectLayout,
 });

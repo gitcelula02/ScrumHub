@@ -51,10 +51,13 @@ interface TreeNode {
 function buildTree(tasks: Task[]): TreeNode[] {
   const map = new Map<string, Map<string, Task[]>>();
   for (const t of tasks) {
-    if (!map.has(t.project)) map.set(t.project, new Map());
-    const epics = map.get(t.project)!;
-    if (!epics.has(t.epic)) epics.set(t.epic, []);
-    epics.get(t.epic)!.push(t);
+    const apiTask = t as Task & { projectId?: string; epicId?: string };
+    const project = t.project || apiTask.projectId || "Proyecto";
+    const epic = t.epic || apiTask.epicId || "Sin epica";
+    if (!map.has(project)) map.set(project, new Map());
+    const epics = map.get(project)!;
+    if (!epics.has(epic)) epics.set(epic, []);
+    epics.get(epic)!.push(t);
   }
   return Array.from(map.entries()).map(([project, epics]) => ({
     id: project,
@@ -141,7 +144,7 @@ export function Explorer({ view, tasks, activeId, onOpen }: ExplorerProps) {
                           const isActive = t.id === activeId;
                           return (
                             <button
-                              key={t.id}
+                              key={`${epic.id}/${t.id}`}
                               onClick={() => onOpen(t)}
                               className={cn(
                                 "w-full flex items-center gap-2 pl-9 pr-2 py-0.5 text-left hover:bg-list-hover",

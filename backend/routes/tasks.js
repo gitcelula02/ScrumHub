@@ -12,6 +12,7 @@ router.get('/', TaskController.getAll);
 
 router.get('/:id', TaskController.getById);
 router.post('/', TaskController.create);
+router.patch('/:id', TaskController.update);
 router.put('/:id', TaskController.update);
 router.delete('/:id', TaskController.delete);
 router.post('/:id/comments', TaskController.addComment);

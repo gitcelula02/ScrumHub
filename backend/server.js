@@ -10,6 +10,7 @@ const backlogRoutes = require('./routes/backlogs');
 const sprintRoutes = require('./routes/sprints');
 const epicRoutes = require('./routes/epics');
 const aiRoutes = require('./routes/ai');
+const workspaceRoutes = require('./routes/workspace');
 const NotificationService = require('./services/notificationService');
 const cors = require('cors');
 
@@ -67,6 +68,7 @@ app.use('/api', backlogRoutes);
 app.use('/api', sprintRoutes);
 app.use('/api', epicRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api', workspaceRoutes);
 
 app.get('/', (req, res) => {
     if (req.session.userId) {

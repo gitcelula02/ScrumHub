@@ -17,13 +17,12 @@ import type {
 } from "../types/explorerTypes";
 
 export const explorerService = {
-  getFolderTree: async (userId: string): Promise<FolderTreeResponse> => {
+  getFolderTree: async (userId?: string): Promise<FolderTreeResponse> => {
+    if (!userId) return { data: [] };
     try {
-      console.log(`[explorerService] Fetching folder tree for user: ${userId}`);
       const response = await apiClient.get<FolderTreeResponse>(
         `/users/${userId}/folders`
       );
-      console.log("[explorerService] Folder tree response:", response);
       return response;
     } catch (error) {
       console.error("[explorerService] Failed to fetch folder tree", error);
@@ -31,7 +30,8 @@ export const explorerService = {
     }
   },
 
-  getPinnedProjects: async (userId: string): Promise<PinnedProjectsResponse> => {
+  getPinnedProjects: async (userId?: string): Promise<PinnedProjectsResponse> => {
+    if (!userId) return { pinned: [] };
     try {
       const response = await apiClient.get<PinnedProjectsResponse>(
         `/users/${userId}/projects`
@@ -43,7 +43,8 @@ export const explorerService = {
     }
   },
 
-  createFolder: async (userId: string, payload: CreateFolderPayload): Promise<UserFolder> => {
+  createFolder: async (userId: string | undefined, payload: CreateFolderPayload): Promise<UserFolder> => {
+    if (!userId) throw new Error("User session is required");
     const response = await apiClient.post<UserFolder>(
       `/users/${userId}/folders`,
       payload
@@ -67,10 +68,11 @@ export const explorerService = {
   },
 
   addProjectToFolder: async (
-    userId: string,
+    userId: string | undefined,
     folderId: string,
     projectId: string
   ): Promise<{ folder_project_id: string; project_id: string; folder_id: string }> => {
+    if (!userId) throw new Error("User session is required");
     const response = await apiClient.post<
       { folder_project_id: string; project_id: string; folder_id: string }
     >(`/users/${userId}/folders/${folderId}/projects`, { project_id: projectId });
@@ -78,20 +80,22 @@ export const explorerService = {
   },
 
   removeProjectFromFolder: async (
-    userId: string,
+    userId: string | undefined,
     folderId: string,
     projectId: string
   ): Promise<void> => {
+    if (!userId) throw new Error("User session is required");
     await apiClient.delete(
       `/users/${userId}/folders/${folderId}/projects/${projectId}`
     );
   },
 
   moveProject: async (
-    userId: string,
+    userId: string | undefined,
     projectId: string,
     payload: MoveProjectPayload
   ): Promise<ExplorerProject> => {
+    if (!userId) throw new Error("User session is required");
     const response = await apiClient.patch<ExplorerProject>(
       `/users/${userId}/projects/${projectId}/move`,
       payload
@@ -99,15 +103,18 @@ export const explorerService = {
     return response;
   },
 
-  pinProject: async (userId: string, projectId: string): Promise<void> => {
+  pinProject: async (userId: string | undefined, projectId: string): Promise<void> => {
+    if (!userId) throw new Error("User session is required");
     await apiClient.post(`/users/${userId}/projects/${projectId}/pin`);
   },
 
-  unpinProject: async (userId: string, projectId: string): Promise<void> => {
+  unpinProject: async (userId: string | undefined, projectId: string): Promise<void> => {
+    if (!userId) throw new Error("User session is required");
     await apiClient.delete(`/users/${userId}/projects/${projectId}/pin`);
   },
 
-  searchProjects: async (userId: string, query: string): Promise<SearchResult[]> => {
+  searchProjects: async (userId: string | undefined, query: string): Promise<SearchResult[]> => {
+    if (!userId) return [];
     try {
       const response = await apiClient.get<{ data: SearchResult[] }>(
         `/users/${userId}/projects/search`,
@@ -121,13 +128,17 @@ export const explorerService = {
   },
 
   createProject: async (payload: CreateProjectPayload): Promise<ExplorerProject> => {
-    console.log("[explorerService] Creating project with payload:", payload);
-    const response = await apiClient.post<{ data: ExplorerProject }>(
+    const response = await apiClient.post<
+      | ExplorerProject
+      | { data: ExplorerProject }
+      | { success: boolean; project: ExplorerProject }
+    >(
       "/projects",
       payload
     );
-    console.log("[explorerService] Create project response:", response);
-    return response.data;
+    if ("data" in response) return response.data;
+    if ("project" in response) return response.project;
+    return response;
   },
 
   aiCommand: async (command: string): Promise<AiCommandResponse> => {

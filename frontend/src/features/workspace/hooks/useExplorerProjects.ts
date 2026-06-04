@@ -17,15 +17,14 @@ export interface UseExplorerProjectsResult {
 
 export function useExplorerProjects(): UseExplorerProjectsResult {
   const { user } = useAuthSession();
-  const userId = user?.id ?? "0";
+  const userId = user?.id;
   const queryClient = useQueryClient();
 
   const { data, isLoading, error, refetch } = useQuery<FolderTreeResponse, Error>({
-    queryKey: ["user", userId, "explorer", "folderTree"],
+    queryKey: ["user", userId ?? "anonymous", "explorer", "folderTree"],
     queryFn: () => explorerService.getFolderTree(userId),
+    enabled: Boolean(userId),
   });
-
-  console.log("[useExplorerProjects] Folder tree data:", data);
 
   return {
     folderTree: data,
@@ -37,17 +36,18 @@ export function useExplorerProjects(): UseExplorerProjectsResult {
 
 export function usePinnedProjects() {
   const { user } = useAuthSession();
-  const userId = user?.id ?? "0";
+  const userId = user?.id;
 
   return useQuery<PinnedProjectsResponse, Error>({
-    queryKey: ["user", userId, "explorer", "pinned"],
+    queryKey: ["user", userId ?? "anonymous", "explorer", "pinned"],
     queryFn: () => explorerService.getPinnedProjects(userId),
+    enabled: Boolean(userId),
   });
 }
 
 export function useAddProjectToFolder() {
   const { user } = useAuthSession();
-  const userId = user?.id ?? "0";
+  const userId = user?.id;
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -61,7 +61,7 @@ export function useAddProjectToFolder() {
 
 export function useRemoveProjectFromFolder() {
   const { user } = useAuthSession();
-  const userId = user?.id ?? "0";
+  const userId = user?.id;
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -75,7 +75,7 @@ export function useRemoveProjectFromFolder() {
 
 export function useMoveProject() {
   const { user } = useAuthSession();
-  const userId = user?.id ?? "0";
+  const userId = user?.id;
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -89,7 +89,7 @@ export function useMoveProject() {
 
 export function usePinProject() {
   const { user } = useAuthSession();
-  const userId = user?.id ?? "0";
+  const userId = user?.id;
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -103,7 +103,7 @@ export function usePinProject() {
 
 export function useUnpinProject() {
   const { user } = useAuthSession();
-  const userId = user?.id ?? "0";
+  const userId = user?.id;
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -117,7 +117,7 @@ export function useUnpinProject() {
 
 export function useCreateProject() {
   const { user } = useAuthSession();
-  const userId = user?.id ?? "0";
+  const userId = user?.id;
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -131,7 +131,7 @@ export function useCreateProject() {
 
 export function useCreateFolder() {
   const { user } = useAuthSession();
-  const userId = user?.id ?? "0";
+  const userId = user?.id;
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -145,7 +145,7 @@ export function useCreateFolder() {
 
 export function useUpdateFolder() {
   const { user } = useAuthSession();
-  const userId = user?.id ?? "0";
+  const userId = user?.id;
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -159,7 +159,7 @@ export function useUpdateFolder() {
 
 export function useDeleteFolder() {
   const { user } = useAuthSession();
-  const userId = user?.id ?? "0";
+  const userId = user?.id;
   const queryClient = useQueryClient();
 
   return useMutation({

@@ -10,7 +10,15 @@ export const boardService = {
    * Moves a task to a new status.
    */
   moveTask: async (taskId: string, status: TaskStatus): Promise<Task> => {
-    return apiClient.patch<Task>(`/tasks/${taskId}`, { status });
+    const response = await apiClient.patch<
+      Task | { success: boolean; task: Task }
+    >(`/tasks/${taskId}`, { status });
+
+    if (response && "task" in response) {
+      return response.task;
+    }
+
+    return response as Task;
   },
 
   /**
