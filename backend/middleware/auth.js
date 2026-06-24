@@ -5,13 +5,20 @@ function isAuthenticated(req, res, next) {
     res.status(401).json({ success: false, message: 'No autenticado' });
 }
 
-function isAdmin(req, res, next) {
-    const User = require('../models/User');
-    const user = User.findById(req.session.userId);
-    if (user && user.role === 'admin') {
-        return next();
+async function isAdmin(req, res, next) {
+    try {
+        const User = require('../models/User');
+        const user = await User.findById(req.session.userId);
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'No autenticado' });
+        }
+        if (user.role === 'admin') {
+            return next();
+        }
+        res.status(403).json({ success: false, message: 'Acceso denegado' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error interno' });
     }
-    res.status(403).json({ success: false, message: 'Acceso denegado' });
 }
 
 module.exports = { isAuthenticated, isAdmin };
